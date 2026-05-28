@@ -185,56 +185,65 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 
 <div class="main">
 
-  <!-- CARTE 1 -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-header-left">
-        <div class="section-dot"></div>
-        <span class="section-title">Informations du Bon de Livraison</span>
-      </div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--accent);background:rgba(74,158,255,0.12);border:1px solid rgba(74,158,255,0.35);padding:4px 12px;border-radius:2px;" id="num_ref">—</div>
-    </div>
-    <div class="section-body">
-      <div class="grid g3">
-        <div class="field">
-          <label>Date d'édition</label>
-          <input type="date" id="date_edition" />
-        </div>
-        <div class="field">
-          <label>Type d'opération <span class="req">*</span></label>
-          <select id="type_operation">
-            <option value="">— Sélectionner —</option>
-            <option>EXPORT</option>
-            <option>IMPORT</option>
-            <option>TRANSIT</option>
-            <option>TRANSBORDEMENT</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Lieu de livraison <span class="req">*</span></label>
-          <input type="text" id="lieu_livraison" placeholder="ex : MSMR" class="uc" />
-        </div>
-      </div>
-    </div>
+  <!-- N° UNIQUE -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--accent);background:rgba(74,158,255,0.12);border:1px solid rgba(74,158,255,0.35);padding:4px 14px;border-radius:2px;" id="num_ref">—</div>
   </div>
 
-  <!-- CARTE 2 -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-header-left">
-        <div class="section-dot"></div>
-        <span class="section-title">Déclarant &amp; Armement</span>
+  <!-- CARTES 1 + 2 CÔTE À CÔTE -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+
+    <!-- CARTE 1 -->
+    <div class="section" style="margin-bottom:0;">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-dot"></div>
+          <span class="section-title">Informations du Bon de Livraison</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="field">
+            <label>Date d'édition</label>
+            <input type="date" id="date_edition" />
+          </div>
+          <div class="field">
+            <label>Type d'opération <span class="req">*</span></label>
+            <select id="type_operation">
+              <option value="">— Sélectionner —</option>
+              <option>EXPORT</option>
+              <option>IMPORT</option>
+              <option>TRANSIT</option>
+              <option>TRANSBORDEMENT</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column:span 2;">
+            <label>Lieu de livraison <span class="req">*</span></label>
+            <input type="text" id="lieu_livraison" placeholder="ex : MSMR" class="uc" />
+          </div>
+        </div>
       </div>
     </div>
-    <div class="section-body">
-      <div class="grid g3">
-        <div class="field"><label>Déclarant <span class="req">*</span></label><input type="text" id="declarant" placeholder="Nom du déclarant" class="uc" /></div>
-        <div class="field"><label>Transitaire au connaissement <span class="req">*</span></label><input type="text" id="transitaire" placeholder="Transitaire" class="uc" /></div>
-        <div class="field"><label>Armement <span class="req">*</span></label><input type="text" id="armement" placeholder="ex : HOEGH" class="uc" /></div>
-        <div class="field"><label>Bon de livraison établi par <span class="req">*</span></label><input type="text" id="liasse_par" placeholder="Prénom Nom" class="uc" /></div>
-        <div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" id="telephone" placeholder="+33 X XX XX XX XX" /></div>
+
+    <!-- CARTE 2 -->
+    <div class="section" style="margin-bottom:0;">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-dot"></div>
+          <span class="section-title">Déclarant &amp; Armement</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="field"><label>Déclarant <span class="req">*</span></label><input type="text" id="declarant" placeholder="Nom du déclarant" class="uc" /></div>
+          <div class="field"><label>Transitaire au connaissement <span class="req">*</span></label><input type="text" id="transitaire" placeholder="Transitaire" class="uc" /></div>
+          <div class="field"><label>Armement <span class="req">*</span></label><input type="text" id="armement" placeholder="ex : HOEGH" class="uc" /></div>
+          <div class="field"><label>Bon de livraison établi par <span class="req">*</span></label><input type="text" id="liasse_par" placeholder="Prénom Nom" class="uc" /></div>
+          <div class="field" style="grid-column:span 2;"><label>Téléphone <span class="req">*</span></label><input type="tel" id="telephone" placeholder="+33 X XX XX XX XX" /></div>
+        </div>
       </div>
     </div>
+
   </div>
 
   <!-- CARTE 3 -->
@@ -694,19 +703,68 @@ function generatePDF() {
   function row2(l1,v1,l2,v2) { var cw=(W-mg*2)/2; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-4); y+=10; }
   function row3(l1,v1,l2,v2,l3,v3) { var cw=(W-mg*2)/3; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-3); cell(l3,v3,mg+cw*2+1,cw-3); y+=10; }
 
-  // ── SECTION 1 ──
-  cardStart();
-  secTitle('Informations du Bon de Livraison');
-  row3("Date d'édition", vDate('date_edition'), "Type d'opération", v('type_operation'), 'Lieu de livraison', v('lieu_livraison').toUpperCase());
-  row3('N° Réception', '', 'Date de réception', '', 'Poste à quai', '');
-  cardEnd();
+  // ── SECTIONS 1 + 2 CÔTE À CÔTE ──
+  var halfW = (W - mg*2 - 4) / 2;
+  var card1Y = y;
+  var card2Y = y;
+  var y1 = y; // curseur carte 1
+  var y2 = y; // curseur carte 2
+  var xL = mg;       // colonne gauche
+  var xR = mg + halfW + 4; // colonne droite
 
-  // ── SECTION 2 ──
-  cardStart();
-  secTitle('Déclarant & Armement');
-  row3('Déclarant', v('declarant').toUpperCase(), 'Transitaire', v('transitaire').toUpperCase(), 'Armement', v('armement').toUpperCase());
-  row3('BDL établi par', v('liasse_par').toUpperCase(), 'Téléphone', v('telephone'), '', '');
-  cardEnd();
+  // Titre carte 1
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+  doc.text('Informations du Bon de Livraison', xL+3, y1+4.5);
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+  doc.line(xL+3, y1+6, xL+halfW-3, y1+6);
+  y1 += 9;
+
+  // Titre carte 2
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+  doc.text('Déclarant & Armement', xR+3, y2+4.5);
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+  doc.line(xR+3, y2+6, xR+halfW-3, y2+6);
+  y2 += 9;
+
+  function cellH(label, val, x, cw, yc) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text(label.toUpperCase(), x, yc);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    if (val && val.trim()) doc.text(val, x, yc+4.5);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.line(x, yc+5.5, x+cw-2, yc+5.5);
+    return yc + 10;
+  }
+
+  function row2H(l1,v1,l2,v2, x, yc, tw) {
+    var cw = tw/2;
+    cellH(l1,v1,x+3,cw-3,yc);
+    return cellH(l2,v2,x+cw+1,cw-4,yc);
+  }
+
+  // Carte 1 : contenu
+  y1 = cellH("Date d'édition", vDate('date_edition'), xL+3, halfW/2-3, y1);
+  y1 = cellH("Type d'opération", v('type_operation'), xL+halfW/2+1, halfW/2-4, y1-10) + 0; // même ligne
+  y1 -= 0; // déjà avancé
+  y1 = cellH('Lieu de livraison', v('lieu_livraison').toUpperCase(), xL+3, halfW-4, y1);
+  y1 = cellH('N° Réception', '', xL+3, halfW/3-2, y1);
+  y1 = cellH('Date de réception', '', xL+halfW/3+2, halfW/3-2, y1-10);
+  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10) + 10;
+
+  // Carte 2 : contenu
+  y2 = row2H('Déclarant', v('declarant').toUpperCase(), 'Armement', v('armement').toUpperCase(), xR, y2, halfW);
+  y2 = cellH('Transitaire', v('transitaire').toUpperCase(), xR+3, halfW-4, y2);
+  y2 = cellH('BDL établi par', v('liasse_par').toUpperCase(), xR+3, halfW-4, y2);
+  y2 = cellH('Téléphone', v('telephone'), xR+3, halfW-4, y2);
+
+  // Hauteur finale = max des deux colonnes
+  y = Math.max(y1, y2) + 1;
+
+  // Bordures arrondies des deux cartes
+  doc.setDrawColor(accent[0],accent[1],accent[2]); doc.setLineWidth(0.25);
+  doc.roundedRect(xL, card1Y, halfW, y - card1Y, 2, 2, 'S');
+  doc.roundedRect(xR, card2Y, halfW, y - card2Y, 2, 2, 'S');
+  y += 2;
 
   // ── SECTION 3 ──
   cardStart();
