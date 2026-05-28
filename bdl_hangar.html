@@ -468,14 +468,9 @@ function renderMarc() {
     div.className = 'marc-item';
     div.innerHTML =
       '<div class="marc-header">' +
-        
-        '<div class="marc-actions">' + badgeHtml +
-          '<button id="vinbtn-' + m.id + '" class="btn-vin" onclick="openVinModal(' + m.id + ')" ' + vinBtnDisabled + ' style="' + vinBtnStyle + '">' +
-            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> AJOUTER VIN' +
-          '</button>' + removeBtn +
-        '</div>' +
+        '<div class="marc-actions">' + removeBtn + '</div>' +
       '</div>' +
-      '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;">' +
+      '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;margin-bottom:10px;">' +
         '<div class="field">' +
           '<label>Nature de la marchandise <span class="req">*</span></label>' +
           '<input type="text" value="' + esc(m.nature) + '" placeholder="Description…" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();setField(' + m.id + ',\'nature\',this.value);updateVinBtn(' + m.id + ')" />' +
@@ -500,6 +495,12 @@ function renderMarc() {
           '<label>Colis <span class="req">*</span></label>' +
           '<input type="number" value="' + esc(m.colis) + '" placeholder="0" min="0" tabindex="0" onkeydown="if(event.key===\'Tab\'){event.preventDefault();var b=document.getElementById(\'vinbtn-'+m.id+'\');if(b)b.focus();}" oninput="setField(' + m.id + ',\'colis\',this.value);updateTotals();updateVinBtn(' + m.id + ')" />' +
         '</div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' +
+        '<div>' + badgeHtml + '</div>' +
+        '<button id="vinbtn-' + m.id + '" class="btn-vin" onclick="openVinModal(' + m.id + ')" ' + vinBtnDisabled + ' style="' + vinBtnStyle + '">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> AJOUTER VIN' +
+        '</button>' +
       '</div>' +
       vinDisplay;
     list.appendChild(div);
