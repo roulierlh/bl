@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bon de Livraison — Hangar</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --navy: #0a1628;
+  --navy-mid: #112240;
+  --navy-light: #1d3461;
+  --accent: #4a9eff;
+  --accent-light: #7dbfff;
+  --white: #f0f4f8;
+  --muted: #8899aa;
+  --border: rgba(74,158,255,0.25);
+  --input-bg: rgba(255,255,255,0.04);
+  --input-border: rgba(74,158,255,0.3);
+  --red: #e05252;
+  --green: #4caf50;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; min-height: 100vh; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy-light) 100%);
+  border-bottom: 2px solid var(--accent);
+  padding: 20px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.header-title { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: var(--white); letter-spacing: 0.05em; }
+.header-subtitle { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; margin-top: 2px; }
+.btn-pdf {
+  background: var(--accent); color: #fff; border: none;
+  font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 12px;
+  letter-spacing: 0.1em; padding: 10px 22px; cursor: pointer; border-radius: 2px;
+  text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.btn-pdf:hover { opacity: 0.85; transform: translateY(-1px); }
+
+/* MAIN */
+.main { padding: 28px 32px 80px; max-width: 1100px; margin: 0 auto; }
+
+/* SECTION */
+.section { background: var(--navy-mid); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+.section-header {
+  background: linear-gradient(90deg, rgba(74,158,255,0.12) 0%, transparent 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.section-header-left { display: flex; align-items: center; gap: 10px; }
+.section-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.section-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+.section-body { padding: 16px 20px; }
+
+/* GRID */
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.s3 { grid-column: span 3; }
+
+/* FIELD */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.req { color: var(--accent); }
+.field input, .field textarea, .field select {
+  background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 2px;
+  color: var(--white); font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;
+  padding: 8px 10px; width: 100%; outline: none; appearance: none; transition: border-color 0.2s, background 0.2s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); background: rgba(74,158,255,0.06); }
+.field input::placeholder, .field textarea::placeholder { color: rgba(136,153,170,0.5); }
+.field textarea { resize: vertical; min-height: 60px; }
+.field select option { background: var(--navy-mid); }
+.uc { text-transform: uppercase; }
+.uc::placeholder { text-transform: none; }
+
+/* MARCHANDISES */
+.marc-item {
+  background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07);
+  border-left: 3px solid var(--accent); border-radius: 4px; padding: 14px;
+  margin-bottom: 10px; animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.marc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.marc-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; }
+.marc-actions { display: flex; gap: 8px; align-items: center; }
+.btn-vin {
+  background: rgba(74,158,255,0.12); border: 1px solid var(--border); color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
+  padding: 4px 10px; border-radius: 2px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 5px;
+}
+.btn-vin:hover { background: rgba(74,158,255,0.25); }
+.vin-badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 2px; background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
+.vin-badge.warn { background: rgba(224,82,82,0.15); border-color: rgba(224,82,82,0.3); color: var(--red); }
+.btn-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 4px; transition: color 0.2s; }
+.btn-remove:hover { color: var(--red); }
+.btn-add-marc {
+  background: rgba(74,158,255,0.06); border: 1px dashed var(--border); color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.1em;
+  padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; margin-top: 4px;
+}
+.btn-add-marc:hover { background: rgba(74,158,255,0.14); border-style: solid; }
+
+/* TOTALS */
+.totals-bar { display: flex; gap: 24px; background: rgba(74,158,255,0.07); border: 1px solid var(--border); border-radius: 4px; padding: 14px 20px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+.t-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.t-value { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600; color: var(--accent); }
+
+/* SIGNATURE */
+.sig-box { border: 1px solid var(--border); border-radius: 4px; padding: 14px; min-height: 70px; background: var(--input-bg); color: var(--muted); font-size: 12px; }
+
+/* STATUS */
+.status-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--navy-mid); border-top: 1px solid var(--border); padding: 8px 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); z-index: 100; }
+.status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+/* TOAST */
+#toast { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--accent); color: #fff; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 12px; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 200; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--navy-mid); border: 1px solid var(--border); border-radius: 6px; width: 520px; max-width: 95vw; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
+.modal-header { background: linear-gradient(90deg, rgba(74,158,255,0.12) 0%, transparent 100%); border-bottom: 1px solid var(--border); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+.modal-header h3 { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; transition: color 0.2s; }
+.modal-close:hover { color: var(--white); }
+.modal-body { padding: 18px; overflow-y: auto; flex: 1; }
+.modal-footer { border-top: 1px solid var(--border); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.modal-status { font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.modal-status.ok { color: var(--green); }
+.modal-status.err { color: var(--red); }
+.btn-ok { background: var(--accent); color: #fff; border: none; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 11px; letter-spacing: 0.08em; padding: 8px 18px; border-radius: 2px; cursor: pointer; transition: opacity 0.2s; }
+.btn-ok:hover { opacity: 0.85; }
+.btn-cancel { background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,0.1); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 8px 14px; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
+.btn-cancel:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+
+/* VIN */
+.vin-info { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 14px; padding: 8px 10px; background: rgba(255,255,255,0.03); border-radius: 2px; border-left: 3px solid var(--accent); }
+.vin-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.vin-row input { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 2px; color: var(--white); font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 7px 10px; flex: 1; outline: none; text-transform: uppercase; letter-spacing: 0.05em; transition: border-color 0.2s; }
+.vin-row input:focus { border-color: var(--accent); }
+.vin-row input.valid { border-color: var(--green); }
+.vin-row input.invalid { border-color: var(--red); }
+.vin-del { background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 4px; transition: color 0.2s; }
+.vin-del:hover { color: var(--red); }
+.btn-add-vin { background: rgba(74,158,255,0.06); border: 1px dashed rgba(74,158,255,0.3); color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 7px; border-radius: 2px; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; margin-top: 4px; }
+.btn-add-vin:hover { background: rgba(74,158,255,0.14); }
+
+/* BULK PASTE */
+.bulk-zone { margin-bottom: 14px; }
+.bulk-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.bulk-row { display: flex; gap: 8px; align-items: flex-start; }
+.bulk-row textarea { flex: 1; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 2px; color: var(--white); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 8px 10px; outline: none; resize: none; height: 64px; text-transform: uppercase; transition: border-color 0.2s; }
+.bulk-row textarea:focus { border-color: var(--accent); }
+.btn-import { background: var(--accent); color: #fff; border: none; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 11px; letter-spacing: 0.08em; padding: 0 14px; height: 64px; border-radius: 2px; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; }
+.btn-import:hover { opacity: 0.85; }
+.modal-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+
+@media (max-width: 700px) { .g3,.g4 { grid-template-columns: 1fr 1fr; } .main { padding: 16px; } .header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; } }
+@media (max-width: 480px) { .g2,.g3,.g4 { grid-template-columns: 1fr; } .s2,.s3 { grid-column: span 1; } }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div>
+    <div class="header-title">BON DE LIVRAISON — HANGAR</div>
+    <div class="header-subtitle">Document de réception / chargement portuaire</div>
+  </div>
+  <button class="btn-pdf" onclick="generatePDF()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+    Générer PDF
+  </button>
+</header>
+
+<div class="main">
+
+  <!-- CARTE 1 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-dot"></div>
+        <span class="section-title">Informations du Bon de Livraison</span>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--accent);background:rgba(74,158,255,0.12);border:1px solid rgba(74,158,255,0.35);padding:4px 12px;border-radius:2px;" id="num_ref">—</div>
+    </div>
+    <div class="section-body">
+      <div class="grid g3">
+        <div class="field">
+          <label>Date d'édition</label>
+          <input type="date" id="date_edition" />
+        </div>
+        <div class="field">
+          <label>Type d'opération <span class="req">*</span></label>
+          <select id="type_operation">
+            <option value="">— Sélectionner —</option>
+            <option>EXPORT</option>
+            <option>IMPORT</option>
+            <option>TRANSIT</option>
+            <option>TRANSBORDEMENT</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Lieu de livraison <span class="req">*</span></label>
+          <input type="text" id="lieu_livraison" placeholder="ex : MSMR" class="uc" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTE 2 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-dot"></div>
+        <span class="section-title">Déclarant &amp; Armement</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="grid g3">
+        <div class="field"><label>Déclarant <span class="req">*</span></label><input type="text" id="declarant" placeholder="Nom du déclarant" class="uc" /></div>
+        <div class="field"><label>Transitaire au connaissement <span class="req">*</span></label><input type="text" id="transitaire" placeholder="Transitaire" class="uc" /></div>
+        <div class="field"><label>Armement <span class="req">*</span></label><input type="text" id="armement" placeholder="ex : HOEGH" class="uc" /></div>
+        <div class="field"><label>Booking <span class="req">*</span></label><input type="text" id="booking" placeholder="N° de booking" class="uc" /></div>
+        <div class="field"><label>Dossier</label><input type="text" id="dossier" placeholder="Référence dossier" class="uc" /></div>
+        <div class="field"><label>Bon de livraison établi par <span class="req">*</span></label><input type="text" id="liasse_par" placeholder="Prénom Nom" class="uc" /></div>
+        <div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" id="telephone" placeholder="+33 X XX XX XX XX" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTE 3 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-dot"></div>
+        <span class="section-title">Informations de Transport</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="grid g3">
+        <div class="field"><label>Navire <span class="req">*</span></label><input type="text" id="navire" placeholder="Nom du navire" class="uc" /></div>
+        <div class="field"><label>Port de déchargement <span class="req">*</span></label><input type="text" id="pod" placeholder="Port of Discharge" class="uc" /></div>
+        <div class="field"><label>Destination finale</label><input type="text" id="destination_finale" placeholder="Destination finale" class="uc" /></div>
+        <div class="field s3"><label>Informations particulières</label><input type="text" id="infos_particulieres" placeholder="Informations complémentaires..." class="uc" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTE 4 — MARCHANDISES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-dot"></div>
+        <span class="section-title">Description de la marchandise</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="marc_list"></div>
+      <button class="btn-add-marc" onclick="addMarchandise()">+ Ajouter une marchandise</button>
+      <div class="totals-bar">
+        <div><div class="t-label">Total Colis</div><div class="t-value" id="total_colis">0</div></div>
+        <div><div class="t-label">Poids Brut Total (kg)</div><div class="t-value" id="total_poids">0</div></div>
+        <div><div class="t-label">Total VIN renseignés</div><div class="t-value" id="total_vin">0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTE 5 — SIGNATURES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-dot"></div>
+        <span class="section-title">Réserves &amp; Signatures</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field" style="margin-bottom:16px;"><label>Réserves</label><textarea id="reserves" placeholder="Indiquer ici toutes réserves éventuelles..."></textarea></div>
+      <div class="grid g2">
+        <div class="field"><label>Le Chargeur (signature / cachet)</label><div class="sig-box" contenteditable="true">Signature…</div></div>
+        <div class="field"><label>L'Exploitant (signature / cachet)</label><div class="sig-box" contenteditable="true">Signature…</div></div>
+      </div>
+      <div class="field" style="margin-top:14px;"><label>Visa Compagnie</label><div class="sig-box" contenteditable="true" style="min-height:50px;">Visa…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="status-bar">
+  <span><span class="status-dot"></span>Formulaire actif</span>
+  <span id="status_date"></span>
+</div>
+
+<div id="toast"></div>
+
+<!-- MODAL VIN -->
+<div class="modal-overlay" id="vin_modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal_title">Numéros VIN</h3>
+      <button class="modal-close" onclick="closeVinModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="vin-info">Colis attendus : <strong id="vin_expected">0</strong></div>
+      <div class="bulk-zone">
+        <div class="bulk-label">Coller plusieurs VIN d'un coup</div>
+        <div class="bulk-row">
+          <textarea id="vin_bulk" placeholder="Collez vos VIN ici — un par ligne, ou séparés par virgules / espaces…" oninput="this.value=this.value.toUpperCase()"></textarea>
+          <button class="btn-import" onclick="importBulkVin()">Ajouter</button>
+        </div>
+      </div>
+      <div id="vin_inputs"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="modal_status"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-cancel" onclick="closeVinModal()">Annuler</button>
+        <button class="btn-ok" onclick="saveVin()">Valider</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+var marchandises = [];
+var marcCounter = 0;
+var currentVinId = null;
+var numRef = '';
+
+// ── INIT ──
+function init() {
+  var now = new Date();
+  var yyyy = now.getFullYear();
+  var mm = String(now.getMonth()+1).padStart(2,'0');
+  var dd = String(now.getDate()).padStart(2,'0');
+  document.getElementById('date_edition').value = yyyy+'-'+mm+'-'+dd;
+  document.getElementById('status_date').textContent = now.toLocaleDateString('fr-FR');
+  numRef = String(Math.floor(1000000 + Math.random() * 9000000));
+  document.getElementById('num_ref').textContent = 'N°' + numRef;
+  loadDeclarant();
+  addMarchandise();
+}
+
+// ── UPPERCASE ──
+// ── PERSISTANCE DÉCLARANT & ARMEMENT ──
+var PERSIST_FIELDS = ['declarant','transitaire','armement','booking','dossier','liasse_par','telephone'];
+
+function saveDeclarant() {
+  var data = {};
+  PERSIST_FIELDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  try { localStorage.setItem('bdl_declarant', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadDeclarant() {
+  try {
+    var raw = localStorage.getItem('bdl_declarant');
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    PERSIST_FIELDS.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && data[id]) el.value = data[id];
+    });
+  } catch(e) {}
+}
+
+// Sauvegarder à chaque saisie dans les champs concernés
+document.addEventListener('input', function(e) {
+  if (PERSIST_FIELDS.indexOf(e.target.id) !== -1) saveDeclarant();
+});
+
+// ── AUTO-SCROLL SUR TAB ──
+document.addEventListener('focusin', function(e) {
+  var el = e.target;
+  if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
+
+document.addEventListener('input', function(e) {
+  if (e.target.classList.contains('uc')) {
+    var pos = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase();
+    e.target.setSelectionRange(pos, pos);
+  }
+});
+
+// ── MARCHANDISES ──
+function addMarchandise() {
+  marcCounter++;
+  marchandises.push({ id: marcCounter, nature: '', longueur: '', largeur: '', hauteur: '', poids: '', colis: '', vins: [] });
+  renderMarc();
+}
+
+function removeMarchandise(id) {
+  marchandises = marchandises.filter(function(m) { return m.id !== id; });
+  renderMarc();
+  updateTotals();
+}
+
+function getMarc(id) {
+  return marchandises.find(function(m) { return m.id === id; });
+}
+
+function setField(id, key, val) {
+  var m = getMarc(id);
+  if (m) m[key] = val;
+}
+
+function renderMarc() {
+  var list = document.getElementById('marc_list');
+  list.innerHTML = '';
+  marchandises.forEach(function(m, idx) {
+    var vinCount = m.vins.filter(function(v) { return v.trim(); }).length;
+    var colisNum = parseInt(m.colis) || 0;
+    var vinOk = colisNum > 0 && vinCount === colisNum;
+    var vinWarn = colisNum > 0 && vinCount !== colisNum;
+    var badgeHtml = vinCount > 0
+      ? '<span class="vin-badge' + (vinWarn ? ' warn' : '') + '">' + vinCount + ' VIN' + (vinOk ? ' ✓' : ' / ' + colisNum) + '</span>'
+      : '';
+    var removeBtn = marchandises.length > 1
+      ? '<button class="btn-remove" onclick="removeMarchandise(' + m.id + ')" title="Supprimer">×</button>'
+      : '';
+
+    var reqOk = m.nature.trim() !== '' && colisNum > 0 && parseFloat(m.poids) > 0;
+    var vinBtnDisabled = reqOk ? '' : 'disabled';
+    var vinBtnStyle = reqOk
+      ? ''
+      : 'opacity:0.35;cursor:not-allowed;pointer-events:none;';
+
+    // VIN display block
+    var vinDisplay = '';
+    if (m.vins.length > 0) {
+      var chips = m.vins.map(function(v) {
+        var ok = v.trim().length === 17;
+        return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span>';
+      }).join('');
+      vinDisplay = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">' +
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">VIN (' + vinCount + '/' + colisNum + ')</div>' +
+        '<div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div>' +
+      '</div>';
+    }
+
+    var div = document.createElement('div');
+    div.className = 'marc-item';
+    div.innerHTML =
+      '<div class="marc-header">' +
+        '<span class="marc-num">Lot ' + (idx+1) + '</span>' +
+        '<div class="marc-actions">' + badgeHtml +
+          '<button id="vinbtn-' + m.id + '" class="btn-vin" onclick="openVinModal(' + m.id + ')" ' + vinBtnDisabled + ' style="' + vinBtnStyle + '">' +
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> AJOUTER VIN' +
+          '</button>' + removeBtn +
+        '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;">' +
+        '<div class="field">' +
+          '<label>Nature de la marchandise <span class="req">*</span></label>' +
+          '<input type="text" value="' + esc(m.nature) + '" placeholder="Description…" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();setField(' + m.id + ',\'nature\',this.value);updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Longueur (m)</label>' +
+          '<input type="number" value="' + esc(m.longueur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'longueur\',this.value)" onblur="formatDim(this,' + m.id + ',\'longueur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Largeur (m)</label>' +
+          '<input type="number" value="' + esc(m.largeur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'largeur\',this.value)" onblur="formatDim(this,' + m.id + ',\'largeur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Hauteur (m)</label>' +
+          '<input type="number" value="' + esc(m.hauteur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'hauteur\',this.value)" onblur="formatDim(this,' + m.id + ',\'hauteur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Poids (kg) <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.poids) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'poids\',this.value);updateTotals();updateVinBtn(' + m.id + ')" onblur="formatDim(this,' + m.id + ',\'poids\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Colis <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.colis) + '" placeholder="0" min="0" tabindex="0" onkeydown="if(event.key===\'Tab\'){event.preventDefault();var b=document.getElementById(\'vinbtn-'+m.id+'\');if(b)b.focus();}" oninput="setField(' + m.id + ',\'colis\',this.value);updateTotals();updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+      '</div>' +
+      vinDisplay;
+    list.appendChild(div);
+  });
+}
+
+function updateVinBtn(id) {
+  var m = getMarc(id);
+  if (!m) return;
+  var reqOk = m.nature.trim() !== '' && (parseInt(m.colis) || 0) > 0 && parseFloat(m.poids) > 0;
+  var btn = document.getElementById('vinbtn-' + id);
+  if (!btn) return;
+  btn.disabled = !reqOk;
+  btn.style.opacity = reqOk ? '1' : '0.35';
+  btn.style.cursor = reqOk ? 'pointer' : 'not-allowed';
+  btn.style.pointerEvents = reqOk ? 'auto' : 'none';
+}
+
+
+function updateTotals() {
+  var c = marchandises.reduce(function(s,m) { return s + (parseInt(m.colis)||0); }, 0);
+  var p = marchandises.reduce(function(s,m) { return s + (parseFloat(m.poids)||0); }, 0);
+  var v = marchandises.reduce(function(s,m) { return s + m.vins.filter(function(x){return x.trim();}).length; }, 0);
+  document.getElementById('total_colis').textContent = c;
+  document.getElementById('total_poids').textContent = p.toLocaleString('fr-FR');
+  document.getElementById('total_vin').textContent = v;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDim(input, id, key) {
+  var val = parseFloat(input.value);
+  if (!isNaN(val)) {
+    var formatted = val.toFixed(2);
+    input.value = formatted;
+    setField(id, key, formatted);
+  }
+}
+
+// ── VIN MODAL ──
+function openVinModal(id) {
+  currentVinId = id;
+  var m = getMarc(id);
+  var idx = marchandises.indexOf(m) + 1;
+  document.getElementById('modal_title').textContent = 'Numéros VIN — Lot ' + idx;
+  document.getElementById('vin_expected').textContent = parseInt(m.colis) || 0;
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+  document.getElementById('vin_modal').classList.add('open');
+}
+
+function closeVinModal() {
+  document.getElementById('vin_modal').classList.remove('open');
+  currentVinId = null;
+}
+
+function renderVinChips(vins) {
+  var container = document.getElementById('vin_inputs');
+  if (!vins || vins.length === 0) { container.innerHTML = ''; return; }
+  var chips = vins.map(function(v, i) {
+    var ok = v.trim().length === 17;
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+      '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:4px 10px;border-radius:2px;flex:1;' +
+        'background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';' +
+        'border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';' +
+        'color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.06em;">' +
+        '<span style="color:var(--muted);margin-right:8px;">' + (i+1) + '.</span>' + v +
+      '</span>' +
+      '<button class="vin-del" onclick="removeVinChip(' + i + ')">×</button>' +
+    '</div>';
+  }).join('');
+  container.innerHTML = chips;
+}
+
+function removeVinChip(idx) {
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  m.vins.splice(idx, 1);
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function getModalVins() {
+  var m = getMarc(currentVinId);
+  return m ? m.vins.slice() : [];
+}
+
+function updateModalStatus() {
+  if (!currentVinId) return;
+  var m = getMarc(currentVinId);
+  var expected = parseInt(m.colis) || 0;
+  var filled = m.vins.length;
+  var st = document.getElementById('modal_status');
+  if (expected === 0) { st.textContent = ''; st.className = 'modal-status'; return; }
+  if (filled === expected) {
+    st.textContent = '✓ ' + filled + ' / ' + expected + ' VIN — OK';
+    st.className = 'modal-status ok';
+  } else {
+    st.textContent = filled + ' / ' + expected + ' VIN renseignés';
+    st.className = 'modal-status err';
+  }
+}
+
+function importBulkVin() {
+  var raw = document.getElementById('vin_bulk').value;
+  if (!raw.trim()) return;
+  var vins = raw.split(/[\n\r,;|\t]+/)
+    .map(function(v) { return v.trim().toUpperCase(); })
+    .filter(function(v) { return v.length > 0; });
+  if (!vins.length) return;
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  vins.forEach(function(v) {
+    if (m.vins.indexOf(v) === -1) m.vins.push(v);
+  });
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function saveVin() {
+  closeVinModal();
+  renderMarc();
+  updateTotals();
+}
+
+// ── HELPERS ──
+function v(id) { var el = document.getElementById(id); return el ? el.value || '' : ''; }
+function vDate(id) {
+  var val = v(id);
+  if (!val) return '—';
+  var p = val.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+
+// ── PDF ──
+function generatePDF() {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  var W = 210, mg = 13;
+  var black  = [20, 20, 20];
+  var dark   = [50, 50, 50];
+  var mid    = [120, 120, 120];
+  var border = [210, 220, 235];
+  var accent = [74, 158, 255];
+  var green  = [40, 160, 70];
+  var red    = [200, 60, 60];
+  var y = 0;
+
+  // ── HEADER ──
+  doc.setFillColor(accent[0],accent[1],accent[2]); doc.rect(0, 0, W, 2, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(black[0],black[1],black[2]);
+  doc.text('BON DE LIVRAISON', mg, 11);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('Document de réception / chargement portuaire', mg, 16);
+  doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);
+  doc.text('N°'+numRef, W-mg, 11, { align:'right' });
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text(vDate('date_edition')+'  —  '+v('type_operation'), W-mg, 16, { align:'right' });
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.25);
+  doc.line(mg, 19, W-mg, 19);
+  y = 23;
+
+  // ── CARD ──
+  var cardY = 0;
+  function cardStart() { cardY = y; }
+  function cardEnd() {
+    doc.setDrawColor(accent[0],accent[1],accent[2]); doc.setLineWidth(0.25);
+    doc.roundedRect(mg, cardY, W-mg*2, y - cardY + 1, 2, 2, 'S');
+    y += 2;
+  }
+
+  // ── SECTION TITLE ──
+  function secTitle(t) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text(t, mg+3, y+4.5);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.line(mg+3, y+6, W-mg-3, y+6);
+    y += 9;
+  }
+
+  // ── CELL ──  label + valeur + ligne grise sous valeur
+  function cell(label, val, x, cw) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text(label.toUpperCase(), x, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    if (val && val.trim()) doc.text(val, x, y+4.5);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.line(x, y+5.5, x+cw-2, y+5.5);
+  }
+
+  function row2(l1,v1,l2,v2) { var cw=(W-mg*2)/2; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-4); y+=10; }
+  function row3(l1,v1,l2,v2,l3,v3) { var cw=(W-mg*2)/3; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-3); cell(l3,v3,mg+cw*2+1,cw-3); y+=10; }
+
+  // ── SECTION 1 ──
+  cardStart();
+  secTitle('Informations du Bon de Livraison');
+  row3("Date d'édition", vDate('date_edition'), "Type d'opération", v('type_operation'), 'Lieu de livraison', v('lieu_livraison').toUpperCase());
+  row3('N° Réception', '', 'Date de réception', '', 'Poste à quai', '');
+  cardEnd();
+
+  // ── SECTION 2 ──
+  cardStart();
+  secTitle('Déclarant & Armement');
+  row3('Déclarant', v('declarant').toUpperCase(), 'Armement', v('armement').toUpperCase(), 'Booking', v('booking').toUpperCase());
+  row3('Transitaire', v('transitaire').toUpperCase(), 'Dossier', v('dossier').toUpperCase(), 'BDL établi par', v('liasse_par').toUpperCase());
+  row2('Téléphone', v('telephone'), '', '');
+  cardEnd();
+
+  // ── SECTION 3 ──
+  cardStart();
+  secTitle('Informations de Transport');
+  row3('Navire', v('navire').toUpperCase(), 'Port de déchargement', v('pod').toUpperCase(), 'Destination finale', v('destination_finale').toUpperCase());
+  row2('Informations particulières', v('infos_particulieres').toUpperCase(), '', '');
+  cardEnd();
+
+  // ── SECTION 4 — MARCHANDISES ──
+  cardStart();
+  secTitle('Description de la marchandise');
+
+  marchandises.forEach(function(m, idx) {
+    if (y > 240) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)'); }
+
+    // Hauteur = 5 (num lot) + 5 (label) + 5.5 (ligne) + 5 (valeur) + 5.5 (ligne) + 2 (marge) = ~28
+    var lotH = 22;
+    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, y, W-mg*2-4, lotH, 'F'); }
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.roundedRect(mg+2, y, W-mg*2-4, lotH, 1, 1, 'S');
+
+    // Num lot
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text('LOT '+(idx+1), mg+5, y+5);
+
+    var cw = W - mg*2 - 8;
+    var col = [
+      { l: 'Nature de la marchandise', w: 0.35 },
+      { l: 'Longueur (m)', w: 0.11 },
+      { l: 'Largeur (m)',  w: 0.11 },
+      { l: 'Hauteur (m)',  w: 0.11 },
+      { l: 'Poids (kg)',   w: 0.13 },
+      { l: 'Colis',        w: 0.08 }
+    ];
+    var vals = [
+      (m.nature||'').toUpperCase(),
+      m.longueur||'', m.largeur||'', m.hauteur||'', m.poids||'', m.colis||''
+    ];
+
+    // Labels à y+9, ligne à y+10.5, valeurs à y+15.5, ligne à y+17
+    var xCur = mg + 5;
+    col.forEach(function(c, i) {
+      var colW = cw * c.w;
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+      doc.text(c.l.toUpperCase(), xCur, y+9);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+      if (vals[i]) doc.text(vals[i], xCur, y+15.5, { maxWidth: colW - 2 });
+      doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+      doc.line(xCur, y+17, xCur + colW - 2, y+17);
+      xCur += colW;
+    });
+
+    y += lotH + 1;
+
+    // VINs en colonne (1 par ligne, comme dans le HTML)
+    if (m.vins && m.vins.length > 0) {
+      var expected = parseInt(m.colis)||0;
+      var allOk = m.vins.length === expected;
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+      doc.text('VIN ('+m.vins.length+'/'+expected+')', mg+5, y+3);
+      y += 5;
+      for (var vi = 0; vi < m.vins.length; vi++) {
+        if (y > 268) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('VIN (suite)'); }
+        var vin = m.vins[vi];
+        var vok = vin.length === 17;
+        doc.setFont('courier','normal'); doc.setFontSize(7);
+        doc.setTextColor(vok ? green[0]:red[0], vok ? green[1]:red[1], vok ? green[2]:red[2]);
+        doc.text((vi+1)+'.  '+vin, mg+5, y+3);
+        y += 4.5;
+      }
+      y += 1;
+    }
+    y += 1;
+  });
+  cardEnd();
+
+  // Totaux
+  var totalC = marchandises.reduce(function(s,m){return s+(parseInt(m.colis)||0);},0);
+  var totalP = marchandises.reduce(function(s,m){return s+(parseFloat(m.poids)||0);},0);
+  var totalPStr = String(totalP).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  if (y > 265) { doc.addPage(); y = 14; }
+  cardStart();
+  doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('TOTAL', mg+3, y+3);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+  doc.text(totalC+' colis  —  Poids brut total : '+totalPStr+' kg', mg+3, y+7);
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+  doc.line(mg+3, y+8, W-mg-3, y+8);
+  y += 10;
+  cardEnd();
+
+  // Réserves
+  var res = v('reserves');
+  if (res) {
+    if (y > 250) { doc.addPage(); y = 14; }
+    cardStart();
+    secTitle('Réserves');
+    doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(dark[0],dark[1],dark[2]);
+    var lines = doc.splitTextToSize(res, W-mg*2-6);
+    doc.text(lines, mg+3, y);
+    y += lines.length * 4 + 3;
+    cardEnd();
+  }
+
+  // Signatures
+  if (y > 235) { doc.addPage(); y = 14; }
+  cardStart();
+  secTitle('Signatures');
+  var sigW = (W-mg*2-8)/2;
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
+  doc.roundedRect(mg+3, y, sigW, 22, 1, 1, 'S');
+  doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('LE CHARGEUR — Signature / Cachet', mg+5, y+4.5);
+  doc.roundedRect(mg+5+sigW, y, sigW, 22, 1, 1, 'S');
+  doc.text("L'EXPLOITANT — Signature / Cachet", mg+7+sigW, y+4.5);
+  y += 25;
+  doc.roundedRect(mg+3, y, W-mg*2-6, 15, 1, 1, 'S');
+  doc.text('VISA COMPAGNIE', mg+5, y+4.5);
+  y += 17;
+  cardEnd();
+
+  // ── FOOTER sur chaque page ──
+  var totalPages = doc.internal.getNumberOfPages();
+  for (var p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
+    doc.line(mg, 289, W-mg, 289);
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text('Bon de Livraison Portuaire', mg, 293);
+    doc.setFont('courier','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text('N°'+numRef, W/2, 293, {align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text('Édité le '+vDate('date_edition'), W-mg, 293, {align:'right'});
+  }
+
+  var booking = v('booking').replace(/\s+/g,'_') || 'BOOKING';
+  var fname = 'BonDeLivraison_'+booking+'_'+numRef+'.pdf';
+  doc.save(fname);
+  showToast('✓ PDF généré : ' + fname);
+}
+
+// ── START ──
+init();
+</script>
+</body>
+</html>
