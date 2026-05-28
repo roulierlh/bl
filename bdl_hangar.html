@@ -231,8 +231,6 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
         <div class="field"><label>Déclarant <span class="req">*</span></label><input type="text" id="declarant" placeholder="Nom du déclarant" class="uc" /></div>
         <div class="field"><label>Transitaire au connaissement <span class="req">*</span></label><input type="text" id="transitaire" placeholder="Transitaire" class="uc" /></div>
         <div class="field"><label>Armement <span class="req">*</span></label><input type="text" id="armement" placeholder="ex : HOEGH" class="uc" /></div>
-        <div class="field"><label>Booking <span class="req">*</span></label><input type="text" id="booking" placeholder="N° de booking" class="uc" /></div>
-        <div class="field"><label>Dossier</label><input type="text" id="dossier" placeholder="Référence dossier" class="uc" /></div>
         <div class="field"><label>Bon de livraison établi par <span class="req">*</span></label><input type="text" id="liasse_par" placeholder="Prénom Nom" class="uc" /></div>
         <div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" id="telephone" placeholder="+33 X XX XX XX XX" /></div>
       </div>
@@ -249,6 +247,9 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     </div>
     <div class="section-body">
       <div class="grid g3">
+        <div class="field"><label>Booking <span class="req">*</span></label><input type="text" id="booking" placeholder="N° de booking" class="uc" /></div>
+        <div class="field"><label>Dossier</label><input type="text" id="dossier" placeholder="Référence dossier" class="uc" /></div>
+        <div class="field"></div>
         <div class="field"><label>Navire <span class="req">*</span></label><input type="text" id="navire" placeholder="Nom du navire" class="uc" /></div>
         <div class="field"><label>Port de déchargement <span class="req">*</span></label><input type="text" id="pod" placeholder="Port of Discharge" class="uc" /></div>
         <div class="field"><label>Destination finale</label><input type="text" id="destination_finale" placeholder="Destination finale" class="uc" /></div>
@@ -354,7 +355,7 @@ function init() {
 
 // ── UPPERCASE ──
 // ── PERSISTANCE DÉCLARANT & ARMEMENT ──
-var PERSIST_FIELDS = ['declarant','transitaire','armement','booking','dossier','liasse_par','telephone'];
+var PERSIST_FIELDS = ['declarant','transitaire','armement','liasse_par','telephone'];
 
 function saveDeclarant() {
   var data = {};
