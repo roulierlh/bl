@@ -468,7 +468,7 @@ function renderMarc() {
     div.className = 'marc-item';
     div.innerHTML =
       '<div class="marc-header">' +
-        '<span class="marc-num">Lot ' + (idx+1) + '</span>' +
+        
         '<div class="marc-actions">' + badgeHtml +
           '<button id="vinbtn-' + m.id + '" class="btn-vin" onclick="openVinModal(' + m.id + ')" ' + vinBtnDisabled + ' style="' + vinBtnStyle + '">' +
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> AJOUTER VIN' +
@@ -787,9 +787,6 @@ function generatePDF() {
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
     doc.roundedRect(mg+2, y, W-mg*2-4, lotH, 1, 1, 'S');
 
-    // Num lot
-    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
-    doc.text('LOT '+(idx+1), mg+5, y+5);
 
     var cw = W - mg*2 - 8;
     var col = [
