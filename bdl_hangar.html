@@ -191,17 +191,17 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   </div>
 
   <!-- CARTES 1 + 2 CÔTE À CÔTE -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;align-items:stretch;">
 
     <!-- CARTE 1 -->
-    <div class="section" style="margin-bottom:0;">
+    <div class="section" style="margin-bottom:0;display:flex;flex-direction:column;">
       <div class="section-header">
         <div class="section-header-left">
           <div class="section-dot"></div>
           <span class="section-title">Informations du Bon de Livraison</span>
         </div>
       </div>
-      <div class="section-body">
+      <div class="section-body" style="flex:1;">
         <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;">
           <div class="field">
             <label>Date d'édition</label>
@@ -226,14 +226,14 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     </div>
 
     <!-- CARTE 2 -->
-    <div class="section" style="margin-bottom:0;">
+    <div class="section" style="margin-bottom:0;display:flex;flex-direction:column;">
       <div class="section-header">
         <div class="section-header-left">
           <div class="section-dot"></div>
           <span class="section-title">Déclarant &amp; Armement</span>
         </div>
       </div>
-      <div class="section-body">
+      <div class="section-body" style="flex:1;">
         <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;">
           <div class="field"><label>Déclarant <span class="req">*</span></label><input type="text" id="declarant" placeholder="Nom du déclarant" class="uc" /></div>
           <div class="field"><label>Transitaire au connaissement <span class="req">*</span></label><input type="text" id="transitaire" placeholder="Transitaire" class="uc" /></div>
@@ -870,10 +870,19 @@ function generatePDF() {
     cardEnd();
   }
 
-  // Signatures
-  if (y > 235) { doc.addPage(); y = 14; }
+  // Signatures — toujours collées en bas de la dernière page
+  var sigCardH = 9 + 22 + 4 + 15 + 2 + 3; // titre + chargeur+gap + visa + marge
+  var footerY = 287; // juste au-dessus du footer
+  var sigStartY = footerY - sigCardH;
+
+  // Si le contenu actuel dépasse déjà sigStartY → nouvelle page
+  if (y > sigStartY) { doc.addPage(); y = 14; sigStartY = footerY - sigCardH; }
+
+  // Pousser y vers le bas pour coller en bas
+  y = sigStartY;
+
   cardStart();
-  secTitle('Signatures');
+  secTitle('Réserves & Signatures');
   var sigW = (W-mg*2-8)/2;
   doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
   doc.roundedRect(mg+3, y, sigW, 22, 1, 1, 'S');
