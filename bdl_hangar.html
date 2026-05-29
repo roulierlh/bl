@@ -44,6 +44,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
 }
 .btn-pdf:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-pdf:disabled, .btn-pdf.disabled { opacity: 0.35; cursor: not-allowed; transform: none; pointer-events: none; }
 
 /* MAIN */
 .main { padding: 28px 32px 80px; max-width: 1100px; margin: 0 auto; }
@@ -168,6 +169,19 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 
 @media (max-width: 700px) { .g3,.g4 { grid-template-columns: 1fr 1fr; } .main { padding: 16px; } .header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; } }
 @media (max-width: 480px) { .g2,.g3,.g4 { grid-template-columns: 1fr; } .s2,.s3 { grid-column: span 1; } }
+/* VALIDATION MODAL */
+#val_modal { position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:600;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px); }
+#val_modal.open { display:flex; }
+.val-box { background:var(--navy-mid);border:1px solid rgba(224,82,82,0.3);border-radius:6px;width:460px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,0.6);overflow:hidden; }
+.val-header { background:linear-gradient(90deg,rgba(224,82,82,0.15) 0%,transparent 100%);border-bottom:1px solid rgba(224,82,82,0.2);padding:14px 18px;display:flex;align-items:center;gap:10px; }
+.val-header h3 { font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;letter-spacing:0.12em;color:var(--red);text-transform:uppercase; }
+.val-body { padding:18px;max-height:60vh;overflow-y:auto; }
+.val-item { display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;background:rgba(224,82,82,0.08);border:1px solid rgba(224,82,82,0.18);border-radius:3px; }
+.val-dot { width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0; }
+.val-item span { font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--white);letter-spacing:0.04em; }
+.val-footer { border-top:1px solid var(--border);padding:12px 18px;display:flex;justify-content:flex-end; }
+.btn-val-close { background:var(--accent);color:#fff;border:none;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:11px;letter-spacing:0.08em;padding:8px 18px;border-radius:2px;cursor:pointer;transition:opacity 0.2s; }
+.btn-val-close:hover { opacity:0.85; }
 </style>
 </head>
 <body>
@@ -177,7 +191,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="header-title">BON DE LIVRAISON — HANGAR</div>
     <div class="header-subtitle">Document de réception / chargement portuaire</div>
   </div>
-  <button class="btn-pdf" onclick="generatePDF()">
+  <button class="btn-pdf" id="btn_pdf" onclick="validateAndGenerate()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
     Générer PDF
   </button>
@@ -311,6 +325,20 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   <span id="status_date"></span>
 </div>
 
+<!-- VALIDATION MODAL -->
+<div id="val_modal">
+  <div class="val-box">
+    <div class="val-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <h3>Champs obligatoires manquants</h3>
+    </div>
+    <div class="val-body" id="val_body"></div>
+    <div class="val-footer">
+      <button class="btn-val-close" onclick="document.getElementById('val_modal').classList.remove('open')">OK</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- MODAL VIN -->
@@ -360,9 +388,65 @@ function init() {
   document.getElementById('num_ref').textContent = 'N°' + numRef;
   loadDeclarant();
   addMarchandise();
+  checkPdfBtn();
 }
 
 // ── UPPERCASE ──
+// ── VALIDATION ──
+var REQUIRED_FIELDS = [
+  { id: 'type_operation',   label: 'Type d\'opération',             card: 'Informations du Bon de Livraison' },
+  { id: 'lieu_livraison',   label: 'Lieu de livraison',             card: 'Informations du Bon de Livraison' },
+  { id: 'transitaire',      label: 'Transitaire',                   card: 'Déclarant & Armement' },
+  { id: 'declarant',        label: 'Déclarant',                     card: 'Déclarant & Armement' },
+  { id: 'armement',         label: 'Armement',                      card: 'Déclarant & Armement' },
+  { id: 'bdl_par',          label: 'BDL établi par',                card: 'Déclarant & Armement' },
+  { id: 'telephone',        label: 'Téléphone',                     card: 'Déclarant & Armement' },
+  { id: 'booking',          label: 'Booking',                       card: 'Informations de Transport' },
+  { id: 'navire',           label: 'Navire',                        card: 'Informations de Transport' },
+  { id: 'pod',              label: 'Port de déchargement',          card: 'Informations de Transport' }
+];
+
+function getMissingFields() {
+  var missing = [];
+  REQUIRED_FIELDS.forEach(function(f) {
+    var el = document.getElementById(f.id);
+    if (!el || !el.value.trim()) missing.push(f.card + ' — ' + f.label);
+  });
+  // Marchandises
+  marchandises.forEach(function(m, idx) {
+    if (!m.nature.trim()) missing.push('Description de la marchandise — Nature (lot ' + (idx+1) + ')');
+    if (!(parseFloat(m.poids) > 0)) missing.push('Description de la marchandise — Poids (lot ' + (idx+1) + ')');
+    if (!(parseInt(m.colis) > 0)) missing.push('Description de la marchandise — Nombre de colis (lot ' + (idx+1) + ')');
+  });
+  return missing;
+}
+
+function checkPdfBtn() {
+  var btn = document.getElementById('btn_pdf');
+  if (!btn) return;
+  var missing = getMissingFields();
+  if (missing.length === 0) {
+    btn.classList.remove('disabled');
+    btn.disabled = false;
+  } else {
+    btn.classList.add('disabled');
+    btn.disabled = true;
+  }
+}
+
+function validateAndGenerate() {
+  var missing = getMissingFields();
+  if (missing.length > 0) {
+    var body = document.getElementById('val_body');
+    body.innerHTML = missing.map(function(m) {
+      return '<div class="val-item"><div class="val-dot"></div><span>' + m + '</span></div>';
+    }).join('');
+    document.getElementById('val_modal').classList.add('open');
+    return;
+  }
+  generatePDF();
+}
+
 // ── PERSISTANCE DÉCLARANT & ARMEMENT ──
 var PERSIST_FIELDS = ['declarant','transitaire','armement','bdl_par','telephone'];
 
@@ -390,6 +474,7 @@ function loadDeclarant() {
 // Sauvegarder à chaque saisie dans les champs concernés
 document.addEventListener('input', function(e) {
   if (PERSIST_FIELDS.indexOf(e.target.id) !== -1) saveDeclarant();
+  checkPdfBtn();
 });
 
 // ── AUTO-SCROLL SUR TAB ──
@@ -525,6 +610,7 @@ function updateTotals() {
   document.getElementById('total_colis').textContent = c;
   document.getElementById('total_poids').textContent = p.toLocaleString('fr-FR');
   document.getElementById('total_vin').textContent = v;
+  checkPdfBtn();
 }
 
 function esc(s) {
