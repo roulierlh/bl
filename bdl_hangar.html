@@ -86,7 +86,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 /* MARCHANDISES */
 .marc-item {
   background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07);
-  border-left: 3px solid var(--accent); border-radius: 4px; padding: 14px;
+  border-left: 3px solid var(--accent); border-radius: 4px; padding: 8px 10px;
   margin-bottom: 10px; animation: fadeIn 0.2s ease;
 }
 @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
@@ -467,9 +467,7 @@ function renderMarc() {
     var div = document.createElement('div');
     div.className = 'marc-item';
     div.innerHTML =
-      '<div class="marc-header">' +
-        '<div class="marc-actions">' + removeBtn + '</div>' +
-      '</div>' +
+      (removeBtn ? '<div style="display:flex;justify-content:flex-end;margin-bottom:4px;">' + removeBtn + '</div>' : '') +
       '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;margin-bottom:10px;">' +
         '<div class="field">' +
           '<label>Nature de la marchandise <span class="req">*</span></label>' +
@@ -783,7 +781,7 @@ function generatePDF() {
     if (y > 240) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)'); }
 
     // Hauteur = 5 (num lot) + 5 (label) + 5.5 (ligne) + 5 (valeur) + 5.5 (ligne) + 2 (marge) = ~28
-    var lotH = 22;
+    var lotH = 18;
     if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, y, W-mg*2-4, lotH, 'F'); }
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
     doc.roundedRect(mg+2, y, W-mg*2-4, lotH, 1, 1, 'S');
@@ -808,11 +806,11 @@ function generatePDF() {
     col.forEach(function(c, i) {
       var colW = cw * c.w;
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
-      doc.text(c.l.toUpperCase(), xCur, y+9);
+      doc.text(c.l.toUpperCase(), xCur, y+6);
       doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
-      if (vals[i]) doc.text(vals[i], xCur, y+15.5, { maxWidth: colW - 2 });
+      if (vals[i]) doc.text(vals[i], xCur, y+12, { maxWidth: colW - 2 });
       doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
-      doc.line(xCur, y+17, xCur + colW - 2, y+17);
+      doc.line(xCur, y+13.5, xCur + colW - 2, y+17);
       xCur += colW;
     });
 
