@@ -780,12 +780,11 @@ function generatePDF() {
   marchandises.forEach(function(m, idx) {
     if (y > 240) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)'); }
 
-    // Hauteur = 5 (num lot) + 5 (label) + 5.5 (ligne) + 5 (valeur) + 5.5 (ligne) + 2 (marge) = ~28
-    var lotH = 18;
-    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, y, W-mg*2-4, lotH, 'F'); }
+    var lotH = 16;
+    var lotY = y;
+    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, lotY, W-mg*2-4, lotH, 'F'); }
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
-    doc.roundedRect(mg+2, y, W-mg*2-4, lotH, 1, 1, 'S');
-
+    doc.roundedRect(mg+2, lotY, W-mg*2-4, lotH, 1, 1, 'S');
 
     var cw = W - mg*2 - 8;
     var col = [
@@ -801,16 +800,15 @@ function generatePDF() {
       m.longueur||'', m.largeur||'', m.hauteur||'', m.poids||'', m.colis||''
     ];
 
-    // Labels à y+9, ligne à y+10.5, valeurs à y+15.5, ligne à y+17
     var xCur = mg + 5;
     col.forEach(function(c, i) {
       var colW = cw * c.w;
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
-      doc.text(c.l.toUpperCase(), xCur, y+6);
+      doc.text(c.l.toUpperCase(), xCur, lotY+5);
       doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
-      if (vals[i]) doc.text(vals[i], xCur, y+12, { maxWidth: colW - 2 });
+      if (vals[i]) doc.text(vals[i], xCur, lotY+11, { maxWidth: colW - 2 });
       doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
-      doc.line(xCur, y+13.5, xCur + colW - 2, y+17);
+      doc.line(xCur, lotY+12.5, xCur + colW - 2, lotY+12.5);
       xCur += colW;
     });
 
