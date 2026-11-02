@@ -336,7 +336,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 <div class="modal-overlay" id="cmd_ask" style="z-index:650">
   <div class="confirm-box">
     <div class="modal-header"><h3>Bon de livraison généré</h3></div>
-    <div class="confirm-body">Voulez-vous une commande de manutention ?<small>Les informations du bon de livraison seront reprises dans l'onglet « Commande de manutention ».</small></div>
+    <div class="confirm-body">Voulez-vous une commande de manutention ?<small>Les informations du bon de livraison seront reprises dans la commande de manutention.</small></div>
     <div class="modal-footer" style="justify-content:flex-end;">
       <button class="btn-cancel" onclick="answerCmd(false)">Non</button>
       <button class="btn-ok" onclick="answerCmd(true)">Oui</button>
@@ -1028,7 +1028,7 @@ function saveSnapshot() {
 
 function answerCmd(yes) {
   document.getElementById('cmd_ask').classList.remove('open');
-  if (yes) setTimeout(function() { window.location.href = 'commande_manutention.html?from=bdl'; }, 500);
+  if (yes) setTimeout(function() { window.location.href = 'cmd_manut.html?from=bdl'; }, 500);
 }
 
 // ── START ──
