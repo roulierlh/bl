@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Commande de porte-voiture</title>
+<title>Commande de porte voitures</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -226,8 +226,8 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 </style>
 <header class="header">
   <div>
-    <div class="header-title">COMMANDE DE PORTE-VOITURE</div>
-    <div class="header-subtitle">Bon de commande de transfert — véhicules — porte-voiture uniquement</div>
+    <div class="header-title">COMMANDE DE PORTE VOITURES</div>
+    <div class="header-subtitle">Transfert de véhicule uniquement</div>
   </div>
   <div class="hdr-right"><span class="stat ko" id="stat_top">INCOMPLÈTE</span><a class="home" href="index.html">← Accueil</a>
   <button class="btn-pdf" id="btn_pdf_pv" onclick="generatePVPDF()">
@@ -268,24 +268,17 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   </div>
 
   <div class="section">
-    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Véhicules (30 max)</span></div></div>
+    <div class="section-header">
+      <div class="section-header-left"><div class="section-dot"></div><span class="section-title">Description de la marchandise</span></div>
+      <button class="btn-sm" onclick="importFromBdl()" title="Reprend les marchandises du dernier bon de livraison généré">REPRENDRE DU DERNIER BON</button>
+    </div>
     <div class="section-body">
-      <div class="field" style="margin-bottom:14px;">
-        <label>Coller depuis Excel (VIN · Marque · Modèle · Poids · Long. · Larg. · Haut. · Observations) ou une liste de VIN</label>
-        <div style="display:flex;gap:8px;align-items:flex-start;">
-          <textarea id="p_paste" class="uc" style="min-height:64px;font-family:'IBM Plex Mono',monospace;font-size:11px;" placeholder="Collez ici…"></textarea>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <button class="btn-sm" onclick="importPaste()">AJOUTER</button>
-            <button class="btn-sm" onclick="importFromBdl()" title="Reprend les VIN du dernier bon de livraison généré">DEPUIS LE BON</button>
-          </div>
-        </div>
-      </div>
-      <div class="tablewrap"><table class="pv-table"><thead><tr>
-        <th>N°</th><th>VIN</th><th>Marque</th><th>Modèle</th><th>Poids</th><th>Long.</th><th>Larg.</th><th>Haut.</th><th>Observations</th><th></th>
-      </tr></thead><tbody id="rows"></tbody></table></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
-        <button class="btn-add-marc" style="width:auto;padding:8px 16px;" onclick="addRow()">+ Ajouter une ligne</button>
-        <div class="totals-bar" style="margin-top:0;padding:8px 16px;"><div><div class="t-label">Nombre total d'unités</div><div class="t-value" id="total">0</div></div></div>
+      <div id="marc_list"></div>
+      <button class="btn-add-marc" onclick="addMarchandise()">+ Ajouter une marchandise</button>
+      <div class="totals-bar">
+        <div><div class="t-label">Total Colis</div><div class="t-value" id="total_colis">0</div></div>
+        <div><div class="t-label">Poids Brut Total (kg)</div><div class="t-value" id="total_poids">0</div></div>
+        <div><div class="t-label">Nombre total d'unités (VIN)</div><div class="t-value" id="total_vin">0</div></div>
       </div>
     </div>
   </div>
@@ -296,17 +289,43 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 <div id="val_modal"><div class="val-box"><div class="val-header"><h3>Commande incomplète</h3></div><div class="val-body" id="val_body"></div><div class="val-footer"><button class="btn-val-close" onclick="document.getElementById('val_modal').classList.remove('open')">OK</button></div></div></div>
 <div id="toast"></div>
 
+<!-- MODAL VIN -->
+<div class="modal-overlay" id="vin_modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal_title">Numéros VIN</h3>
+      <button class="modal-close" onclick="closeVinModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="vin-info">Colis attendus : <strong id="vin_expected">0</strong></div>
+      <div class="bulk-zone">
+        <div class="bulk-label">Coller plusieurs VIN d'un coup</div>
+        <div class="bulk-row">
+          <textarea id="vin_bulk" placeholder="Collez vos VIN ici — un par ligne, ou séparés par virgules / espaces…" oninput="this.value=this.value.toUpperCase()"></textarea>
+          <button class="btn-import" onclick="importBulkVin()">Ajouter</button>
+        </div>
+      </div>
+      <div id="vin_inputs"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="modal_status"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-cancel" onclick="closeVinModal()">Annuler</button>
+        <button class="btn-ok" onclick="saveVin()">Valider</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
-var MAX = 30, MIN_ROWS = 8;
-var rows = [];
-var KEYS = ['vin','marque','modele','poids','l','w','h','obs'];
+var MAX = 30;
 var DEFAULTS = { p_client:'BOM DKK', p_pickup:'CEVA LE HAVRE CHEZ SANDRA', p_deliv:'MANUCAR' };
 var PERSIST = ['p_client','p_pickup','p_pickup_adr','p_deliv','p_deliv_adr'];
 
 function g(id) { return document.getElementById(id); }
 function val(id) { return (g(id).value || '').trim(); }
 function showToast(msg) { var t = g('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 2800); }
-function blank() { return { vin:'', marque:'', modele:'', poids:'', l:'', w:'', h:'', obs:'' }; }
 
 // ── Persistance des champs récurrents ──
 (function() {
@@ -323,73 +342,249 @@ document.addEventListener('input', function(e) {
     var d = {}; PERSIST.forEach(function(id) { d[id] = g(id).value; });
     try { localStorage.setItem('bdl_pv', JSON.stringify(d)); } catch(err) {}
   }
-  if (e.target.id && e.target.id.indexOf('p_') === 0) refresh();
+  refresh();
 });
 document.addEventListener('change', function(e) { if (e.target.id && e.target.id.indexOf('p_') === 0) refresh(); });
 
-// ── Tableau ──
-function render() {
-  while (rows.length < MIN_ROWS) rows.push(blank());
-  g('rows').innerHTML = rows.map(function(r, i) {
-    var cells = KEYS.map(function(k) {
-      var isNum = ['poids','l','w','h'].indexOf(k) > -1;
-      var cls = k === 'vin' ? 'vin' : (isNum ? 'num' : '');
-      return '<td><input class="' + cls + '" data-r="' + i + '" data-k="' + k + '" value="' + esc(r[k]) + '"' + (isNum ? ' inputmode="decimal"' : '') + ' /></td>';
-    }).join('');
-    return '<tr><td class="n">' + (i+1) + '</td>' + cells + '<td><button class="rm" title="Supprimer la ligne" onclick="delRow(' + i + ')">×</button></td></tr>';
-  }).join('');
-  refresh();
+var marchandises = [];
+var marcCounter = 0;
+var currentVinId = null;
+function checkPdfBtn() { refresh(); }
+function marcNonEmpty(m) {
+  return !!(m.nature.trim() || m.poids || m.colis || m.longueur || m.largeur || m.hauteur || (m.vins && m.vins.length));
 }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-g('rows').addEventListener('input', function(e) {
-  var t = e.target; if (t.dataset.r === undefined) return;
-  var k = t.dataset.k;
-  if (['vin','marque','modele','obs'].indexOf(k) > -1) { var pos = t.selectionStart; t.value = t.value.toUpperCase(); try { t.setSelectionRange(pos,pos); } catch(err) {} }
-  rows[+t.dataset.r][k] = t.value;
-  if (k === 'vin') t.classList.toggle('bad', t.value.trim().length > 0 && t.value.trim().length !== 17);
-  refresh();
-});
-function addRow() { if (rows.length >= MAX) { showToast('Maximum ' + MAX + ' véhicules'); return; } rows.push(blank()); render(); }
-function delRow(i) { rows.splice(i, 1); render(); }
-function filled() { return rows.filter(function(r) { return r.vin.trim(); }); }
+function vinCount() {
+  return marchandises.reduce(function(s, m) { return s + (m.vins || []).filter(function(x) { return x.trim(); }).length; }, 0);
+}
+// ── MARCHANDISES ──
+function addMarchandise() {
+  marcCounter++;
+  marchandises.push({ id: marcCounter, nature: '', longueur: '', largeur: '', hauteur: '', poids: '', colis: '', vins: [] });
+  renderMarc();
+}
 
-function pushVehicle(r) {
-  var slot = rows.findIndex(function(x) { return !x.vin.trim(); });
-  if (slot > -1) rows[slot] = r; else if (rows.length < MAX) rows.push(r); else return false;
-  return true;
+function removeMarchandise(id) {
+  marchandises = marchandises.filter(function(m) { return m.id !== id; });
+  renderMarc();
+  updateTotals();
 }
-function importPaste() {
-  var raw = g('p_paste').value; if (!raw.trim()) return;
-  var n = 0, over = false;
-  raw.split(/\r?\n/).forEach(function(line) {
-    if (!line.trim()) return;
-    var items = [];
-    if (line.indexOf('\t') > -1) {
-      var c = line.split('\t').map(function(x) { return x.trim(); });
-      if (c[0].toUpperCase() === 'VIN') return;
-      items.push({ vin:c[0].toUpperCase(), marque:(c[1]||'').toUpperCase(), modele:(c[2]||'').toUpperCase(), poids:c[3]||'', l:c[4]||'', w:c[5]||'', h:c[6]||'', obs:(c[7]||'').toUpperCase() });
-    } else {
-      line.split(/[\s,;|]+/).filter(Boolean).forEach(function(vin) { var r = blank(); r.vin = vin.toUpperCase(); items.push(r); });
+
+function getMarc(id) {
+  return marchandises.find(function(m) { return m.id === id; });
+}
+
+function setField(id, key, val) {
+  var m = getMarc(id);
+  if (m) m[key] = val;
+}
+
+function renderMarc() {
+  var list = document.getElementById('marc_list');
+  list.innerHTML = '';
+  marchandises.forEach(function(m, idx) {
+    var vinCount = m.vins.filter(function(v) { return v.trim(); }).length;
+    var colisNum = parseInt(m.colis) || 0;
+    var vinOk = colisNum > 0 && vinCount === colisNum;
+    var vinWarn = colisNum > 0 && vinCount !== colisNum;
+    var badgeHtml = vinCount > 0
+      ? '<span class="vin-badge' + (vinWarn ? ' warn' : '') + '">' + vinCount + ' VIN' + (vinOk ? ' ✓' : ' / ' + colisNum) + '</span>'
+      : '';
+    var removeBtn = marchandises.length > 1
+      ? '<button class="btn-remove" onclick="removeMarchandise(' + m.id + ')" title="Supprimer">×</button>'
+      : '';
+
+    var reqOk = m.nature.trim() !== '' && colisNum > 0 && parseFloat(m.poids) > 0;
+    var vinBtnDisabled = reqOk ? '' : 'disabled';
+    var vinBtnStyle = reqOk
+      ? ''
+      : 'opacity:0.35;cursor:not-allowed;pointer-events:none;';
+
+    // VIN display block
+    var vinDisplay = '';
+    if (m.vins.length > 0) {
+      var chips = m.vins.map(function(v) {
+        var ok = v.trim().length === 17;
+        return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span>';
+      }).join('');
+      vinDisplay = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">' +
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">VIN (' + vinCount + '/' + colisNum + ')</div>' +
+        '<div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div>' +
+      '</div>';
     }
-    items.forEach(function(r) { if (pushVehicle(r)) n++; else over = true; });
+
+    var div = document.createElement('div');
+    div.className = 'marc-item';
+    div.innerHTML =
+      (removeBtn ? '<div style="display:flex;justify-content:flex-end;margin-bottom:4px;">' + removeBtn + '</div>' : '') +
+      '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;margin-bottom:10px;">' +
+        '<div class="field">' +
+          '<label>Nature de la marchandise <span class="req">*</span></label>' +
+          '<input type="text" value="' + esc(m.nature) + '" placeholder="Description…" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();setField(' + m.id + ',\'nature\',this.value);updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Longueur (m)</label>' +
+          '<input type="number" value="' + esc(m.longueur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'longueur\',this.value)" onblur="formatDim(this,' + m.id + ',\'longueur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Largeur (m)</label>' +
+          '<input type="number" value="' + esc(m.largeur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'largeur\',this.value)" onblur="formatDim(this,' + m.id + ',\'largeur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Hauteur (m)</label>' +
+          '<input type="number" value="' + esc(m.hauteur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'hauteur\',this.value)" onblur="formatDim(this,' + m.id + ',\'hauteur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Poids (kg) <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.poids) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'poids\',this.value);updateTotals();updateVinBtn(' + m.id + ')" onblur="formatDim(this,' + m.id + ',\'poids\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Colis <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.colis) + '" placeholder="0" min="0" tabindex="0" onkeydown="if(event.key===\'Tab\'){event.preventDefault();var b=document.getElementById(\'vinbtn-'+m.id+'\');if(b)b.focus();}" oninput="setField(' + m.id + ',\'colis\',this.value);updateTotals();updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' +
+        '<div>' + badgeHtml + '</div>' +
+        '<button id="vinbtn-' + m.id + '" class="btn-vin" onclick="openVinModal(' + m.id + ')" ' + vinBtnDisabled + ' style="' + vinBtnStyle + '">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> AJOUTER VIN' +
+        '</button>' +
+      '</div>' +
+      vinDisplay;
+    list.appendChild(div);
   });
-  g('p_paste').value = '';
-  render();
-  showToast(n + ' véhicule(s) ajouté(s)' + (over ? ' — limite de ' + MAX + ' atteinte' : ''));
 }
+
+function updateVinBtn(id) {
+  var m = getMarc(id);
+  if (!m) return;
+  var reqOk = m.nature.trim() !== '' && (parseInt(m.colis) || 0) > 0 && parseFloat(m.poids) > 0;
+  var btn = document.getElementById('vinbtn-' + id);
+  if (!btn) return;
+  btn.disabled = !reqOk;
+  btn.style.opacity = reqOk ? '1' : '0.35';
+  btn.style.cursor = reqOk ? 'pointer' : 'not-allowed';
+  btn.style.pointerEvents = reqOk ? 'auto' : 'none';
+}
+
+
+function updateTotals() {
+  var c = marchandises.reduce(function(s,m) { return s + (parseInt(m.colis)||0); }, 0);
+  var p = marchandises.reduce(function(s,m) { return s + (parseFloat(m.poids)||0); }, 0);
+  var v = marchandises.reduce(function(s,m) { return s + m.vins.filter(function(x){return x.trim();}).length; }, 0);
+  document.getElementById('total_colis').textContent = c;
+  document.getElementById('total_poids').textContent = p.toLocaleString('fr-FR');
+  document.getElementById('total_vin').textContent = v;
+  checkPdfBtn();
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDim(input, id, key) {
+  var val = parseFloat(input.value);
+  if (!isNaN(val)) {
+    var formatted = val.toFixed(2);
+    input.value = formatted;
+    setField(id, key, formatted);
+  }
+}
+
+// ── VIN MODAL ──
+function openVinModal(id) {
+  currentVinId = id;
+  var m = getMarc(id);
+  var idx = marchandises.indexOf(m) + 1;
+  document.getElementById('modal_title').textContent = 'Numéros VIN — Lot ' + idx;
+  document.getElementById('vin_expected').textContent = parseInt(m.colis) || 0;
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+  document.getElementById('vin_modal').classList.add('open');
+}
+
+function closeVinModal() {
+  document.getElementById('vin_modal').classList.remove('open');
+  currentVinId = null;
+}
+
+function renderVinChips(vins) {
+  var container = document.getElementById('vin_inputs');
+  if (!vins || vins.length === 0) { container.innerHTML = ''; return; }
+  var chips = vins.map(function(v, i) {
+    var ok = v.trim().length === 17;
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+      '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:4px 10px;border-radius:2px;flex:1;' +
+        'background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';' +
+        'border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';' +
+        'color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.06em;">' +
+        '<span style="color:var(--muted);margin-right:8px;">' + (i+1) + '.</span>' + v +
+      '</span>' +
+      '<button class="vin-del" onclick="removeVinChip(' + i + ')">×</button>' +
+    '</div>';
+  }).join('');
+  container.innerHTML = chips;
+}
+
+function removeVinChip(idx) {
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  m.vins.splice(idx, 1);
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function getModalVins() {
+  var m = getMarc(currentVinId);
+  return m ? m.vins.slice() : [];
+}
+
+function updateModalStatus() {
+  if (!currentVinId) return;
+  var m = getMarc(currentVinId);
+  var expected = parseInt(m.colis) || 0;
+  var filled = m.vins.length;
+  var st = document.getElementById('modal_status');
+  if (expected === 0) { st.textContent = ''; st.className = 'modal-status'; return; }
+  if (filled === expected) {
+    st.textContent = '✓ ' + filled + ' / ' + expected + ' VIN — OK';
+    st.className = 'modal-status ok';
+  } else {
+    st.textContent = filled + ' / ' + expected + ' VIN renseignés';
+    st.className = 'modal-status err';
+  }
+}
+
+function importBulkVin() {
+  var raw = document.getElementById('vin_bulk').value;
+  if (!raw.trim()) return;
+  var vins = raw.split(/[\n\r,;|\t]+/)
+    .map(function(v) { return v.trim().toUpperCase(); })
+    .filter(function(v) { return v.length > 0; });
+  if (!vins.length) return;
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  vins.forEach(function(v) {
+    if (m.vins.indexOf(v) === -1) m.vins.push(v);
+  });
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function saveVin() {
+  closeVinModal();
+  renderMarc();
+  updateTotals();
+}
+
+
 function importFromBdl() {
   var s = null; try { s = JSON.parse(localStorage.getItem('bdl_last') || 'null'); } catch(e) {}
-  if (!s) { showToast('Aucun bon de livraison récent'); return; }
-  var n = 0;
-  (s.marchandises || []).forEach(function(m) {
-    (m.vins || []).forEach(function(vin) {
-      if (!vin.trim()) return;
-      var r = blank(); r.vin = vin.trim().toUpperCase(); r.poids = m.poids || ''; r.l = m.longueur || ''; r.w = m.largeur || ''; r.h = m.hauteur || '';
-      if (pushVehicle(r)) n++;
-    });
-  });
-  render();
-  showToast(n + ' VIN repris du bon de livraison');
+  if (!s || !s.marchandises || !s.marchandises.length) { showToast('Aucun bon de livraison récent'); return; }
+  marchandises = JSON.parse(JSON.stringify(s.marchandises));
+  marcCounter = marchandises.reduce(function(a, x) { return Math.max(a, x.id || 0); }, 0);
+  renderMarc(); updateTotals();
+  showToast('Marchandises reprises du bon de livraison');
 }
 
 // ── Règles du fichier Excel ──
@@ -402,7 +597,15 @@ function missingList() {
   if (!val('p_date')) m.push('Date de transfert souhaitée');
   if (!g('p_liasse').checked) m.push('Liasse à joindre');
   if (!g('p_bas').checked) m.push('BAS / Annonce à joindre');
-  if (filled().length === 0) m.push('Au moins un VIN');
+  var n = vinCount();
+  if (n === 0) m.push('Au moins un VIN');
+  if (n > MAX) m.push('Maximum ' + MAX + ' véhicules (' + n + ' VIN saisis)');
+  marchandises.forEach(function(x, idx) {
+    if (!marcNonEmpty(x)) return;
+    if (!x.nature.trim()) m.push('Marchandise — Nature (lot ' + (idx+1) + ')');
+    if (!(parseFloat(x.poids) > 0)) m.push('Marchandise — Poids (lot ' + (idx+1) + ')');
+    if (!(parseInt(x.colis) > 0)) m.push('Marchandise — Nombre de colis (lot ' + (idx+1) + ')');
+  });
   return m;
 }
 function dateWarning() {
@@ -417,7 +620,6 @@ function refresh() {
   ['stat_top','stat_mid'].forEach(function(id) { var e = g(id); e.textContent = ok ? 'COMPLÈTE' : 'INCOMPLÈTE'; e.className = 'stat ' + (ok ? 'ok' : 'ko'); });
   g('missing').innerHTML = ok ? '' : 'Manquant : ' + m.join(' · ');
   var w = dateWarning(), we = g('date_warn'); we.textContent = w; we.style.display = w ? 'block' : 'none';
-  g('total').textContent = filled().length;
   var b = g('btn_pdf_pv'); b.disabled = !ok; b.classList.toggle('disabled', !ok);
 }
 
@@ -489,13 +691,75 @@ var PK = {
 
 var numRef = String(Math.floor(1000000 + Math.random() * 9000000));
 
+
+function marcPdf(doc, c, units) {
+  var W = PK.W, mg = PK.mg, list = marchandises.filter(marcNonEmpty);
+  if (!list.length) return;
+  var T = 'Description de la marchandise';
+  c.start(); c.title(T);
+  list.forEach(function(m, idx) {
+    if (c.y > 240) { c.end(); doc.addPage(); c.y = 14; c.start(); c.title(T + ' (suite)'); }
+    var lotH = 16, lotY = c.y;
+    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, lotY, W-mg*2-4, lotH, 'F'); }
+    doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
+    doc.roundedRect(mg+2, lotY, W-mg*2-4, lotH, 1, 1, 'S');
+    var cw = W - mg*2 - 8;
+    var col = [
+      { l: 'Nature de la marchandise', w: 0.35 }, { l: 'Longueur (m)', w: 0.11 }, { l: 'Largeur (m)', w: 0.11 },
+      { l: 'Hauteur (m)', w: 0.11 }, { l: 'Poids (kg)', w: 0.13 }, { l: 'Colis', w: 0.08 }
+    ];
+    var vals = [(m.nature || '').toUpperCase(), m.longueur || '', m.largeur || '', m.hauteur || '', m.poids || '', m.colis || ''];
+    var xCur = mg + 5;
+    col.forEach(function(cl, i) {
+      var colW = cw * cl.w;
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
+      doc.text(cl.l.toUpperCase(), xCur, lotY + 5);
+      doc.setFontSize(7); doc.setTextColor.apply(doc, PK.black);
+      if (vals[i]) doc.text(String(vals[i]), xCur, lotY + 11, { maxWidth: colW - 2 });
+      doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
+      doc.line(xCur, lotY + 12.5, xCur + colW - 2, lotY + 12.5);
+      xCur += colW;
+    });
+    c.y += lotH + 1;
+    var vins = (m.vins || []).filter(function(x) { return x.trim(); });
+    if (vins.length) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
+      doc.text('VIN (' + vins.length + '/' + (parseInt(m.colis) || 0) + ')', mg + 5, c.y + 3);
+      c.y += 5;
+      vins.forEach(function(vin, vi) {
+        if (c.y > 268) { c.end(); doc.addPage(); c.y = 14; c.start(); c.title('VIN (suite)'); }
+        var ok = vin.length === 17;
+        doc.setFont('courier','normal'); doc.setFontSize(7);
+        doc.setTextColor.apply(doc, ok ? [40,160,70] : [200,60,60]);
+        doc.text((vi+1) + '.  ' + vin, mg + 5, c.y + 3);
+        c.y += 4.5;
+      });
+      c.y += 1;
+    }
+    c.y += 1;
+  });
+  c.end();
+  var totC = list.reduce(function(s, m) { return s + (parseInt(m.colis) || 0); }, 0);
+  var totP = list.reduce(function(s, m) { return s + (parseFloat(m.poids) || 0); }, 0);
+  if (c.y > 265) { doc.addPage(); c.y = 14; }
+  c.start();
+  doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
+  doc.text('TOTAL', mg + 3, c.y + 3);
+  doc.setFontSize(7); doc.setTextColor.apply(doc, PK.black);
+  doc.text(totC + ' colis  —  Poids brut total : ' + String(totP).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' kg' + (units ? '  —  ' + vinCount() + ' unité(s) (VIN)' : ''), mg + 3, c.y + 7);
+  doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
+  doc.line(mg + 3, c.y + 8, W - mg - 3, c.y + 8);
+  c.y += 10;
+  c.end();
+}
+
 function generatePVPDF() {
   var m = missingList();
   if (m.length) { g('val_body').innerHTML = m.map(function(x) { return '<div class="val-item"><div class="val-dot"></div><span>' + x + '</span></div>'; }).join(''); g('val_modal').classList.add('open'); return; }
   var doc = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-  var W = PK.W, mg = PK.mg;
+  var mg = PK.mg;
   var today = new Date(), todayFr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
-  PK.header(doc, 'BON DE COMMANDE DE TRANSFERT', 'Véhicules — porte-voiture uniquement', numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE');
+  PK.header(doc, 'COMMANDE DE PORTE VOITURES', 'Transfert de véhicule uniquement', numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE');
   var c = PK.card(doc);
 
   c.start(); c.title('Client & Lieux');
@@ -509,38 +773,7 @@ function generatePVPDF() {
          'Date de transfert souhaitée', dFr('p_date'), 'Statut commande', 'COMPLÈTE');
   c.end();
 
-  var cw = [7, 44, 20, 26, 14, 13, 13, 13, 28], hd = ['N°','VIN','Marque','Modèle','Poids','Long.','Larg.','Haut.','Observations'];
-  function thead() {
-    var x = mg + 3;
-    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
-    hd.forEach(function(h, i) { doc.text(h.toUpperCase(), x, c.y + 3); x += cw[i]; });
-    doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
-    doc.line(mg + 3, c.y + 4.2, W - mg - 3, c.y + 4.2);
-    c.y += 5.5;
-  }
-  function pageBreak() { c.end(); doc.addPage(); c.y = 14; c.start(); c.title('Véhicules (suite)'); thead(); }
-
-  c.start(); c.title('Véhicules'); thead();
-  var list = filled();
-  list.forEach(function(r, i) {
-    if (c.y > 268) pageBreak();
-    var x = mg + 3, vals = [String(i+1), r.vin, r.marque, r.modele, r.poids, r.l, r.w, r.h, r.obs];
-    vals.forEach(function(t, j) {
-      doc.setFont(j === 1 ? 'courier' : 'helvetica', 'normal'); doc.setFontSize(j === 1 ? 7.5 : 7);
-      doc.setTextColor.apply(doc, PK.black);
-      if (t) doc.text(String(t), x, c.y + 3.6, { maxWidth: cw[j] - 1.5 });
-      x += cw[j];
-    });
-    doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
-    doc.line(mg + 3, c.y + 4.7, W - mg - 3, c.y + 4.7);
-    c.y += 5.2;
-  });
-  if (c.y > 270) pageBreak();
-  c.y += 1;
-  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor.apply(doc, PK.black);
-  doc.text('Nombre total d’unités : ' + list.length, mg + 3, c.y + 3.5);
-  c.y += 6;
-  c.end();
+  marcPdf(doc, c, true);
 
   if (c.y > 266) { doc.addPage(); c.y = 14; }
   c.start();
@@ -551,14 +784,15 @@ function generatePVPDF() {
   c.y += 10;
   c.end();
 
-  PK.footer(doc, 'Commande de Porte-Voiture', numRef, todayFr);
+  PK.footer(doc, 'Commande de Porte Voitures', numRef, todayFr);
   var ref = (val('p_ref') || 'TRANSFERT').replace(/\s+/g, '_');
-  var fname = 'CommandePorteVoiture_' + ref + '_' + numRef + '.pdf';
+  var fname = 'CommandePorteVoitures_' + ref + '_' + numRef + '.pdf';
   doc.save(fname);
   showToast('✓ PDF généré : ' + fname);
 }
 
-render();
+addMarchandise();
+refresh();
 </script>
 </body>
 </html>

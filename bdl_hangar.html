@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bon de Livraison — Hangar</title>
+<title>Bon de Livraison (Hangar)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -197,13 +197,13 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 
 <header class="header">
   <div>
-    <div class="header-title">BON DE LIVRAISON — HANGAR</div>
+    <div class="header-title">BON DE LIVRAISON (HANGAR)</div>
     <div class="header-subtitle">Document de réception / chargement portuaire</div>
   </div>
   <div class="hdr-right"><span class="stat ko" id="stat_top" title="">INCOMPLÈTE</span><a class="home" href="index.html">← Accueil</a>
   <button class="btn-pdf" id="btn_pdf" onclick="validateAndGenerate()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-    Générer le bon de livraison
+    Générer le bon de livraison (hangar)
   </button></div>
 </header>
 
@@ -338,7 +338,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 <!-- QUESTION COMMANDE DE MANUTENTION -->
 <div class="modal-overlay" id="cmd_ask" style="z-index:650">
   <div class="confirm-box">
-    <div class="modal-header"><h3>Bon de livraison généré</h3></div>
+    <div class="modal-header"><h3>Bon de livraison (Hangar) généré</h3></div>
     <div class="confirm-body">Voulez-vous une commande de manutention ?<small>Les informations du bon de livraison seront reprises dans la commande de manutention.</small></div>
     <div class="modal-footer" style="justify-content:flex-end;">
       <button class="btn-cancel" onclick="answerCmd(false)">Non</button>
@@ -790,7 +790,7 @@ function generatePDF() {
   // ── HEADER ──
   doc.setFillColor(accent[0],accent[1],accent[2]); doc.rect(0, 0, W, 2, 'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(black[0],black[1],black[2]);
-  doc.text('BON DE LIVRAISON', mg, 11);
+  doc.text('BON DE LIVRAISON (HANGAR)', mg, 11);
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('Document de réception / chargement portuaire', mg, 16);
   doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);
@@ -1027,7 +1027,7 @@ function generatePDF() {
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
     doc.line(mg, 289, W-mg, 289);
     doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
-    doc.text('Bon de Livraison Portuaire', mg, 293);
+    doc.text('Bon de Livraison (Hangar)', mg, 293);
     doc.setFont('courier','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
     doc.text('N°'+numRef, W/2, 293, {align:'center'});
     doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
@@ -1035,7 +1035,7 @@ function generatePDF() {
   }
 
   var booking = v('booking').replace(/\s+/g,'_') || 'BOOKING';
-  var fname = 'BonDeLivraison_'+booking+'_'+numRef+'.pdf';
+  var fname = 'BonDeLivraisonHangar_'+booking+'_'+numRef+'.pdf';
   doc.save(fname);
   showToast('✓ PDF généré : ' + fname);
   saveSnapshot();
@@ -1048,6 +1048,7 @@ function saveSnapshot() {
   ['date_edition','dossier','bdl_par','declarant','transitaire','armement','navire','booking','pod','destination_finale','lieu_livraison']
     .forEach(function(id) { s[id] = v(id); });
   s.marchandises = marchandises;
+  s.numRef = numRef;
   try { localStorage.setItem('bdl_last', JSON.stringify(s)); } catch(e) {}
 }
 
