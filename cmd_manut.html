@@ -197,6 +197,9 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 .home { color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; text-decoration:none; text-transform:uppercase; border:1px solid rgba(255,255,255,0.12); padding:8px 12px; border-radius:2px; }
 .home:hover { color:var(--white); border-color:var(--accent); }
 .hdr-right { display:flex; gap:10px; align-items:center; }
+.stat { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:12px; letter-spacing:.1em; padding:6px 14px; border-radius:2px; cursor:default; }
+.stat.ok { background:rgba(76,175,80,.15); border:1px solid rgba(76,175,80,.4); color:var(--green); }
+.stat.ko { background:rgba(224,82,82,.15); border:1px solid rgba(224,82,82,.4); color:var(--red); }
 </style>
 </head>
 <body>
@@ -205,7 +208,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="header-title">COMMANDE DE MANUTENTION</div>
     <div class="header-subtitle">Ordre de manutention portuaire</div>
   </div>
-  <div class="hdr-right"><a class="home" href="index.html">← Accueil</a>
+  <div class="hdr-right"><span class="stat ko" id="stat_top" title="">INCOMPLÈTE</span><a class="home" href="index.html">← Accueil</a>
   <button class="btn-pdf" id="btn_pdf_cmd" onclick="validateAndGenerateCmd()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
     Générer la commande de manutention
@@ -343,7 +346,15 @@ function getSnap() { try { return JSON.parse(localStorage.getItem('bdl_last') ||
 var marchandises = [];
 var marcCounter = 0;
 var currentVinId = null;
-function checkPdfBtn() {}
+function checkPdfBtn() {
+  var miss = cmdMissing(), ok = miss.length === 0;
+  var b = document.getElementById('btn_pdf_cmd');
+  if (b) { b.disabled = !ok; b.classList.toggle('disabled', !ok); }
+  var st = document.getElementById('stat_top');
+  if (st) { st.textContent = ok ? 'COMPLÈTE' : 'INCOMPLÈTE'; st.className = 'stat ' + (ok ? 'ok' : 'ko'); st.title = ok ? '' : 'Manquant : ' + miss.join(' · '); }
+}
+document.addEventListener('input', checkPdfBtn);
+document.addEventListener('change', checkPdfBtn);
 function marcNonEmpty(m) {
   return !!(m.nature.trim() || m.poids || m.colis || m.longueur || m.largeur || m.hauteur || (m.vins && m.vins.length));
 }
@@ -858,6 +869,7 @@ document.getElementById('c_cotation').addEventListener('input', syncMailDate);
     if (s) { prefillCommande(s); showToast('Informations du bon de livraison reprises'); }
   }
   if (!marchandises.length) addMarchandise();
+  checkPdfBtn();
   if (q.indexOf('from=') > -1 && travaux.trim()) {
     var d = document.getElementById('c_designation');
     d.value = (d.value ? d.value + '\n\n' : '') + travaux.toUpperCase();
