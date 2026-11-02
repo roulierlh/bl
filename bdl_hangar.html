@@ -182,6 +182,12 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 .val-footer { border-top:1px solid var(--border);padding:12px 18px;display:flex;justify-content:flex-end; }
 .btn-val-close { background:var(--accent);color:#fff;border:none;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:11px;letter-spacing:0.08em;padding:8px 18px;border-radius:2px;cursor:pointer;transition:opacity 0.2s; }
 .btn-val-close:hover { opacity:0.85; }
+.confirm-box { background:var(--navy-mid); border:1px solid var(--border); border-radius:6px; width:440px; max-width:95vw; box-shadow:0 24px 80px rgba(0,0,0,0.6); overflow:hidden; }
+.confirm-body { padding:22px 20px; font-size:14px; line-height:1.5; }
+.confirm-body small { display:block; color:var(--muted); font-size:12px; margin-top:6px; }
+.home { color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; text-decoration:none; text-transform:uppercase; border:1px solid rgba(255,255,255,0.12); padding:8px 12px; border-radius:2px; }
+.home:hover { color:var(--white); border-color:var(--accent); }
+.hdr-right { display:flex; gap:10px; align-items:center; }
 </style>
 </head>
 <body>
@@ -191,10 +197,11 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="header-title">BON DE LIVRAISON — HANGAR</div>
     <div class="header-subtitle">Document de réception / chargement portuaire</div>
   </div>
+  <div class="hdr-right"><a class="home" href="index.html">← Accueil</a>
   <button class="btn-pdf" id="btn_pdf" onclick="validateAndGenerate()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
     Générer PDF
-  </button>
+  </button></div>
 </header>
 
 <div class="main">
@@ -323,6 +330,18 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 <div class="status-bar">
   <span><span class="status-dot"></span>Formulaire actif</span>
   <span id="status_date"></span>
+</div>
+
+<!-- QUESTION COMMANDE DE MANUTENTION -->
+<div class="modal-overlay" id="cmd_ask" style="z-index:650">
+  <div class="confirm-box">
+    <div class="modal-header"><h3>Bon de livraison généré</h3></div>
+    <div class="confirm-body">Voulez-vous une commande de manutention ?<small>Les informations du bon de livraison seront reprises dans l'onglet « Commande de manutention ».</small></div>
+    <div class="modal-footer" style="justify-content:flex-end;">
+      <button class="btn-cancel" onclick="answerCmd(false)">Non</button>
+      <button class="btn-ok" onclick="answerCmd(true)">Oui</button>
+    </div>
+  </div>
 </div>
 
 <!-- VALIDATION MODAL -->
@@ -994,6 +1013,22 @@ function generatePDF() {
   var fname = 'BonDeLivraison_'+booking+'_'+numRef+'.pdf';
   doc.save(fname);
   showToast('✓ PDF généré : ' + fname);
+  saveSnapshot();
+  document.getElementById('cmd_ask').classList.add('open');
+}
+
+// Mémorise le bon pour préremplir les autres documents
+function saveSnapshot() {
+  var s = {};
+  ['date_edition','dossier','bdl_par','declarant','transitaire','armement','navire','booking','pod','destination_finale','lieu_livraison']
+    .forEach(function(id) { s[id] = v(id); });
+  s.marchandises = marchandises;
+  try { localStorage.setItem('bdl_last', JSON.stringify(s)); } catch(e) {}
+}
+
+function answerCmd(yes) {
+  document.getElementById('cmd_ask').classList.remove('open');
+  if (yes) setTimeout(function() { window.location.href = 'commande_manutention.html?from=bdl'; }, 500);
 }
 
 // ── START ──

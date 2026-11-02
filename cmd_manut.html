@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commande de manutention</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --navy: #0a1628;
+  --navy-mid: #112240;
+  --navy-light: #1d3461;
+  --accent: #4a9eff;
+  --accent-light: #7dbfff;
+  --white: #f0f4f8;
+  --muted: #8899aa;
+  --border: rgba(74,158,255,0.25);
+  --input-bg: rgba(255,255,255,0.04);
+  --input-border: rgba(74,158,255,0.3);
+  --red: #e05252;
+  --green: #4caf50;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; min-height: 100vh; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy-light) 100%);
+  border-bottom: 2px solid var(--accent);
+  padding: 20px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.header-title { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: var(--white); letter-spacing: 0.05em; }
+.header-subtitle { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; margin-top: 2px; }
+.btn-pdf {
+  background: var(--accent); color: #fff; border: none;
+  font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 12px;
+  letter-spacing: 0.1em; padding: 10px 22px; cursor: pointer; border-radius: 2px;
+  text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.btn-pdf:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-pdf:disabled, .btn-pdf.disabled { opacity: 0.35; cursor: not-allowed; transform: none; pointer-events: none; }
+
+/* MAIN */
+.main { padding: 28px 32px 80px; max-width: 1100px; margin: 0 auto; }
+
+/* SECTION */
+.section { background: var(--navy-mid); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+.section-header {
+  background: linear-gradient(90deg, rgba(74,158,255,0.12) 0%, transparent 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.section-header-left { display: flex; align-items: center; gap: 10px; }
+.section-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.section-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+.section-body { padding: 16px 20px; }
+
+/* GRID */
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.s3 { grid-column: span 3; }
+
+/* FIELD */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.req { color: var(--accent); }
+.field input, .field textarea, .field select {
+  background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 2px;
+  color: var(--white); font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;
+  padding: 8px 10px; width: 100%; outline: none; appearance: none; transition: border-color 0.2s, background 0.2s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); background: rgba(74,158,255,0.06); }
+.field input::placeholder, .field textarea::placeholder { color: rgba(136,153,170,0.5); }
+.field textarea { resize: vertical; min-height: 60px; }
+.field select option { background: var(--navy-mid); }
+.uc { text-transform: uppercase; }
+.uc::placeholder { text-transform: none; }
+
+/* MARCHANDISES */
+.marc-item {
+  background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07);
+  border-left: 3px solid var(--accent); border-radius: 4px; padding: 8px 10px;
+  margin-bottom: 10px; animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.marc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.marc-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; }
+.marc-actions { display: flex; gap: 8px; align-items: center; }
+.btn-vin {
+  background: rgba(74,158,255,0.12); border: 1px solid var(--border); color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
+  padding: 4px 10px; border-radius: 2px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 5px;
+}
+.btn-vin:hover { background: rgba(74,158,255,0.25); }
+.vin-badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 2px; background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
+.vin-badge.warn { background: rgba(224,82,82,0.15); border-color: rgba(224,82,82,0.3); color: var(--red); }
+.btn-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 4px; transition: color 0.2s; }
+.btn-remove:hover { color: var(--red); }
+.btn-add-marc {
+  background: rgba(74,158,255,0.06); border: 1px dashed var(--border); color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.1em;
+  padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; margin-top: 4px;
+}
+.btn-add-marc:hover { background: rgba(74,158,255,0.14); border-style: solid; }
+
+/* TOTALS */
+.totals-bar { display: flex; gap: 24px; background: rgba(74,158,255,0.07); border: 1px solid var(--border); border-radius: 4px; padding: 14px 20px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+.t-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.t-value { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600; color: var(--accent); }
+
+/* SIGNATURE */
+.sig-box { border: 1px solid var(--border); border-radius: 4px; padding: 14px; min-height: 70px; background: var(--input-bg); color: var(--muted); font-size: 12px; }
+
+/* STATUS */
+.status-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--navy-mid); border-top: 1px solid var(--border); padding: 8px 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); z-index: 100; }
+.status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+/* TOAST */
+#toast { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--accent); color: #fff; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 12px; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 200; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--navy-mid); border: 1px solid var(--border); border-radius: 6px; width: 520px; max-width: 95vw; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
+.modal-header { background: linear-gradient(90deg, rgba(74,158,255,0.12) 0%, transparent 100%); border-bottom: 1px solid var(--border); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+.modal-header h3 { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; transition: color 0.2s; }
+.modal-close:hover { color: var(--white); }
+.modal-body { padding: 18px; overflow-y: auto; flex: 1; }
+.modal-footer { border-top: 1px solid var(--border); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.modal-status { font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.modal-status.ok { color: var(--green); }
+.modal-status.err { color: var(--red); }
+.btn-ok { background: var(--accent); color: #fff; border: none; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 11px; letter-spacing: 0.08em; padding: 8px 18px; border-radius: 2px; cursor: pointer; transition: opacity 0.2s; }
+.btn-ok:hover { opacity: 0.85; }
+.btn-cancel { background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,0.1); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 8px 14px; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
+.btn-cancel:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+
+/* VIN */
+.vin-info { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 14px; padding: 8px 10px; background: rgba(255,255,255,0.03); border-radius: 2px; border-left: 3px solid var(--accent); }
+.vin-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.vin-row input { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 2px; color: var(--white); font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 7px 10px; flex: 1; outline: none; text-transform: uppercase; letter-spacing: 0.05em; transition: border-color 0.2s; }
+.vin-row input:focus { border-color: var(--accent); }
+.vin-row input.valid { border-color: var(--green); }
+.vin-row input.invalid { border-color: var(--red); }
+.vin-del { background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 4px; transition: color 0.2s; }
+.vin-del:hover { color: var(--red); }
+.btn-add-vin { background: rgba(74,158,255,0.06); border: 1px dashed rgba(74,158,255,0.3); color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 7px; border-radius: 2px; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; margin-top: 4px; }
+.btn-add-vin:hover { background: rgba(74,158,255,0.14); }
+
+/* BULK PASTE */
+.bulk-zone { margin-bottom: 14px; }
+.bulk-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.bulk-row { display: flex; gap: 8px; align-items: flex-start; }
+.bulk-row textarea { flex: 1; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 2px; color: var(--white); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 8px 10px; outline: none; resize: none; height: 64px; text-transform: uppercase; transition: border-color 0.2s; }
+.bulk-row textarea:focus { border-color: var(--accent); }
+.btn-import { background: var(--accent); color: #fff; border: none; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 11px; letter-spacing: 0.08em; padding: 0 14px; height: 64px; border-radius: 2px; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; }
+.btn-import:hover { opacity: 0.85; }
+.modal-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+
+@media (max-width: 700px) { .g3,.g4 { grid-template-columns: 1fr 1fr; } .main { padding: 16px; } .header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; } }
+@media (max-width: 480px) { .g2,.g3,.g4 { grid-template-columns: 1fr; } .s2,.s3 { grid-column: span 1; } }
+/* VALIDATION MODAL */
+#val_modal { position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:600;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px); }
+#val_modal.open { display:flex; }
+.val-box { background:var(--navy-mid);border:1px solid rgba(224,82,82,0.3);border-radius:6px;width:460px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,0.6);overflow:hidden; }
+.val-header { background:linear-gradient(90deg,rgba(224,82,82,0.15) 0%,transparent 100%);border-bottom:1px solid rgba(224,82,82,0.2);padding:14px 18px;display:flex;align-items:center;gap:10px; }
+.val-header h3 { font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;letter-spacing:0.12em;color:var(--red);text-transform:uppercase; }
+.val-body { padding:18px;max-height:60vh;overflow-y:auto; }
+.val-item { display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;background:rgba(224,82,82,0.08);border:1px solid rgba(224,82,82,0.18);border-radius:3px; }
+.val-dot { width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0; }
+.val-item span { font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--white);letter-spacing:0.04em; }
+.val-footer { border-top:1px solid var(--border);padding:12px 18px;display:flex;justify-content:flex-end; }
+.btn-val-close { background:var(--accent);color:#fff;border:none;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:11px;letter-spacing:0.08em;padding:8px 18px;border-radius:2px;cursor:pointer;transition:opacity 0.2s; }
+.btn-val-close:hover { opacity:0.85; }
+
+/* TABS */
+.tabs { display:flex; gap:4px; align-self:flex-end; margin-bottom:-20px; }
+.tab { background:none; border:1px solid transparent; border-bottom:none; color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; padding:10px 18px; cursor:pointer; border-radius:3px 3px 0 0; transition:all 0.2s; }
+.tab:hover { color:var(--white); }
+.tab.active { color:var(--white); background:var(--navy); border-color:var(--border); box-shadow:inset 0 2px 0 var(--accent); }
+.hint { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+.confirm-box { background:var(--navy-mid); border:1px solid var(--border); border-radius:6px; width:440px; max-width:95vw; box-shadow:0 24px 80px rgba(0,0,0,0.6); overflow:hidden; }
+.confirm-body { padding:22px 20px; font-size:14px; line-height:1.5; }
+.confirm-body small { display:block; color:var(--muted); font-size:12px; margin-top:6px; }
+@media (max-width: 700px) { .tabs { margin-bottom:0; order:3; width:100%; } }
+
+.home { color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; text-decoration:none; text-transform:uppercase; border:1px solid rgba(255,255,255,0.12); padding:8px 12px; border-radius:2px; }
+.home:hover { color:var(--white); border-color:var(--accent); }
+.hdr-right { display:flex; gap:10px; align-items:center; }
+</style>
+</head>
+<body>
+<header class="header">
+  <div>
+    <div class="header-title">COMMANDE DE MANUTENTION</div>
+    <div class="header-subtitle">Ordre de manutention portuaire</div>
+  </div>
+  <div class="hdr-right"><a class="home" href="index.html">← Accueil</a>
+  <button class="btn-pdf" id="btn_pdf_cmd" onclick="validateAndGenerateCmd()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+    Générer PDF
+  </button></div>
+</header>
+<!-- ═══ ONGLET COMMANDE DE MANUTENTION ═══ -->
+<div class="main" id="view_cmd">
+
+  <div class="section">
+    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Facturation</span></div></div>
+    <div class="section-body">
+      <div class="grid g2">
+        <div class="field"><label>Facturer à (nom / N° SIRET)</label><input type="text" id="c_facturer" class="uc" placeholder="Nom / N° SIRET" /></div>
+        <div class="field"><label>Adresse postale</label><input type="text" id="c_adresse" class="uc" placeholder="Adresse postale" /></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Références</span></div></div>
+    <div class="section-body">
+      <div class="grid g3">
+        <div class="field"><label>N° dossier</label><input type="text" id="c_dossier" class="uc" /></div>
+        <div class="field"><label>Date</label><input type="date" id="c_date" /></div>
+        <div class="field"><label>N° cotation : M</label><input type="text" id="c_cotation" class="uc" placeholder="Si connu" /></div>
+        <div class="field"><label>Date de notre mail <span class="req">*</span></label><input type="date" id="c_date_mail" /></div>
+        <div class="field"><label>Fait par <span class="req">*</span></label><input type="text" id="c_fait_par" class="uc" placeholder="Nom du donneur d'ordre" /></div>
+        <div class="field"><label>Client</label><input type="text" id="c_client" class="uc" /></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Transport</span></div></div>
+    <div class="section-body">
+      <div class="grid g3">
+        <div class="field"><label>Compagnie maritime</label><input type="text" id="c_compagnie" class="uc" placeholder="Nom de la compagnie" /></div>
+        <div class="field"><label>Navire <span class="req">*</span></label><input type="text" id="c_navire" class="uc" placeholder="Nom + ATP" /></div>
+        <div class="field"><label>Date limite d'exécution <span class="req">*</span></label><input type="date" id="c_date_limite" /></div>
+        <div class="field"><label>N° Booking</label><input type="text" id="c_booking" class="uc" /><div class="hint">Booking pour Export</div></div>
+        <div class="field"><label>N° ICV</label><input type="text" id="c_icv" class="uc" /><div class="hint">MBI pour Import</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Désignation de la marchandise et des travaux</span></div></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Châssis des véhicules, poids par véhicule, dimensions, travaux <span class="req">*</span></label>
+        <textarea id="c_designation" class="uc" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12px;" placeholder="Informations obligatoires…"></textarea>
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label>Commentaire de la manutention</label>
+        <textarea id="c_commentaire" class="uc" style="min-height:80px;"></textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- VALIDATION MODAL -->
+<div id="val_modal">
+  <div class="val-box">
+    <div class="val-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <h3>Champs obligatoires manquants</h3>
+    </div>
+    <div class="val-body" id="val_body"></div>
+    <div class="val-footer">
+      <button class="btn-val-close" onclick="document.getElementById('val_modal').classList.remove('open')">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+var numRef = String(Math.floor(1000000 + Math.random() * 9000000));
+function v(id) { var el = document.getElementById(id); return el ? el.value || '' : ''; }
+function showToast(msg) {
+  var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+document.addEventListener('input', function(e) {
+  if (e.target.classList && e.target.classList.contains('uc')) {
+    var pos = e.target.selectionStart; e.target.value = e.target.value.toUpperCase();
+    try { e.target.setSelectionRange(pos, pos); } catch(err) {}
+  }
+});
+function getSnap() { try { return JSON.parse(localStorage.getItem('bdl_last') || 'null'); } catch(e) { return null; } }
+
+// Reprise PROVISOIRE des infos du bon de livraison (à ajuster)
+function prefillCommande(s) {
+  function set(id, val) { var el = document.getElementById(id); if (el && val) el.value = val; }
+  set('c_dossier',   s.dossier);
+  set('c_fait_par',  s.bdl_par);
+  set('c_client',    s.declarant);
+  set('c_compagnie', s.armement);
+  set('c_navire',    s.navire);
+  set('c_booking',   s.booking);
+  set('c_designation', buildDesignation(s.marchandises || []));
+}
+function buildDesignation(list) {
+  var out = [];
+  list.forEach(function(m) {
+    var dims = [m.longueur, m.largeur, m.hauteur].filter(function(x) { return x; }).join(' x ');
+    var l = (m.nature || '').toUpperCase();
+    if (m.colis) l += ' — ' + m.colis + ' COLIS';
+    if (m.poids) l += ' — ' + m.poids + ' KG';
+    if (dims)    l += ' — ' + dims + ' M';
+    if (l.trim()) out.push(l);
+    (m.vins || []).forEach(function(vin) { if (vin.trim()) out.push(vin.trim()); });
+  });
+  return out.join('\n');
+}
+
+// Persistance des champs récurrents
+var CMD_PERSIST = ['c_facturer', 'c_adresse', 'c_fait_par'];
+(function() {
+  try {
+    var d = JSON.parse(localStorage.getItem('bdl_cmd') || '{}');
+    CMD_PERSIST.forEach(function(id) { var el = document.getElementById(id); if (el && d[id]) el.value = d[id]; });
+  } catch(e) {}
+  document.addEventListener('input', function(e) {
+    if (CMD_PERSIST.indexOf(e.target.id) === -1) return;
+    var d = {};
+    CMD_PERSIST.forEach(function(id) { d[id] = document.getElementById(id).value; });
+    try { localStorage.setItem('bdl_cmd', JSON.stringify(d)); } catch(err) {}
+  });
+})();
+
+var CMD_REQUIRED = [
+  { id: 'c_date_mail',   label: 'Date de notre mail' },
+  { id: 'c_fait_par',    label: 'Fait par' },
+  { id: 'c_navire',      label: 'Navire' },
+  { id: 'c_date_limite', label: "Date limite d'exécution" },
+  { id: 'c_designation', label: 'Désignation de la marchandise et des travaux' }
+];
+
+function validateAndGenerateCmd() {
+  var missing = CMD_REQUIRED.filter(function(f) { return !v(f.id).trim(); })
+                            .map(function(f) { return 'Commande de manutention — ' + f.label; });
+  if (missing.length) {
+    document.getElementById('val_body').innerHTML = missing.map(function(m) {
+      return '<div class="val-item"><div class="val-dot"></div><span>' + m + '</span></div>';
+    }).join('');
+    document.getElementById('val_modal').classList.add('open');
+    return;
+  }
+  generateCommandePDF();
+}
+
+function dFr(id) {
+  var s = v(id);
+  if (!s) return '';
+  var p = s.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+function generateCommandePDF() {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  var W = 210, mg = 10, x0 = mg, w = W - mg * 2, y = mg;
+  var LW = 50, rowH = 7.2;
+  doc.setDrawColor(0); doc.setTextColor(0);
+
+  // En-tête (emplacement logo)
+  doc.setLineWidth(0.4);
+  doc.rect(x0, y, w, 26);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
+  doc.text('COMMANDE DE MANUTENTION', W / 2, y + 16, { align: 'center' });
+  y += 26;
+  doc.setLineWidth(0.2);
+
+  function label(t, x, yy) { doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(t, x, yy); }
+  function value(t, x, yy, maxW) {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+    if (t) doc.text(t, x, yy, { maxWidth: maxW });
+  }
+
+  // Ligne pleine : libellé + valeur
+  function rowFull(lab, val) {
+    doc.rect(x0, y, w, rowH);
+    label(lab, x0 + 1.5, y + 4.8);
+    value(val, x0 + LW, y + 4.8, w - LW - 2);
+    y += rowH;
+  }
+  // Ligne à deux moitiés
+  function rowTwo(l1, v1, l2, v2, lw2) {
+    doc.rect(x0, y, w, rowH);
+    label(l1, x0 + 1.5, y + 4.8);
+    value(v1, x0 + LW, y + 4.8, w / 2 - LW - 2);
+    var xm = x0 + w / 2 + 10;
+    label(l2, xm, y + 4.8);
+    value(v2, xm + lw2, y + 4.8, w / 2 - 10 - lw2 - 2);
+    y += rowH;
+  }
+
+  rowFull('Facturer à :',      v('c_facturer').toUpperCase());
+  rowFull('Adresse postale :', v('c_adresse').toUpperCase());
+  y += 2.5;
+  rowTwo('N° dossier :', v('c_dossier').toUpperCase(), 'Date :', dFr('c_date'), 12);
+  rowFull('N° Cotation : M', v('c_cotation').toUpperCase());
+  rowFull('Date de notre mail :', dFr('c_date_mail'));
+  rowFull('Fait par :',        v('c_fait_par').toUpperCase());
+  rowFull('Client :',          v('c_client').toUpperCase());
+  rowFull('Compagnie Maritime', v('c_compagnie').toUpperCase());
+  rowFull('Navire :',          v('c_navire').toUpperCase());
+  rowFull("Date limite d'exécution :", dFr('c_date_limite'));
+  rowTwo('N° BOOKING', v('c_booking').toUpperCase(), 'N° ICV', v('c_icv').toUpperCase(), 14);
+  y += 3;
+
+  // Désignation
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(200, 0, 0);
+  doc.text('Désignation de la marchandise (Châssis des véhicules, poids par véhicule, dimensions)', x0 + 1.5, y + 4);
+  doc.text('et des travaux :', x0 + 1.5, y + 9);
+  doc.setTextColor(0);
+  y += 12;
+
+  function ruledBlock(text, minLines) {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+    var lines = [];
+    String(text || '').split('\n').forEach(function(p) {
+      var parts = doc.splitTextToSize(p, w - 4);
+      lines = lines.concat(parts.length ? parts : ['']);
+    });
+    var n = Math.max(minLines, lines.length);
+    for (var i = 0; i < n; i++) {
+      if (y + rowH > 280) { doc.addPage(); y = mg; }
+      doc.rect(x0, y, w, rowH);
+      if (lines[i]) { doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(lines[i], x0 + 1.5, y + 4.9); }
+      y += rowH;
+    }
+  }
+  ruledBlock(v('c_designation').toUpperCase(), 17);
+
+  // Commentaire
+  if (y + rowH * 3 > 285) { doc.addPage(); y = mg; }
+  doc.rect(x0, y, w, rowH);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+  doc.text('Commentaire de la manutention :', x0 + 1.5, y + 4.8);
+  y += rowH;
+  ruledBlock(v('c_commentaire').toUpperCase(), 2);
+
+  var ref = (v('c_dossier') || v('c_booking') || 'COMMANDE').replace(/\s+/g, '_');
+  var fname = 'CommandeManutention_' + ref + '_' + numRef + '.pdf';
+  doc.save(fname);
+  showToast('✓ PDF généré : ' + fname);
+}
+
+
+(function init() {
+  var n = new Date();
+  document.getElementById('c_date').value = n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+  if (location.search.indexOf('from=bdl') > -1) {
+    var s = getSnap();
+    if (s) { prefillCommande(s); showToast('Informations du bon de livraison reprises'); }
+  }
+})();
+</script>
+</body>
+</html>
