@@ -218,8 +218,9 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Facturation</span></div></div>
     <div class="section-body">
       <div class="grid g2">
-        <div class="field"><label>Facturer à (nom / N° SIRET)</label><input type="text" id="c_facturer" class="uc" placeholder="Nom / N° SIRET" /></div>
-        <div class="field"><label>Adresse postale</label><input type="text" id="c_adresse" class="uc" placeholder="Adresse postale" /></div>
+        <div class="field"><label>Facturer à (nom)</label><input type="text" id="c_facturer" class="uc" placeholder="Nom de la société" /></div>
+        <div class="field"><label>N° SIRET <span class="req">*</span></label><input type="text" id="c_siret" inputmode="numeric" placeholder="14 chiffres" /></div>
+        <div class="field" style="grid-column:span 2;"><label>Adresse postale <span class="req">*</span></label><input type="text" id="c_adresse" class="uc" placeholder="Adresse postale" /></div>
       </div>
     </div>
   </div>
@@ -245,18 +246,31 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
         <div class="field"><label>Compagnie maritime</label><input type="text" id="c_compagnie" class="uc" placeholder="Nom de la compagnie" /></div>
         <div class="field"><label>Navire <span class="req">*</span></label><input type="text" id="c_navire" class="uc" placeholder="Nom + ATP" /></div>
         <div class="field"><label>Date limite d'exécution <span class="req">*</span></label><input type="date" id="c_date_limite" /></div>
-        <div class="field"><label>N° Booking</label><input type="text" id="c_booking" class="uc" /><div class="hint">Booking pour Export</div></div>
-        <div class="field"><label>ID SOGET</label><input type="text" id="c_soget" class="uc" /><div class="hint">Pour l'import</div></div>
+        <div class="field"><label>N° Booking <span class="req">*</span></label><input type="text" id="c_booking" class="uc" /><div class="hint">Export — ou ID SOGET</div></div>
+        <div class="field"><label>ID SOGET <span class="req">*</span></label><input type="text" id="c_soget" class="uc" /><div class="hint">Import — ou N° booking</div></div>
       </div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Désignation de la marchandise et des travaux</span></div></div>
+    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Description de la marchandise</span></div></div>
+    <div class="section-body">
+      <div id="marc_list"></div>
+      <button class="btn-add-marc" onclick="addMarchandise()">+ Ajouter une marchandise</button>
+      <div class="totals-bar">
+        <div><div class="t-label">Total Colis</div><div class="t-value" id="total_colis">0</div></div>
+        <div><div class="t-label">Poids Brut Total (kg)</div><div class="t-value" id="total_poids">0</div></div>
+        <div><div class="t-label">Total VIN renseignés</div><div class="t-value" id="total_vin">0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Désignation des travaux</span></div></div>
     <div class="section-body">
       <div class="field">
-        <label>Châssis des véhicules, poids par véhicule, dimensions, travaux <span class="req">*</span></label>
-        <textarea id="c_designation" class="uc" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12px;" placeholder="Informations obligatoires…"></textarea>
+        <label>Travaux à effectuer <span class="req">*</span> <span style="text-transform:none;letter-spacing:0">(ou une marchandise ci-dessus)</span></label>
+        <textarea id="c_designation" class="uc" style="min-height:130px;" placeholder="Informations obligatoires…"></textarea>
       </div>
       <div class="field" style="margin-top:14px;">
         <label>Commentaire de la manutention</label>
@@ -282,6 +296,35 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 </div>
 
 <div id="toast"></div>
+
+<!-- MODAL VIN -->
+<div class="modal-overlay" id="vin_modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal_title">Numéros VIN</h3>
+      <button class="modal-close" onclick="closeVinModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="vin-info">Colis attendus : <strong id="vin_expected">0</strong></div>
+      <div class="bulk-zone">
+        <div class="bulk-label">Coller plusieurs VIN d'un coup</div>
+        <div class="bulk-row">
+          <textarea id="vin_bulk" placeholder="Collez vos VIN ici — un par ligne, ou séparés par virgules / espaces…" oninput="this.value=this.value.toUpperCase()"></textarea>
+          <button class="btn-import" onclick="importBulkVin()">Ajouter</button>
+        </div>
+      </div>
+      <div id="vin_inputs"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="modal_status"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-cancel" onclick="closeVinModal()">Annuler</button>
+        <button class="btn-ok" onclick="saveVin()">Valider</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 var numRef = String(Math.floor(1000000 + Math.random() * 9000000));
 function v(id) { var el = document.getElementById(id); return el ? el.value || '' : ''; }
@@ -297,6 +340,235 @@ document.addEventListener('input', function(e) {
 });
 function getSnap() { try { return JSON.parse(localStorage.getItem('bdl_last') || 'null'); } catch(e) { return null; } }
 
+var marchandises = [];
+var marcCounter = 0;
+var currentVinId = null;
+function checkPdfBtn() {}
+function marcNonEmpty(m) {
+  return !!(m.nature.trim() || m.poids || m.colis || m.longueur || m.largeur || m.hauteur || (m.vins && m.vins.length));
+}
+// ── MARCHANDISES ──
+function addMarchandise() {
+  marcCounter++;
+  marchandises.push({ id: marcCounter, nature: '', longueur: '', largeur: '', hauteur: '', poids: '', colis: '', vins: [] });
+  renderMarc();
+}
+
+function removeMarchandise(id) {
+  marchandises = marchandises.filter(function(m) { return m.id !== id; });
+  renderMarc();
+  updateTotals();
+}
+
+function getMarc(id) {
+  return marchandises.find(function(m) { return m.id === id; });
+}
+
+function setField(id, key, val) {
+  var m = getMarc(id);
+  if (m) m[key] = val;
+}
+
+function renderMarc() {
+  var list = document.getElementById('marc_list');
+  list.innerHTML = '';
+  marchandises.forEach(function(m, idx) {
+    var vinCount = m.vins.filter(function(v) { return v.trim(); }).length;
+    var colisNum = parseInt(m.colis) || 0;
+    var vinOk = colisNum > 0 && vinCount === colisNum;
+    var vinWarn = colisNum > 0 && vinCount !== colisNum;
+    var badgeHtml = vinCount > 0
+      ? '<span class="vin-badge' + (vinWarn ? ' warn' : '') + '">' + vinCount + ' VIN' + (vinOk ? ' ✓' : ' / ' + colisNum) + '</span>'
+      : '';
+    var removeBtn = marchandises.length > 1
+      ? '<button class="btn-remove" onclick="removeMarchandise(' + m.id + ')" title="Supprimer">×</button>'
+      : '';
+
+    var reqOk = m.nature.trim() !== '' && colisNum > 0 && parseFloat(m.poids) > 0;
+    var vinBtnDisabled = reqOk ? '' : 'disabled';
+    var vinBtnStyle = reqOk
+      ? ''
+      : 'opacity:0.35;cursor:not-allowed;pointer-events:none;';
+
+    // VIN display block
+    var vinDisplay = '';
+    if (m.vins.length > 0) {
+      var chips = m.vins.map(function(v) {
+        var ok = v.trim().length === 17;
+        return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span>';
+      }).join('');
+      vinDisplay = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">' +
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">VIN (' + vinCount + '/' + colisNum + ')</div>' +
+        '<div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div>' +
+      '</div>';
+    }
+
+    var div = document.createElement('div');
+    div.className = 'marc-item';
+    div.innerHTML =
+      (removeBtn ? '<div style="display:flex;justify-content:flex-end;margin-bottom:4px;">' + removeBtn + '</div>' : '') +
+      '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;margin-bottom:10px;">' +
+        '<div class="field">' +
+          '<label>Nature de la marchandise <span class="req">*</span></label>' +
+          '<input type="text" value="' + esc(m.nature) + '" placeholder="Description…" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();setField(' + m.id + ',\'nature\',this.value);updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Longueur (m)</label>' +
+          '<input type="number" value="' + esc(m.longueur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'longueur\',this.value)" onblur="formatDim(this,' + m.id + ',\'longueur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Largeur (m)</label>' +
+          '<input type="number" value="' + esc(m.largeur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'largeur\',this.value)" onblur="formatDim(this,' + m.id + ',\'largeur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Hauteur (m)</label>' +
+          '<input type="number" value="' + esc(m.hauteur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'hauteur\',this.value)" onblur="formatDim(this,' + m.id + ',\'hauteur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Poids (kg) <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.poids) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'poids\',this.value);updateTotals();updateVinBtn(' + m.id + ')" onblur="formatDim(this,' + m.id + ',\'poids\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Colis <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.colis) + '" placeholder="0" min="0" tabindex="0" onkeydown="if(event.key===\'Tab\'){event.preventDefault();var b=document.getElementById(\'vinbtn-'+m.id+'\');if(b)b.focus();}" oninput="setField(' + m.id + ',\'colis\',this.value);updateTotals();updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' +
+        '<div>' + badgeHtml + '</div>' +
+        '<button id="vinbtn-' + m.id + '" class="btn-vin" onclick="openVinModal(' + m.id + ')" ' + vinBtnDisabled + ' style="' + vinBtnStyle + '">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> AJOUTER VIN' +
+        '</button>' +
+      '</div>' +
+      vinDisplay;
+    list.appendChild(div);
+  });
+}
+
+function updateVinBtn(id) {
+  var m = getMarc(id);
+  if (!m) return;
+  var reqOk = m.nature.trim() !== '' && (parseInt(m.colis) || 0) > 0 && parseFloat(m.poids) > 0;
+  var btn = document.getElementById('vinbtn-' + id);
+  if (!btn) return;
+  btn.disabled = !reqOk;
+  btn.style.opacity = reqOk ? '1' : '0.35';
+  btn.style.cursor = reqOk ? 'pointer' : 'not-allowed';
+  btn.style.pointerEvents = reqOk ? 'auto' : 'none';
+}
+
+
+function updateTotals() {
+  var c = marchandises.reduce(function(s,m) { return s + (parseInt(m.colis)||0); }, 0);
+  var p = marchandises.reduce(function(s,m) { return s + (parseFloat(m.poids)||0); }, 0);
+  var v = marchandises.reduce(function(s,m) { return s + m.vins.filter(function(x){return x.trim();}).length; }, 0);
+  document.getElementById('total_colis').textContent = c;
+  document.getElementById('total_poids').textContent = p.toLocaleString('fr-FR');
+  document.getElementById('total_vin').textContent = v;
+  checkPdfBtn();
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDim(input, id, key) {
+  var val = parseFloat(input.value);
+  if (!isNaN(val)) {
+    var formatted = val.toFixed(2);
+    input.value = formatted;
+    setField(id, key, formatted);
+  }
+}
+
+// ── VIN MODAL ──
+function openVinModal(id) {
+  currentVinId = id;
+  var m = getMarc(id);
+  var idx = marchandises.indexOf(m) + 1;
+  document.getElementById('modal_title').textContent = 'Numéros VIN — Lot ' + idx;
+  document.getElementById('vin_expected').textContent = parseInt(m.colis) || 0;
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+  document.getElementById('vin_modal').classList.add('open');
+}
+
+function closeVinModal() {
+  document.getElementById('vin_modal').classList.remove('open');
+  currentVinId = null;
+}
+
+function renderVinChips(vins) {
+  var container = document.getElementById('vin_inputs');
+  if (!vins || vins.length === 0) { container.innerHTML = ''; return; }
+  var chips = vins.map(function(v, i) {
+    var ok = v.trim().length === 17;
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+      '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:4px 10px;border-radius:2px;flex:1;' +
+        'background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';' +
+        'border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';' +
+        'color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.06em;">' +
+        '<span style="color:var(--muted);margin-right:8px;">' + (i+1) + '.</span>' + v +
+      '</span>' +
+      '<button class="vin-del" onclick="removeVinChip(' + i + ')">×</button>' +
+    '</div>';
+  }).join('');
+  container.innerHTML = chips;
+}
+
+function removeVinChip(idx) {
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  m.vins.splice(idx, 1);
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function getModalVins() {
+  var m = getMarc(currentVinId);
+  return m ? m.vins.slice() : [];
+}
+
+function updateModalStatus() {
+  if (!currentVinId) return;
+  var m = getMarc(currentVinId);
+  var expected = parseInt(m.colis) || 0;
+  var filled = m.vins.length;
+  var st = document.getElementById('modal_status');
+  if (expected === 0) { st.textContent = ''; st.className = 'modal-status'; return; }
+  if (filled === expected) {
+    st.textContent = '✓ ' + filled + ' / ' + expected + ' VIN — OK';
+    st.className = 'modal-status ok';
+  } else {
+    st.textContent = filled + ' / ' + expected + ' VIN renseignés';
+    st.className = 'modal-status err';
+  }
+}
+
+function importBulkVin() {
+  var raw = document.getElementById('vin_bulk').value;
+  if (!raw.trim()) return;
+  var vins = raw.split(/[\n\r,;|\t]+/)
+    .map(function(v) { return v.trim().toUpperCase(); })
+    .filter(function(v) { return v.length > 0; });
+  if (!vins.length) return;
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  vins.forEach(function(v) {
+    if (m.vins.indexOf(v) === -1) m.vins.push(v);
+  });
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function saveVin() {
+  closeVinModal();
+  renderMarc();
+  updateTotals();
+}
+
+
 // Reprise PROVISOIRE des infos du bon de livraison (à ajuster)
 function prefillCommande(s) {
   function set(id, val) { var el = document.getElementById(id); if (el && val) el.value = val; }
@@ -306,7 +578,11 @@ function prefillCommande(s) {
   set('c_compagnie', s.armement);
   set('c_navire',    s.navire);
   set('c_booking',   s.booking);
-  set('c_designation', buildDesignation(s.marchandises || []));
+  if (s.marchandises && s.marchandises.length) {
+    marchandises = JSON.parse(JSON.stringify(s.marchandises));
+    marcCounter = marchandises.reduce(function(a, x) { return Math.max(a, x.id || 0); }, 0);
+    renderMarc(); updateTotals();
+  }
 }
 function buildDesignation(list) {
   var out = [];
@@ -323,7 +599,7 @@ function buildDesignation(list) {
 }
 
 // Persistance des champs récurrents
-var CMD_PERSIST = ['c_facturer', 'c_adresse', 'c_fait_par'];
+var CMD_PERSIST = ['c_facturer', 'c_siret', 'c_adresse', 'c_fait_par'];
 (function() {
   try {
     var d = JSON.parse(localStorage.getItem('bdl_cmd') || '{}');
@@ -337,26 +613,39 @@ var CMD_PERSIST = ['c_facturer', 'c_adresse', 'c_fait_par'];
   });
 })();
 
-var CMD_REQUIRED = [
-  { id: 'c_date_mail',   label: 'Date de notre mail' },
-  { id: 'c_fait_par',    label: 'Fait par' },
-  { id: 'c_navire',      label: 'Navire' },
-  { id: 'c_date_limite', label: "Date limite d'exécution" },
-  { id: 'c_designation', label: 'Désignation de la marchandise et des travaux' }
-];
+function cmdMissing() {
+  var miss = [];
+  [['c_date_mail', 'Date de notre mail'], ['c_fait_par', 'Fait par'], ['c_navire', 'Navire'],
+   ['c_date_limite', "Date limite d'exécution"], ['c_siret', 'N° SIRET'], ['c_adresse', 'Adresse postale']
+  ].forEach(function(f) { if (!v(f[0]).trim()) miss.push('Commande de manutention — ' + f[1]); });
+  if (!v('c_booking').trim() && !v('c_soget').trim()) miss.push('Transport — N° Booking ou ID SOGET (au moins un)');
+  var lots = marchandises.filter(marcNonEmpty);
+  if (!v('c_designation').trim() && !lots.length) miss.push('Marchandise — description ou désignation des travaux');
+  marchandises.forEach(function(m, idx) {
+    if (!marcNonEmpty(m)) return;
+    if (!m.nature.trim()) miss.push('Description de la marchandise — Nature (lot ' + (idx+1) + ')');
+    if (!(parseFloat(m.poids) > 0)) miss.push('Description de la marchandise — Poids (lot ' + (idx+1) + ')');
+    if (!(parseInt(m.colis) > 0)) miss.push('Description de la marchandise — Nombre de colis (lot ' + (idx+1) + ')');
+  });
+  return miss;
+}
 
 function validateAndGenerateCmd() {
-  var missing = CMD_REQUIRED.filter(function(f) { return !v(f.id).trim(); })
-                            .map(function(f) { return 'Commande de manutention — ' + f.label; });
+  var missing = cmdMissing();
   if (missing.length) {
-    document.getElementById('val_body').innerHTML = missing.map(function(m) {
-      return '<div class="val-item"><div class="val-dot"></div><span>' + m + '</span></div>';
+    document.getElementById('val_body').innerHTML = missing.map(function(x) {
+      return '<div class="val-item"><div class="val-dot"></div><span>' + x + '</span></div>';
     }).join('');
     document.getElementById('val_modal').classList.add('open');
     return;
   }
   generateCommandePDF();
 }
+
+document.getElementById('c_siret').addEventListener('input', function() {
+  var d = this.value.replace(/\D/g, '').length;
+  this.style.borderColor = (this.value && d !== 14) ? 'var(--red)' : '';
+});
 
 function dFr(id) {
   var s = v(id);
@@ -452,6 +741,67 @@ function textCard(doc, c, title, text, minLines) {
   c.end();
 }
 
+function marcPdf(doc, c) {
+  var W = PK.W, mg = PK.mg, list = marchandises.filter(marcNonEmpty);
+  if (!list.length) return;
+  var T = 'Description de la marchandise';
+  c.start(); c.title(T);
+  list.forEach(function(m, idx) {
+    if (c.y > 240) { c.end(); doc.addPage(); c.y = 14; c.start(); c.title(T + ' (suite)'); }
+    var lotH = 16, lotY = c.y;
+    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, lotY, W-mg*2-4, lotH, 'F'); }
+    doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
+    doc.roundedRect(mg+2, lotY, W-mg*2-4, lotH, 1, 1, 'S');
+    var cw = W - mg*2 - 8;
+    var col = [
+      { l: 'Nature de la marchandise', w: 0.35 }, { l: 'Longueur (m)', w: 0.11 }, { l: 'Largeur (m)', w: 0.11 },
+      { l: 'Hauteur (m)', w: 0.11 }, { l: 'Poids (kg)', w: 0.13 }, { l: 'Colis', w: 0.08 }
+    ];
+    var vals = [(m.nature || '').toUpperCase(), m.longueur || '', m.largeur || '', m.hauteur || '', m.poids || '', m.colis || ''];
+    var xCur = mg + 5;
+    col.forEach(function(cl, i) {
+      var colW = cw * cl.w;
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
+      doc.text(cl.l.toUpperCase(), xCur, lotY + 5);
+      doc.setFontSize(7); doc.setTextColor.apply(doc, PK.black);
+      if (vals[i]) doc.text(String(vals[i]), xCur, lotY + 11, { maxWidth: colW - 2 });
+      doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
+      doc.line(xCur, lotY + 12.5, xCur + colW - 2, lotY + 12.5);
+      xCur += colW;
+    });
+    c.y += lotH + 1;
+    var vins = (m.vins || []).filter(function(x) { return x.trim(); });
+    if (vins.length) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
+      doc.text('VIN (' + vins.length + '/' + (parseInt(m.colis) || 0) + ')', mg + 5, c.y + 3);
+      c.y += 5;
+      vins.forEach(function(vin, vi) {
+        if (c.y > 268) { c.end(); doc.addPage(); c.y = 14; c.start(); c.title('VIN (suite)'); }
+        var ok = vin.length === 17;
+        doc.setFont('courier','normal'); doc.setFontSize(7);
+        doc.setTextColor.apply(doc, ok ? [40,160,70] : [200,60,60]);
+        doc.text((vi+1) + '.  ' + vin, mg + 5, c.y + 3);
+        c.y += 4.5;
+      });
+      c.y += 1;
+    }
+    c.y += 1;
+  });
+  c.end();
+  var totC = list.reduce(function(s, m) { return s + (parseInt(m.colis) || 0); }, 0);
+  var totP = list.reduce(function(s, m) { return s + (parseFloat(m.poids) || 0); }, 0);
+  if (c.y > 265) { doc.addPage(); c.y = 14; }
+  c.start();
+  doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
+  doc.text('TOTAL', mg + 3, c.y + 3);
+  doc.setFontSize(7); doc.setTextColor.apply(doc, PK.black);
+  doc.text(totC + ' colis  —  Poids brut total : ' + String(totP).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' kg', mg + 3, c.y + 7);
+  doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
+  doc.line(mg + 3, c.y + 8, W - mg - 3, c.y + 8);
+  c.y += 10;
+  c.end();
+}
+
 function generateCommandePDF() {
   var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   PK.header(doc, 'COMMANDE DE MANUTENTION', 'Ordre de manutention portuaire', numRef,
@@ -459,7 +809,8 @@ function generateCommandePDF() {
   var c = PK.card(doc);
 
   c.start(); c.title('Facturation');
-  c.row2('Facturer à (nom / N° SIRET)', v('c_facturer').toUpperCase(), 'Adresse postale', v('c_adresse').toUpperCase());
+  c.row2('Facturer à', v('c_facturer').toUpperCase(), 'N° SIRET', v('c_siret'));
+  c.cell('Adresse postale', v('c_adresse').toUpperCase(), PK.mg + 3, PK.W - PK.mg * 2 - 4); c.y += 10;
   c.end();
 
   c.start(); c.title('Références');
@@ -472,7 +823,8 @@ function generateCommandePDF() {
   c.row3('N° Booking', v('c_booking').toUpperCase(), 'ID SOGET (import)', v('c_soget').toUpperCase(), '', '');
   c.end();
 
-  textCard(doc, c, 'Désignation de la marchandise et des travaux', v('c_designation').toUpperCase(), 14);
+  marcPdf(doc, c);
+  textCard(doc, c, 'Désignation des travaux', v('c_designation').toUpperCase(), 8);
   textCard(doc, c, 'Commentaire de la manutention', v('c_commentaire').toUpperCase(), 3);
 
   PK.footer(doc, 'Commande de Manutention', numRef, dFr('c_date'));
@@ -505,6 +857,7 @@ document.getElementById('c_cotation').addEventListener('input', syncMailDate);
     var s = getSnap();
     if (s) { prefillCommande(s); showToast('Informations du bon de livraison reprises'); }
   }
+  if (!marchandises.length) addMarchandise();
   if (q.indexOf('from=') > -1 && travaux.trim()) {
     var d = document.getElementById('c_designation');
     d.value = (d.value ? d.value + '\n\n' : '') + travaux.toUpperCase();
