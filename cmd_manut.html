@@ -208,7 +208,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   <div class="hdr-right"><a class="home" href="index.html">← Accueil</a>
   <button class="btn-pdf" id="btn_pdf_cmd" onclick="validateAndGenerateCmd()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-    Générer PDF
+    Générer la commande de manutention
   </button></div>
 </header>
 <!-- ═══ ONGLET COMMANDE DE MANUTENTION ═══ -->
@@ -231,7 +231,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
         <div class="field"><label>N° dossier</label><input type="text" id="c_dossier" class="uc" /></div>
         <div class="field"><label>Date</label><input type="date" id="c_date" /></div>
         <div class="field"><label>N° cotation : M</label><input type="text" id="c_cotation" class="uc" placeholder="Si connu" /></div>
-        <div class="field"><label>Date de notre mail <span class="req">*</span></label><input type="date" id="c_date_mail" /></div>
+        <div class="field"><label>Date de notre mail <span class="req">*</span></label><input type="date" id="c_date_mail" /><div class="hint">Date du jour, à saisir si N° de cotation</div></div>
         <div class="field"><label>Fait par <span class="req">*</span></label><input type="text" id="c_fait_par" class="uc" placeholder="Nom du donneur d'ordre" /></div>
         <div class="field"><label>Client</label><input type="text" id="c_client" class="uc" /></div>
       </div>
@@ -246,7 +246,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
         <div class="field"><label>Navire <span class="req">*</span></label><input type="text" id="c_navire" class="uc" placeholder="Nom + ATP" /></div>
         <div class="field"><label>Date limite d'exécution <span class="req">*</span></label><input type="date" id="c_date_limite" /></div>
         <div class="field"><label>N° Booking</label><input type="text" id="c_booking" class="uc" /><div class="hint">Booking pour Export</div></div>
-        <div class="field"><label>N° ICV</label><input type="text" id="c_icv" class="uc" /><div class="hint">MBI pour Import</div></div>
+        <div class="field"><label>ID SOGET</label><input type="text" id="c_soget" class="uc" /><div class="hint">Pour l'import</div></div>
       </div>
     </div>
   </div>
@@ -365,104 +365,149 @@ function dFr(id) {
   return p[2] + '/' + p[1] + '/' + p[0];
 }
 
-function generateCommandePDF() {
-  var jsPDF = window.jspdf.jsPDF;
-  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  var W = 210, mg = 10, x0 = mg, w = W - mg * 2, y = mg;
-  var LW = 50, rowH = 7.2;
-  doc.setDrawColor(0); doc.setTextColor(0);
 
-  // En-tête (emplacement logo)
-  doc.setLineWidth(0.4);
-  doc.rect(x0, y, w, 26);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
-  doc.text('COMMANDE DE MANUTENTION', W / 2, y + 16, { align: 'center' });
-  y += 26;
-  doc.setLineWidth(0.2);
-
-  function label(t, x, yy) { doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(t, x, yy); }
-  function value(t, x, yy, maxW) {
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
-    if (t) doc.text(t, x, yy, { maxWidth: maxW });
-  }
-
-  // Ligne pleine : libellé + valeur
-  function rowFull(lab, val) {
-    doc.rect(x0, y, w, rowH);
-    label(lab, x0 + 1.5, y + 4.8);
-    value(val, x0 + LW, y + 4.8, w - LW - 2);
-    y += rowH;
-  }
-  // Ligne à deux moitiés
-  function rowTwo(l1, v1, l2, v2, lw2) {
-    doc.rect(x0, y, w, rowH);
-    label(l1, x0 + 1.5, y + 4.8);
-    value(v1, x0 + LW, y + 4.8, w / 2 - LW - 2);
-    var xm = x0 + w / 2 + 10;
-    label(l2, xm, y + 4.8);
-    value(v2, xm + lw2, y + 4.8, w / 2 - 10 - lw2 - 2);
-    y += rowH;
-  }
-
-  rowFull('Facturer à :',      v('c_facturer').toUpperCase());
-  rowFull('Adresse postale :', v('c_adresse').toUpperCase());
-  y += 2.5;
-  rowTwo('N° dossier :', v('c_dossier').toUpperCase(), 'Date :', dFr('c_date'), 12);
-  rowFull('N° Cotation : M', v('c_cotation').toUpperCase());
-  rowFull('Date de notre mail :', dFr('c_date_mail'));
-  rowFull('Fait par :',        v('c_fait_par').toUpperCase());
-  rowFull('Client :',          v('c_client').toUpperCase());
-  rowFull('Compagnie Maritime', v('c_compagnie').toUpperCase());
-  rowFull('Navire :',          v('c_navire').toUpperCase());
-  rowFull("Date limite d'exécution :", dFr('c_date_limite'));
-  rowTwo('N° BOOKING', v('c_booking').toUpperCase(), 'N° ICV', v('c_icv').toUpperCase(), 14);
-  y += 3;
-
-  // Désignation
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(200, 0, 0);
-  doc.text('Désignation de la marchandise (Châssis des véhicules, poids par véhicule, dimensions)', x0 + 1.5, y + 4);
-  doc.text('et des travaux :', x0 + 1.5, y + 9);
-  doc.setTextColor(0);
-  y += 12;
-
-  function ruledBlock(text, minLines) {
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-    var lines = [];
-    String(text || '').split('\n').forEach(function(p) {
-      var parts = doc.splitTextToSize(p, w - 4);
-      lines = lines.concat(parts.length ? parts : ['']);
-    });
-    var n = Math.max(minLines, lines.length);
-    for (var i = 0; i < n; i++) {
-      if (y + rowH > 280) { doc.addPage(); y = mg; }
-      doc.rect(x0, y, w, rowH);
-      if (lines[i]) { doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(lines[i], x0 + 1.5, y + 4.9); }
-      y += rowH;
+// ── Style PDF commun (identique au bon de livraison) ──
+var PK = {
+  W: 210, mg: 13,
+  black: [20,20,20], dark: [50,50,50], mid: [120,120,120], border: [210,220,235], accent: [74,158,255],
+  header: function(doc, title, sub, num, rtxt) {
+    var P = PK;
+    doc.setFillColor.apply(doc, P.accent); doc.rect(0, 0, P.W, 2, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor.apply(doc, P.black);
+    doc.text(title, P.mg, 11);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.mid);
+    doc.text(sub, P.mg, 16);
+    doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor.apply(doc, P.accent);
+    doc.text('N°' + num, P.W - P.mg, 11, { align:'right' });
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.mid);
+    doc.text(rtxt, P.W - P.mg, 16, { align:'right' });
+    doc.setDrawColor.apply(doc, P.border); doc.setLineWidth(0.25);
+    doc.line(P.mg, 19, P.W - P.mg, 19);
+  },
+  footer: function(doc, label, num, dateTxt) {
+    var P = PK, n = doc.internal.getNumberOfPages();
+    for (var p = 1; p <= n; p++) {
+      doc.setPage(p);
+      doc.setDrawColor.apply(doc, P.border); doc.setLineWidth(0.2);
+      doc.line(P.mg, 289, P.W - P.mg, 289);
+      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, P.mid);
+      doc.text(label, P.mg, 293);
+      doc.setFont('courier','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, P.accent);
+      doc.text('N°' + num, P.W / 2, 293, { align:'center' });
+      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, P.mid);
+      doc.text('Édité le ' + dateTxt, P.W - P.mg, 293, { align:'right' });
     }
+  },
+  // Outils de carte (même rendu que le bon de livraison) — retourne un objet lié à doc
+  card: function(doc) {
+    var P = PK, W = P.W, mg = P.mg;
+    var o = { y: 23, cardY: 0 };
+    o.start = function() { o.cardY = o.y; };
+    o.end = function() {
+      doc.setDrawColor.apply(doc, P.accent); doc.setLineWidth(0.25);
+      doc.roundedRect(mg, o.cardY, W - mg*2, o.y - o.cardY + 1, 2, 2, 'S');
+      o.y += 2;
+    };
+    o.title = function(t) {
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor.apply(doc, P.accent);
+      doc.text(t, mg + 3, o.y + 4.5);
+      doc.setDrawColor.apply(doc, P.border); doc.setLineWidth(0.15);
+      doc.line(mg + 3, o.y + 6, W - mg - 3, o.y + 6);
+      o.y += 9;
+    };
+    o.cell = function(label, val, x, cw) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, P.mid);
+      doc.text(label.toUpperCase(), x, o.y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.black);
+      if (val && String(val).trim()) doc.text(String(val), x, o.y + 4.5, { maxWidth: cw - 2 });
+      doc.setDrawColor.apply(doc, P.border); doc.setLineWidth(0.15);
+      doc.line(x, o.y + 5.5, x + cw - 2, o.y + 5.5);
+    };
+    o.row2 = function(l1, v1, l2, v2) { var cw = (W - mg*2) / 2; o.cell(l1, v1, mg+3, cw-3); o.cell(l2, v2, mg+cw+1, cw-4); o.y += 10; };
+    o.row3 = function(l1, v1, l2, v2, l3, v3) { var cw = (W - mg*2) / 3; o.cell(l1, v1, mg+3, cw-3); o.cell(l2, v2, mg+cw+1, cw-3); o.cell(l3, v3, mg+cw*2+1, cw-3); o.y += 10; };
+    return o;
   }
-  ruledBlock(v('c_designation').toUpperCase(), 17);
+};
 
-  // Commentaire
-  if (y + rowH * 3 > 285) { doc.addPage(); y = mg; }
-  doc.rect(x0, y, w, rowH);
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-  doc.text('Commentaire de la manutention :', x0 + 1.5, y + 4.8);
-  y += rowH;
-  ruledBlock(v('c_commentaire').toUpperCase(), 2);
+function textCard(doc, c, title, text, minLines) {
+  var W = PK.W, mg = PK.mg;
+  c.start(); c.title(title);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  var lines = [];
+  String(text || '').split('\n').forEach(function(p) {
+    var parts = doc.splitTextToSize(p, W - mg*2 - 8);
+    lines = lines.concat(parts.length ? parts : ['']);
+  });
+  var n = Math.max(minLines, lines.length);
+  for (var i = 0; i < n; i++) {
+    if (c.y > 272) { c.end(); doc.addPage(); c.y = 14; c.start(); c.title(title + ' (suite)'); }
+    if (lines[i]) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor.apply(doc, PK.black);
+      doc.text(lines[i], mg + 3, c.y + 3.6);
+    }
+    doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
+    doc.line(mg + 3, c.y + 5, W - mg - 3, c.y + 5);
+    c.y += 5.2;
+  }
+  c.end();
+}
 
+function generateCommandePDF() {
+  var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  PK.header(doc, 'COMMANDE DE MANUTENTION', 'Ordre de manutention portuaire', numRef,
+            dFr('c_date') + '  —  Date limite : ' + dFr('c_date_limite'));
+  var c = PK.card(doc);
+
+  c.start(); c.title('Facturation');
+  c.row2('Facturer à (nom / N° SIRET)', v('c_facturer').toUpperCase(), 'Adresse postale', v('c_adresse').toUpperCase());
+  c.end();
+
+  c.start(); c.title('Références');
+  c.row3('N° dossier', v('c_dossier').toUpperCase(), 'Date', dFr('c_date'), 'N° cotation : M', v('c_cotation').toUpperCase());
+  c.row3('Date de notre mail', dFr('c_date_mail'), 'Fait par', v('c_fait_par').toUpperCase(), 'Client', v('c_client').toUpperCase());
+  c.end();
+
+  c.start(); c.title('Transport');
+  c.row3('Compagnie maritime', v('c_compagnie').toUpperCase(), 'Navire', v('c_navire').toUpperCase(), "Date limite d'exécution", dFr('c_date_limite'));
+  c.row3('N° Booking', v('c_booking').toUpperCase(), 'ID SOGET (import)', v('c_soget').toUpperCase(), '', '');
+  c.end();
+
+  textCard(doc, c, 'Désignation de la marchandise et des travaux', v('c_designation').toUpperCase(), 14);
+  textCard(doc, c, 'Commentaire de la manutention', v('c_commentaire').toUpperCase(), 3);
+
+  PK.footer(doc, 'Commande de Manutention', numRef, dFr('c_date'));
   var ref = (v('c_dossier') || v('c_booking') || 'COMMANDE').replace(/\s+/g, '_');
   var fname = 'CommandeManutention_' + ref + '_' + numRef + '.pdf';
   doc.save(fname);
   showToast('✓ PDF généré : ' + fname);
 }
 
+// ── Date de notre mail : date du jour, sauf si N° de cotation ──
+var mailAuto = true;
+function todayStr() {
+  var n = new Date();
+  return n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+}
+function syncMailDate() {
+  var el = document.getElementById('c_date_mail');
+  if (v('c_cotation').trim()) { if (mailAuto) el.value = ''; }
+  else if (!el.value) { el.value = todayStr(); mailAuto = true; }
+}
+document.getElementById('c_date_mail').addEventListener('input', function() { mailAuto = false; });
+document.getElementById('c_cotation').addEventListener('input', syncMailDate);
 
 (function init() {
-  var n = new Date();
-  document.getElementById('c_date').value = n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
-  if (location.search.indexOf('from=bdl') > -1) {
+  document.getElementById('c_date').value = todayStr();
+  document.getElementById('c_date_mail').value = todayStr();
+  var q = location.search, travaux = '';
+  try { travaux = localStorage.getItem('cmd_travaux') || ''; localStorage.removeItem('cmd_travaux'); } catch(e) {}
+  if (q.indexOf('from=bdl') > -1) {
     var s = getSnap();
     if (s) { prefillCommande(s); showToast('Informations du bon de livraison reprises'); }
+  }
+  if (q.indexOf('from=') > -1 && travaux.trim()) {
+    var d = document.getElementById('c_designation');
+    d.value = (d.value ? d.value + '\n\n' : '') + travaux.toUpperCase();
   }
 })();
 </script>
