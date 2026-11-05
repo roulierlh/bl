@@ -678,8 +678,8 @@ var PK = {
     doc.text(title, P.mg, 11);
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.mid);
     doc.text(sub, P.mg, 16);
-    doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor.apply(doc, P.accent);
-    doc.text('N°' + num, P.W - P.mg, 11, { align:'right' });
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor.apply(doc, P.accent);
+    doc.text('Terminal Roulier LE HAVRE', P.W - P.mg, 11, { align:'right' });
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.mid);
     doc.text(rtxt, P.W - P.mg, 16, { align:'right' });
     doc.setDrawColor.apply(doc, P.border); doc.setLineWidth(0.25);
@@ -693,8 +693,8 @@ var PK = {
       doc.line(P.mg, 289, P.W - P.mg, 289);
       doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, P.mid);
       doc.text(label, P.mg, 293);
-      doc.setFont('courier','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, P.accent);
-      doc.text('N°' + num, P.W / 2, 293, { align:'center' });
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, P.accent);
+      doc.text('Terminal Roulier LE HAVRE', P.W / 2, 293, { align:'center' });
       doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, P.mid);
       doc.text('Édité le ' + dateTxt, P.W - P.mg, 293, { align:'right' });
     }
@@ -705,16 +705,20 @@ var PK = {
     var o = { y: 23, cardY: 0 };
     o.start = function() { o.cardY = o.y; };
     o.end = function() {
-      doc.setDrawColor.apply(doc, P.accent); doc.setLineWidth(0.25);
+      doc.setDrawColor.apply(doc, P.accent); doc.setLineWidth(0.3);
       doc.roundedRect(mg, o.cardY, W - mg*2, o.y - o.cardY + 1, 2, 2, 'S');
       o.y += 2;
     };
     o.title = function(t) {
-      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor.apply(doc, P.accent);
-      doc.text(t, mg + 3, o.y + 4.5);
-      doc.setDrawColor.apply(doc, P.border); doc.setLineWidth(0.15);
-      doc.line(mg + 3, o.y + 6, W - mg - 3, o.y + 6);
-      o.y += 9;
+      var x = mg, w = W - mg*2;
+      doc.setFillColor(236, 244, 255);
+      doc.roundedRect(x + 0.3, o.y + 0.3, w - 0.6, 7, 1.7, 1.7, 'F');
+      doc.rect(x + 0.3, o.y + 3.8, w - 0.6, 3.5, 'F');
+      doc.setFillColor.apply(doc, P.accent);
+      doc.rect(x + 3, o.y + 2.8, 1.4, 1.8, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(30, 95, 185);
+      doc.text(t.toUpperCase(), x + 6, o.y + 4.8);
+      o.y += 11;
     };
     o.cell = function(label, val, x, cw) {
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, P.mid);
