@@ -793,8 +793,10 @@ function generatePDF() {
   doc.text('BON DE LIVRAISON (HANGAR)', mg, 11);
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('Document de réception / chargement portuaire', mg, 16);
-  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(accent[0],accent[1],accent[2]);
-  doc.text('Terminal Roulier LE HAVRE', W-mg, 11, { align:'right' });
+  doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);
+  doc.text('N°'+numRef, W-mg, 11, { align:'right' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(7);
+  doc.text('Terminal Roulier LE HAVRE', mg, 5.7);
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text(vDate('date_edition')+'  —  '+v('type_operation'), W-mg, 16, { align:'right' });
   doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.25);
@@ -1029,8 +1031,8 @@ function generatePDF() {
     doc.line(mg, 289, W-mg, 289);
     doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
     doc.text('Bon de Livraison (Hangar)', mg, 293);
-    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
-    doc.text('Terminal Roulier LE HAVRE', W/2, 293, {align:'center'});
+    doc.setFont('courier','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text('N°'+numRef, W/2, 293, {align:'center'});
     doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
     doc.text('Édité le '+vDate('date_edition'), W-mg, 293, {align:'right'});
   }
