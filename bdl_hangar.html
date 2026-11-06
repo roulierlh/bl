@@ -412,7 +412,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="modal-header"><h3>Importer un tableau de marchandises</h3><button class="modal-close" onclick="closePaste()">×</button></div>
     <div class="modal-body">
       <div class="vin-info">Cliquez sur une cellule et collez (Ctrl+V). Description, VIN et poids sont repérés automatiquement même s'ils sont décalés. Une valeur mal placée se glisse avec la poignée ⠿ vers la bonne cellule ; ⇄ réaligne une ligne.</div>
-      <div class="pg-wrap" style="max-height:260px;overflow-y:auto;"><table class="pg"><thead><tr>
+      <div class="pg-wrap"><table class="pg"><thead><tr>
         <th></th><th style="width:24%">Description</th><th style="width:25%">VIN</th><th>Longueur</th><th>Largeur</th><th>Hauteur</th><th>Poids</th><th style="width:54px"></th>
       </tr></thead><tbody id="paste_grid"></tbody></table></div>
       <div style="display:flex;gap:10px;margin:10px 0;flex-wrap:wrap;align-items:flex-end;">
@@ -826,7 +826,7 @@ function marcIsEmpty(m) {
   return !(m.nature.trim() || m.poids || m.colis || m.longueur || m.largeur || m.hauteur || (m.vins && m.vins.length));
 }
 function openPaste() {
-  pRows = []; for (var i = 0; i < 8; i++) pRows.push(pBlank());
+  pRows = [pBlank()];
   document.getElementById('paste_unit').value = 'auto';
   document.getElementById('paste_mode').value = marchandises.every(marcIsEmpty) ? 'replace' : 'add';
   pasteRender(); pasteMsg('');
@@ -835,8 +835,10 @@ function openPaste() {
 }
 function closePaste() { document.getElementById('paste_modal').classList.remove('open'); }
 function pasteAddRow() { pRows.push(pBlank()); pasteRender(); }
-function pasteClear() { pRows = []; for (var i = 0; i < 8; i++) pRows.push(pBlank()); pasteRender(); pasteMsg(''); }
-function pasteDel(i) { pRows.splice(i, 1); while (pRows.length < 8) pRows.push(pBlank()); pasteRender(); }
+function pasteClear() { pRows = [pBlank()]; pasteRender(); pasteMsg(''); }
+// supprime les lignes vides en fin de tableau (en gardant une ligne pour pouvoir coller)
+function pasteTrim() { while (pRows.length > 1 && !PCOLS.some(function(k) { return String(pRows[pRows.length - 1][k]).trim(); })) pRows.pop(); }
+function pasteDel(i) { pRows.splice(i, 1); if (!pRows.length) pRows.push(pBlank()); pasteRender(); }
 
 function pasteRender() {
   document.getElementById('paste_grid').innerHTML = pRows.map(function(r, i) {
@@ -883,6 +885,7 @@ document.getElementById('paste_grid').addEventListener('paste', function(e) {
     var row = pRows[r0 + i];
     PCOLS.forEach(function(k, c) { if (c >= c0 && c < c0 + cells.length) row[k] = pos[k]; });
   });
+  pasteTrim();
   pasteRender();
   pasteMsg(realigned ? realigned + ' ligne(s) réalignée(s) automatiquement (description, VIN et poids repérés)' : '');
 });
