@@ -759,6 +759,280 @@ function textCard(doc, c, title, text, minLines) {
   c.end();
 }
 
+// ── Bon de livraison associé (généré en même temps que la commande) ──
+var bdlSnap = null, bdlMarc = [];
+function bv(id) { return bdlSnap ? (bdlSnap[id] || '') : ''; }
+function bdlDate(id) { var s = bv(id); if (!s) return '—'; var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+function generateBdlPDF() {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  var W = 210, mg = 13;
+  var black  = [20, 20, 20];
+  var dark   = [50, 50, 50];
+  var mid    = [120, 120, 120];
+  var border = [210, 220, 235];
+  var accent = [74, 158, 255];
+  var green  = [40, 160, 70];
+  var red    = [200, 60, 60];
+  var y = 0;
+
+  // ── HEADER ──
+  doc.setFillColor(accent[0],accent[1],accent[2]); doc.rect(0, 0, W, 2, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(black[0],black[1],black[2]);
+  doc.text('BON DE LIVRAISON (HANGAR)', mg, 11);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('Document de réception / chargement portuaire', mg, 16);
+  doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);
+  doc.text('N°'+numRef, W-mg, 11, { align:'right' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(7);
+  doc.text('Terminal Roulier LE HAVRE', mg, 5.7);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text(bdlDate('date_edition')+(bv('type_operation') ? '  —  '+bv('type_operation') : ''), W-mg, 16, { align:'right' });
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.25);
+  doc.line(mg, 19, W-mg, 19);
+  y = 23;
+
+  // ── CARD ──
+  var cardY = 0;
+  function cardStart() { cardY = y; }
+  function cardEnd() {
+    doc.setDrawColor(accent[0],accent[1],accent[2]); doc.setLineWidth(0.3);
+    doc.roundedRect(mg, cardY, W-mg*2, y - cardY + 1, 2, 2, 'S');
+    y += 2;
+  }
+
+  // ── SECTION TITLE ──
+  // Bandeau de titre de carte (même rendu pour toutes les cartes)
+  function band(t, x, yy, w) {
+    doc.setFillColor(236, 244, 255);
+    doc.roundedRect(x+0.3, yy+0.3, w-0.6, 7, 1.7, 1.7, 'F');
+    doc.rect(x+0.3, yy+3.8, w-0.6, 3.5, 'F');
+    doc.setFillColor(accent[0],accent[1],accent[2]);
+    doc.rect(x+3, yy+2.8, 1.4, 1.8, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(30, 95, 185);
+    doc.text(t.toUpperCase(), x+6, yy+4.8);
+  }
+  function secTitle(t) {
+    band(t, mg, y, W-mg*2);
+    y += 11;
+  }
+
+  // ── CELL ──  label + valeur + ligne grise sous valeur
+  function cell(label, val, x, cw) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text(label.toUpperCase(), x, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    if (val && val.trim()) doc.text(val, x, y+4.5);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.line(x, y+5.5, x+cw-2, y+5.5);
+  }
+
+  function row2(l1,v1,l2,v2) { var cw=(W-mg*2)/2; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-4); y+=10; }
+  function row3(l1,v1,l2,v2,l3,v3) { var cw=(W-mg*2)/3; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-3); cell(l3,v3,mg+cw*2+1,cw-3); y+=10; }
+
+  // ── SECTIONS 1 + 2 CÔTE À CÔTE ──
+  var halfW = (W - mg*2 - 4) / 2;
+  var card1Y = y;
+  var card2Y = y;
+  var y1 = y; // curseur carte 1
+  var y2 = y; // curseur carte 2
+  var xL = mg;       // colonne gauche
+  var xR = mg + halfW + 4; // colonne droite
+
+  // Titre carte 1
+  band('Informations du Bon de Livraison', xL, y1, halfW);
+  y1 += 11;
+
+  // Titre carte 2
+  band('Déclarant & Armement', xR, y2, halfW);
+  y2 += 11;
+
+  function cellH(label, val, x, cw, yc) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text(label.toUpperCase(), x, yc);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    if (val && val.trim()) doc.text(val, x, yc+4.5);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.line(x, yc+5.5, x+cw-2, yc+5.5);
+    return yc + 10;
+  }
+
+  function row2H(l1,v1,l2,v2, x, yc, tw) {
+    var cw = tw/2;
+    cellH(l1,v1,x+3,cw-3,yc);
+    return cellH(l2,v2,x+cw+1,cw-4,yc);
+  }
+
+  // Carte 1 : contenu
+  y1 = cellH("Date d'édition", bdlDate('date_edition'), xL+3, halfW/2-3, y1);
+  y1 = cellH("Type d'opération", bv('type_operation'), xL+halfW/2+1, halfW/2-4, y1-10) + 0; // même ligne
+  y1 -= 0; // déjà avancé
+  y1 = cellH('Lieu de livraison', bv('lieu_livraison').toUpperCase(), xL+3, halfW-4, y1);
+  y1 = cellH('N° Réception', '', xL+3, halfW/3-2, y1);
+  y1 = cellH('Date de réception', '', xL+halfW/3+2, halfW/3-2, y1-10);
+  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10) + 10;
+
+  // Carte 2 : contenu
+  y2 = row2H('Transitaire', bv('transitaire').toUpperCase(), 'Déclarant', bv('declarant').toUpperCase(), xR, y2, halfW);
+  y2 = cellH('Armement', bv('armement').toUpperCase(), xR+3, halfW-4, y2);
+  y2 = cellH('BDL établi par', bv('bdl_par').toUpperCase(), xR+3, halfW-4, y2);
+  y2 = cellH('Téléphone', bv('telephone'), xR+3, halfW-4, y2);
+
+  // Hauteur finale = max des deux colonnes
+  y = Math.max(y1, y2) + 1;
+
+  // Bordures arrondies des deux cartes
+  doc.setDrawColor(accent[0],accent[1],accent[2]); doc.setLineWidth(0.3);
+  doc.roundedRect(xL, card1Y, halfW, y - card1Y, 2, 2, 'S');
+  doc.roundedRect(xR, card2Y, halfW, y - card2Y, 2, 2, 'S');
+  y += 2;
+
+  // ── SECTION 3 ──
+  cardStart();
+  secTitle('Informations de Transport');
+  row3('Booking', bv('booking').toUpperCase(), 'Dossier', bv('dossier').toUpperCase(), '', '');
+  row3('Navire', bv('navire').toUpperCase(), 'Port de déchargement', bv('pod').toUpperCase(), 'Destination finale', bv('destination_finale').toUpperCase());
+  row2('Informations particulières', bv('infos_particulieres').toUpperCase(), '', '');
+  cardEnd();
+
+  // ── SECTION 4 — MARCHANDISES ──
+  cardStart();
+  secTitle('Description de la marchandise');
+
+  bdlMarc.forEach(function(m, idx) {
+    if (y > 240) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)'); }
+
+    var lotH = 16;
+    var lotY = y;
+    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, lotY, W-mg*2-4, lotH, 'F'); }
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.roundedRect(mg+2, lotY, W-mg*2-4, lotH, 1, 1, 'S');
+
+    var cw = W - mg*2 - 8;
+    var col = [
+      { l: 'Nature de la marchandise', w: 0.35 },
+      { l: 'Longueur (m)', w: 0.11 },
+      { l: 'Largeur (m)',  w: 0.11 },
+      { l: 'Hauteur (m)',  w: 0.11 },
+      { l: 'Poids (kg)',   w: 0.13 },
+      { l: 'Colis',        w: 0.08 }
+    ];
+    var vals = [
+      (m.nature||'').toUpperCase(),
+      m.longueur||'', m.largeur||'', m.hauteur||'', m.poids||'', m.colis||''
+    ];
+
+    var xCur = mg + 5;
+    col.forEach(function(c, i) {
+      var colW = cw * c.w;
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+      doc.text(c.l.toUpperCase(), xCur, lotY+5);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+      if (vals[i]) doc.text(vals[i], xCur, lotY+11, { maxWidth: colW - 2 });
+      doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+      doc.line(xCur, lotY+12.5, xCur + colW - 2, lotY+12.5);
+      xCur += colW;
+    });
+
+    y += lotH + 1;
+
+    // VINs en colonne (1 par ligne, comme dans le HTML)
+    if (m.vins && m.vins.length > 0) {
+      var expected = parseInt(m.colis)||0;
+      var allOk = m.vins.length === expected;
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+      doc.text('VIN ('+m.vins.length+'/'+expected+')', mg+5, y+3);
+      y += 5;
+      for (var vi = 0; vi < m.vins.length; vi++) {
+        if (y > 268) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('VIN (suite)'); }
+        var vin = m.vins[vi];
+        var vok = vin.length === 17;
+        doc.setFont('courier','normal'); doc.setFontSize(7);
+        doc.setTextColor(vok ? green[0]:red[0], vok ? green[1]:red[1], vok ? green[2]:red[2]);
+        doc.text((vi+1)+'.  '+vin, mg+5, y+3);
+        y += 4.5;
+      }
+      y += 1;
+    }
+    y += 1;
+  });
+  cardEnd();
+
+  // Totaux
+  var totalC = bdlMarc.reduce(function(s,m){return s+(parseInt(m.colis)||0);},0);
+  var totalP = bdlMarc.reduce(function(s,m){return s+(parseFloat(m.poids)||0);},0);
+  var totalPStr = String(totalP).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  if (y > 265) { doc.addPage(); y = 14; }
+  cardStart();
+  doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('TOTAL', mg+3, y+3);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+  doc.text(totalC+' colis  —  Poids brut total : '+totalPStr+' kg', mg+3, y+7);
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+  doc.line(mg+3, y+8, W-mg-3, y+8);
+  y += 10;
+  cardEnd();
+
+  // Réserves
+  var res = bv('reserves');
+  if (res) {
+    if (y > 250) { doc.addPage(); y = 14; }
+    cardStart();
+    secTitle('Réserves');
+    doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(dark[0],dark[1],dark[2]);
+    var lines = doc.splitTextToSize(res, W-mg*2-6);
+    doc.text(lines, mg+3, y);
+    y += lines.length * 4 + 3;
+    cardEnd();
+  }
+
+  // Signatures — toujours collées en bas de la dernière page
+  var sigCardH = 9 + 22 + 4 + 15 + 2 + 3; // titre + chargeur+gap + visa + marge
+  var footerY = 287; // juste au-dessus du footer
+  var sigStartY = footerY - sigCardH;
+
+  // Si le contenu actuel dépasse déjà sigStartY → nouvelle page
+  if (y > sigStartY) { doc.addPage(); y = 14; sigStartY = footerY - sigCardH; }
+
+  // Pousser y vers le bas pour coller en bas
+  y = sigStartY;
+
+  cardStart();
+  secTitle('Réserves & Signatures');
+  var sigW = (W-mg*2-8)/2;
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
+  doc.roundedRect(mg+3, y, sigW, 22, 1, 1, 'S');
+  doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('LE CHARGEUR — Signature / Cachet', mg+5, y+4.5);
+  doc.roundedRect(mg+5+sigW, y, sigW, 22, 1, 1, 'S');
+  doc.text("L'EXPLOITANT — Signature / Cachet", mg+7+sigW, y+4.5);
+  y += 25;
+  doc.roundedRect(mg+3, y, W-mg*2-6, 15, 1, 1, 'S');
+  doc.text('VISA COMPAGNIE', mg+5, y+4.5);
+  y += 17;
+  cardEnd();
+
+  // ── FOOTER sur chaque page ──
+  var totalPages = doc.internal.getNumberOfPages();
+  for (var p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
+    doc.line(mg, 289, W-mg, 289);
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text('Bon de Livraison (Hangar)', mg, 293);
+    doc.setFont('courier','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text('N°'+numRef, W/2, 293, {align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text('Édité le '+bdlDate('date_edition'), W-mg, 293, {align:'right'});
+  }
+
+  var booking = bv('booking').replace(/\s+/g,'_') || 'BOOKING';
+  var fname = 'BonDeLivraisonHangar_'+booking+'_'+numRef+'.pdf';
+  doc.save(fname);
+  return fname;
+}
+
+
 function marcPdf(doc, c) {
   var W = PK.W, mg = PK.mg, list = marchandises.filter(marcNonEmpty);
   if (!list.length) return;
@@ -849,8 +1123,13 @@ function generateCommandePDF() {
   PK.footer(doc, assoc ? 'Commande Manutention Associée' : 'Commande de Manutention', numRef, dFr('c_date'));
   var ref = (v('c_dossier') || v('c_booking') || 'COMMANDE').replace(/\s+/g, '_');
   var fname = (assoc ? 'CommandeManutentionAssociee_' : 'CommandeManutention_') + ref + '_' + numRef + '.pdf';
-  doc.save(fname);
-  showToast('✓ PDF généré : ' + fname);
+  if (assoc && bdlSnap) {
+    var f1 = generateBdlPDF();
+    setTimeout(function() { doc.save(fname); showToast('✓ 2 PDF générés : ' + f1 + ' + ' + fname); }, 600);
+  } else {
+    doc.save(fname);
+    showToast('✓ PDF généré : ' + fname);
+  }
 }
 
 // ── Date de notre mail : date du jour, sauf si N° de cotation ──
@@ -877,12 +1156,13 @@ document.getElementById('c_cotation').addEventListener('input', syncMailDate);
     if (s) {
       prefillCommande(s);
       if (s.numRef) {
-        numRef = s.numRef; assoc = true;
+        numRef = s.numRef; assoc = true; bdlSnap = s; bdlMarc = s.marchandises || [];
+        document.getElementById('btn_pdf_cmd').lastChild.textContent = '\n    Générer la commande + le bon de livraison\n  ';
         document.getElementById('h_title').textContent = 'COMMANDE MANUTENTION ASSOCIÉE';
         document.getElementById('h_sub').textContent = 'Associée au bon de livraison (Hangar) N°' + numRef;
         document.title = 'Commande manutention associée';
       }
-      showToast('Informations du bon de livraison reprises');
+      showToast(assoc ? 'Le bon de livraison sera généré avec la commande' : 'Informations du bon de livraison reprises');
     }
   }
   if (!marchandises.length) addMarchandise();
