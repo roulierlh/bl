@@ -310,6 +310,21 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 
 </div>
 
+<!-- COMPLÉTER LA COMMANDE ASSOCIÉE -->
+<div class="modal-overlay" id="cpl_modal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header"><h3>Informations à compléter pour la commande associée</h3><button class="modal-close" onclick="closeCpl()">×</button></div>
+    <div class="modal-body">
+      <div class="vin-info">Ces champs obligatoires ne sont pas encore renseignés. Remplissez-les ici, ils seront reportés dans la commande.</div>
+      <div id="cpl_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="cpl_status"></span>
+      <div style="display:flex;gap:8px;"><button class="btn-cancel" onclick="closeCpl()">Plus tard</button><button class="btn-ok" onclick="applyCpl()">Valider</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- VALIDATION MODAL -->
 <div id="val_modal">
   <div class="val-box">
@@ -622,15 +637,22 @@ function smartRow(cells) {
   var r = pBlank();
   r.v = cells[vi].toUpperCase();
   var before = cells.slice(0, vi).filter(Boolean);
+  var bNums = [];                                          // nombres placés AVANT le VIN (ex. poids entre description et VIN)
+  var bText = before.filter(function(x) { return isNaN(pnum(x)); });
+  if (bText.length) before.forEach(function(x) { if (!isNaN(pnum(x))) bNums.push(x); });
+  else if (before.length) {                                // que des nombres : « 2008 » (entier) = description, les autres = valeurs
+    if (/^\d+$/.test(before[0])) { bText = [before[0]]; bNums = before.slice(1); } else bNums = before.slice();
+  }
   var after = [];
   cells.slice(vi + 1).forEach(function(x, off) { if (x) after.push({ off: off, val: x }); });
-  if (before.length) r.d = before.join(' ').toUpperCase();
+  if (bText.length) r.d = bText.join(' ').toUpperCase();
   else {                                                   // description placée après le VIN
     var k = -1;
     after.forEach(function(o, idx) { if (k < 0 && isNaN(pnum(o.val))) k = idx; });
     if (k >= 0) { r.d = after[k].val.toUpperCase(); after.splice(k, 1); }
   }
-  var nums = after.filter(function(o) { return !isNaN(pnum(o.val)); });
+  var nums = bNums.map(function(x, i) { return { off: i, val: x }; })
+    .concat(after.filter(function(o) { return !isNaN(pnum(o.val)); }).map(function(o) { return { off: o.off + bNums.length, val: o.val }; }));
   if (nums.length) {
     r.p = nums[nums.length - 1].val;                       // le dernier nombre est le poids
     var dims = nums.slice(0, -1), keys = ['l', 'w', 'h'];
@@ -1458,6 +1480,53 @@ function syncMailDate() {
 document.getElementById('c_date_mail').addEventListener('input', function() { mailAuto = false; });
 document.getElementById('c_cotation').addEventListener('input', syncMailDate);
 
+
+// ── Fenêtre « informations à compléter » (commande associée) ──
+var CPL_FIELDS = [
+  { id: 'c_date_mail',  label: 'Date de notre mail',        type: 'date' },
+  { id: 'c_fait_par',   label: 'Fait par',                  type: 'text', uc: true, ph: "Nom du donneur d'ordre" },
+  { id: 'c_navire',     label: 'Navire',                    type: 'text', uc: true, ph: 'Nom + ATP' },
+  { id: 'c_date_limite',label: "Date limite d'exécution",   type: 'date' },
+  { id: 'c_siret',      label: 'N° SIRET',                  type: 'text', num: true, ph: '14 chiffres' },
+  { id: 'c_adresse',    label: 'Adresse postale',           type: 'text', uc: true, span: true, ph: 'Adresse postale' },
+  { id: 'c_booking',    label: 'N° Booking (export)',       type: 'text', uc: true, either: true },
+  { id: 'c_soget',      label: 'ID SOGET (import)',         type: 'text', uc: true, either: true }
+];
+function cplList() {
+  var either = !v('c_booking').trim() && !v('c_soget').trim();
+  return CPL_FIELDS.filter(function(f) { return f.either ? either : !v(f.id).trim(); });
+}
+function openCpl() {
+  var list = cplList();
+  if (!list.length) return;
+  var box = document.getElementById('cpl_fields'); box.innerHTML = '';
+  list.forEach(function(f) {
+    var d = document.createElement('div'); d.className = 'field'; if (f.span) d.style.gridColumn = 'span 2';
+    d.innerHTML = '<label>' + f.label + ' <span class="req">*</span></label>' +
+      '<input type="' + f.type + '" id="cpl_' + f.id + '"' + (f.uc ? ' class="uc"' : '') + (f.num ? ' inputmode="numeric"' : '') + (f.ph ? ' placeholder="' + f.ph + '"' : '') + ' />' +
+      (f.either ? '<div class="hint">Au moins un des deux (booking ou ID SOGET)</div>' : '');
+    box.appendChild(d);
+  });
+  document.getElementById('cpl_status').textContent = '';
+  document.getElementById('cpl_modal').classList.add('open');
+  var first = box.querySelector('input'); if (first) first.focus();
+}
+function closeCpl() { document.getElementById('cpl_modal').classList.remove('open'); }
+function applyCpl() {
+  var bad = '';
+  CPL_FIELDS.forEach(function(f) {
+    var el = document.getElementById('cpl_' + f.id); if (!el) return;
+    var val = el.value.trim(); if (!val) return;
+    if (f.id === 'c_siret' && val.replace(/\D/g, '').length !== 14) { bad = 'Le N° SIRET doit comporter 14 chiffres'; return; }
+    var t = document.getElementById(f.id); t.value = f.uc ? val.toUpperCase() : val;
+    t.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  if (bad) { document.getElementById('cpl_status').textContent = bad; return; }
+  closeCpl(); checkPdfBtn();
+  var left = cmdMissing().length;
+  showToast(left ? 'Il reste ' + left + ' information(s) obligatoire(s) à renseigner' : '✓ Commande complète');
+}
+
 (function init() {
   document.getElementById('c_date').value = todayStr();
   document.getElementById('c_date_mail').value = todayStr();
@@ -1479,6 +1548,7 @@ document.getElementById('c_cotation').addEventListener('input', syncMailDate);
   }
   if (!marchandises.length) addMarchandise();
   checkPdfBtn();
+  if (assoc) setTimeout(openCpl, 350);
   if (q.indexOf('from=') > -1 && travaux.trim()) {
     var d = document.getElementById('c_designation');
     d.value = (d.value ? d.value + '\n\n' : '') + travaux.toUpperCase();

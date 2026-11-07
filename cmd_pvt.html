@@ -619,15 +619,22 @@ function smartRow(cells) {
   var r = pBlank();
   r.v = cells[vi].toUpperCase();
   var before = cells.slice(0, vi).filter(Boolean);
+  var bNums = [];                                          // nombres placés AVANT le VIN (ex. poids entre description et VIN)
+  var bText = before.filter(function(x) { return isNaN(pnum(x)); });
+  if (bText.length) before.forEach(function(x) { if (!isNaN(pnum(x))) bNums.push(x); });
+  else if (before.length) {                                // que des nombres : « 2008 » (entier) = description, les autres = valeurs
+    if (/^\d+$/.test(before[0])) { bText = [before[0]]; bNums = before.slice(1); } else bNums = before.slice();
+  }
   var after = [];
   cells.slice(vi + 1).forEach(function(x, off) { if (x) after.push({ off: off, val: x }); });
-  if (before.length) r.d = before.join(' ').toUpperCase();
+  if (bText.length) r.d = bText.join(' ').toUpperCase();
   else {                                                   // description placée après le VIN
     var k = -1;
     after.forEach(function(o, idx) { if (k < 0 && isNaN(pnum(o.val))) k = idx; });
     if (k >= 0) { r.d = after[k].val.toUpperCase(); after.splice(k, 1); }
   }
-  var nums = after.filter(function(o) { return !isNaN(pnum(o.val)); });
+  var nums = bNums.map(function(x, i) { return { off: i, val: x }; })
+    .concat(after.filter(function(o) { return !isNaN(pnum(o.val)); }).map(function(o) { return { off: o.off + bNums.length, val: o.val }; }));
   if (nums.length) {
     r.p = nums[nums.length - 1].val;                       // le dernier nombre est le poids
     var dims = nums.slice(0, -1), keys = ['l', 'w', 'h'];
