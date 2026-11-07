@@ -10,6 +10,7 @@ h1{font-family:'IBM Plex Mono',monospace;font-size:18px;letter-spacing:.08em;mar
 p.sub{color:var(--muted);font-size:12px;letter-spacing:.08em;margin-bottom:36px;text-align:center}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;width:100%;max-width:960px}
 a.card{display:flex;flex-direction:column;gap:10px;background:var(--mid);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:4px;padding:26px 22px;color:inherit;text-decoration:none;transition:transform .2s,background .2s}
+.ic{width:46px;height:46px;color:var(--accent);margin:auto auto 0;display:block;padding-top:14px;box-sizing:content-box}
 a.card:hover{transform:translateY(-3px);background:#16305a}
 .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.14em}
 .t{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
@@ -30,15 +31,15 @@ a.card:hover{transform:translateY(-3px);background:#16305a}
 <h1>DOCUMENTS PORTUAIRES<br>TERMINAL ROULIER LE HAVRE</h1>
 <p class="sub">Choisissez le document à établir</p>
 <div class="cards">
-  <a class="card" href="bdl_hangar.html"><span class="t">Bon de livraison (Hangar)</span><span class="d">Réception / chargement hangar. Propose ensuite une commande de manutention préremplie.</span></a>
-  <a class="card" href="cmd_manut.html" id="card_manut"><span class="t">Commande de manutention</span><span class="d">Ordre de manutention à remplir directement.</span></a>
-  <a class="card" href="cmd_pvt.html"><span class="t">Commande de porte voitures</span><span class="d">Transfert de véhicule uniquement.</span></a>
+  <a class="card" href="bdl_hangar.html"><span class="t">Bon de livraison (Hangar)</span><span class="d">Réception / chargement hangar. Propose ensuite une commande de manutention préremplie.</span><svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 24 8l20 12"/><path d="M8 18v22h32V18"/><rect x="15" y="26" width="18" height="14"/><path d="M15 31h18M15 36h18M24 26v14"/></svg></a>
+  <a class="card" href="cmd_manut.html" id="card_manut"><span class="t">Commande de manutention</span><span class="d">Ordre de manutention à remplir directement.</span><svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6v30"/><path d="M10 10h6M10 18h6"/><path d="M16 36H6"/><rect x="18" y="22" width="14" height="10"/><path d="M18 22l4-8h8l2 8"/><circle cx="22" cy="38" r="4"/><circle cx="38" cy="38" r="4"/><path d="M32 32h8v6M26 38h8"/></svg></a>
+  <a class="card" href="cmd_pvt.html"><span class="t">Commande de porte voitures</span><span class="d">Transfert de véhicule uniquement.</span><svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 30V14h30v16"/><path d="M33 20h7l5 6v4H33"/><path d="M3 30h42"/><circle cx="13" cy="35" r="4"/><circle cx="38" cy="35" r="4"/><path d="M6 24l2-4h6l2 4M6 24h10M19 24l2-4h6l2 4M19 24h10"/></svg></a>
 </div>
 <div class="ov" id="ov">
   <div class="box">
     <h3>Désignation des travaux à effectuer</h3>
     <div class="bd"><label for="trv">Travaux de manutention demandés</label>
-      <textarea id="trv" placeholder="Ex : déchargement du porte-voiture, mise en stock hangar…"></textarea></div>
+      <textarea id="trv" placeholder="Ex : Déchargement en roulant pour mise à quai, Déchargement au chariot pour mise à quai…"></textarea></div>
     <div class="ft"><button onclick="closeOv()">Annuler</button><button class="ok" onclick="goManut()">Valider</button></div>
   </div>
 </div>
