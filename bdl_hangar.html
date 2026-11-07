@@ -622,7 +622,7 @@ function renderMarc() {
     var vinOk = colisNum > 0 && vinCount === colisNum;
     var vinWarn = colisNum > 0 && vinCount !== colisNum;
     var badgeHtml = vinCount > 0
-      ? '<span class="vin-badge' + (vinWarn ? ' warn' : '') + '">' + vinCount + ' VIN' + (vinOk ? ' ✓' : ' / ' + colisNum) + '</span>'
+      ? '<span class="vin-badge' + (vinWarn ? ' warn' : '') + '">' + 'VIN (' + vinCount + '/' + colisNum + ')' + (vinOk ? ' ✓' : '') + '</span>'
       : '';
     var removeBtn = marchandises.length > 1
       ? '<button class="btn-remove" onclick="removeMarchandise(' + m.id + ')" title="Supprimer">×</button>'
@@ -641,8 +641,8 @@ function renderMarc() {
         var ok = v.trim().length === 17;
         return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span>';
       }).join('');
-      vinDisplay = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">' +
-        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">VIN (' + vinCount + '/' + colisNum + ')</div>' +
+      vinDisplay = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">' +
+        '' +
         '<div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div>' +
       '</div>';
     }
@@ -1018,7 +1018,7 @@ function pastePreview() {
   var html = pLots.map(function(g) {
     if (g.poids === null) noW++;
     var vinOk = g.vins.length === g.n;
-    var badge = g.vins.length ? '<span class="vin-badge' + (vinOk ? '' : ' warn') + '">' + g.vins.length + ' VIN' + (vinOk ? ' ✓' : ' / ' + g.n) + '</span>' : '';
+    var badge = g.vins.length ? '<span class="vin-badge' + (vinOk ? '' : ' warn') + '">' + 'VIN (' + g.vins.length + '/' + g.n + ')' + (vinOk ? ' ✓' : '') + '</span>' : '';
     var chips = g.vins.map(function(v) {
       var ok = v.length === 17;
       return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span>';
@@ -1028,7 +1028,7 @@ function pastePreview() {
         ro('Nature de la marchandise', g.nature) + ro('Longueur (m)', f2(g.l)) + ro('Largeur (m)', f2(g.w)) + ro('Hauteur (m)', f2(g.h)) +
         ro('Poids (kg)', g.poids === null ? '' : g.poids.toFixed(2)) + ro('Colis', String(g.n)) +
       '</div><div>' + badge + '</div>' +
-      (chips ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">VIN (' + g.vins.length + '/' + g.n + ')</div><div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div></div>' : '') +
+      (chips ? '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);"><div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div></div>' : '') +
     '</div>';
   }).join('');
   box.innerHTML = '<div class="pp-note" style="margin-top:14px;">Aperçu du bon de livraison — comme si chaque lot était saisi à la main</div>' + html +
@@ -1208,11 +1208,14 @@ function generatePDF() {
   marchandises.forEach(function(m, idx) {
     if (y > 240) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)'); }
 
-    var lotH = 16;
-    var lotY = y;
-    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, lotY, W-mg*2-4, lotH, 'F'); }
+    var lotH = 16, lotY = y;
+    var vl = (m.vins || []).filter(function(x) { return String(x).trim(); });
+    var perRow = vl.length > 10 ? 4 : 1, rowH = 4.2, rowsN = Math.ceil(vl.length / perRow);
+    var k1 = Math.min(rowsN, Math.max(0, Math.floor((270 - lotY - 15.5) / rowH)));
+    var boxH = k1 ? 14 + k1 * rowH + 1.5 : lotH;
+    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, lotY, W-mg*2-4, boxH, 'F'); }
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
-    doc.roundedRect(mg+2, lotY, W-mg*2-4, lotH, 1, 1, 'S');
+    doc.roundedRect(mg+2, lotY, W-mg*2-4, boxH, 1, 1, 'S');
 
     var cw = W - mg*2 - 8;
     var col = [
@@ -1240,27 +1243,31 @@ function generatePDF() {
       xCur += colW;
     });
 
-    y += lotH + 1;
-
-    // VINs en colonne (1 par ligne, comme dans le HTML)
-    if (m.vins && m.vins.length > 0) {
-      var expected = parseInt(m.colis)||0;
-      var allOk = m.vins.length === expected;
-      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
-      doc.text('VIN ('+m.vins.length+'/'+expected+')', mg+5, y+3);
-      y += 5;
-      for (var vi = 0; vi < m.vins.length; vi++) {
-        if (y > 268) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('VIN (suite)'); }
-        var vin = m.vins[vi];
-        var vok = vin.length === 17;
-        doc.setFont('courier','normal'); doc.setFontSize(7);
-        doc.setTextColor(vok ? green[0]:red[0], vok ? green[1]:red[1], vok ? green[2]:red[2]);
-        doc.text((vi+1)+'.  '+vin, mg+5, y+3);
-        y += 4.5;
+    y = lotY + (vl.length ? 14 : lotH);
+    if (vl.length) {
+      var vx0 = mg + 5, vcw = (W - mg*2 - 8) / perRow, startRow = 0, nRows = k1;
+      while (true) {
+        for (var rr = 0; rr < nRows; rr++) {
+          for (var cc = 0; cc < perRow; cc++) {
+            var ix = (startRow + rr) * perRow + cc;
+            if (ix >= vl.length) break;
+            var vin = String(vl[ix]).trim(), vok = vin.length === 17;
+            doc.setFont('courier','normal'); doc.setFontSize(7);
+            if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
+            doc.text((ix + 1) + '. ' + vin, vx0 + cc * vcw, y + 3);
+          }
+          y += rowH;
+        }
+        startRow += nRows;
+        if (startRow >= rowsN) { y += 1.5; break; }
+        cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)');
+        nRows = Math.min(rowsN - startRow, Math.max(1, Math.floor((270 - y - 3) / rowH)));
+        doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+        doc.roundedRect(mg+2, y, W-mg*2-4, nRows * rowH + 3, 1, 1, 'S');
+        y += 1.5;
       }
-      y += 1;
     }
-    y += 1;
+    y += 2;
   });
   cardEnd();
 
