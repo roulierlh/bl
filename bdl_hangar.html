@@ -404,6 +404,19 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   </div>
 </div>
 
+<!-- APRÈS GÉNÉRATION -->
+<div class="modal-overlay" id="done_modal" style="z-index:700">
+  <div class="confirm-box" style="width:480px;">
+    <div class="modal-header"><h3 id="done_title">Document généré</h3></div>
+    <div class="confirm-body" id="done_msg"></div>
+    <div class="modal-footer" style="justify-content:flex-end;flex-wrap:wrap;">
+      <button class="btn-cancel" onclick="location.href='index.html'">Quitter</button>
+      <button class="btn-cancel" id="done_back" style="display:none" onclick="location.href='bdl_hangar.html?restore=1'">Retourner sur le bon</button>
+      <button class="btn-ok" id="done_stay" onclick="document.getElementById('done_modal').classList.remove('open')">Rester</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- IMPORT TABLEAU -->
@@ -481,7 +494,21 @@ function init() {
   document.getElementById('num_ref').textContent = 'N°' + numRef;
   loadDeclarant();
   addMarchandise();
+  if (location.search.indexOf('restore=1') > -1) restoreBon();
   checkPdfBtn();
+}
+
+// Retour depuis la commande associée : on retrouve le bon tel qu'il était
+function restoreBon() {
+  try {
+    var s = JSON.parse(localStorage.getItem('bdl_last') || 'null');
+    if (!s) return;
+    ['type_operation','lieu_livraison','transitaire','declarant','armement','bdl_par','telephone','booking','dossier','navire','pod','destination_finale','infos_particulieres','reserves']
+      .forEach(function(id) { var el = document.getElementById(id); if (el && s[id] != null) el.value = s[id]; });
+    if (s.marchandises && s.marchandises.length) { marchandises = s.marchandises; renderMarc(); updateTotals(); }
+    if (s.numRef) { numRef = s.numRef; document.getElementById('num_ref').textContent = 'N°' + numRef; }
+    showToast('Bon de livraison repris');
+  } catch(e) {}
 }
 
 // ── UPPERCASE ──
@@ -1351,6 +1378,7 @@ function generatePDF() {
   doc.save(fname);
   showToast('✓ PDF généré : ' + fname);
   saveSnapshot();
+  askAfter({ title: 'Bon de livraison généré', msg: 'Le PDF a été téléchargé.<small>Souhaitez-vous rester sur le bon ou quitter ?</small>', stay: 'Rester sur le bon' });
 }
 
 // Mémorise le bon pour préremplir les autres documents
@@ -1379,6 +1407,15 @@ function confirmTravaux() {
 
 // ── START ──
 init();
+
+// ── Après génération : rester / retourner sur le bon / quitter ──
+function askAfter(o) {
+  document.getElementById('done_title').textContent = o.title;
+  document.getElementById('done_msg').innerHTML = o.msg;
+  document.getElementById('done_stay').textContent = o.stay;
+  document.getElementById('done_back').style.display = o.back ? '' : 'none';
+  setTimeout(function() { document.getElementById('done_modal').classList.add('open'); }, 400);
+}
 </script>
 </body>
 </html>

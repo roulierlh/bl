@@ -339,6 +339,19 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   </div>
 </div>
 
+<!-- APRÈS GÉNÉRATION -->
+<div class="modal-overlay" id="done_modal" style="z-index:700">
+  <div class="confirm-box" style="width:480px;">
+    <div class="modal-header"><h3 id="done_title">Document généré</h3></div>
+    <div class="confirm-body" id="done_msg"></div>
+    <div class="modal-footer" style="justify-content:flex-end;flex-wrap:wrap;">
+      <button class="btn-cancel" onclick="location.href='index.html'">Quitter</button>
+      <button class="btn-cancel" id="done_back" style="display:none" onclick="location.href='bdl_hangar.html?restore=1'">Retourner sur le bon</button>
+      <button class="btn-ok" id="done_stay" onclick="document.getElementById('done_modal').classList.remove('open')">Rester</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- IMPORT TABLEAU -->
@@ -1459,10 +1472,11 @@ function generateCommandePDF() {
   var fname = (assoc ? 'CommandeManutentionAssociee_' : 'CommandeManutention_') + ref + '_' + numRef + '.pdf';
   if (assoc && bdlSnap) {
     var f1 = generateBdlPDF();
-    setTimeout(function() { doc.save(fname); showToast('✓ 2 PDF générés : ' + f1 + ' + ' + fname); }, 600);
+    setTimeout(function() { doc.save(fname); showToast('✓ 2 PDF générés : ' + f1 + ' + ' + fname); askAfter({ title: 'Commande + bon de livraison générés', msg: 'Les 2 PDF ont été téléchargés.<small>Souhaitez-vous rester sur la commande, retourner sur le bon ou quitter ?</small>', stay: 'Rester sur la commande', back: true }); }, 600);
   } else {
     doc.save(fname);
     showToast('✓ PDF généré : ' + fname);
+    askAfter({ title: 'Commande générée', msg: 'Le PDF a été téléchargé.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
   }
 }
 
@@ -1554,6 +1568,15 @@ function applyCpl() {
     d.value = (d.value ? d.value + '\n\n' : '') + travaux.toUpperCase();
   }
 })();
+
+// ── Après génération : rester / retourner sur le bon / quitter ──
+function askAfter(o) {
+  document.getElementById('done_title').textContent = o.title;
+  document.getElementById('done_msg').innerHTML = o.msg;
+  document.getElementById('done_stay').textContent = o.stay;
+  document.getElementById('done_back').style.display = o.back ? '' : 'none';
+  setTimeout(function() { document.getElementById('done_modal').classList.add('open'); }, 400);
+}
 </script>
 </body>
 </html>
