@@ -46,6 +46,8 @@
       <input id="f_mob" placeholder="06 00 00 00 00">
       <label for="f_mail">Adresse e-mail</label>
       <input id="f_mail" placeholder="jean.dupont@exemple.fr">
+      <label for="f_groupe">Adresse e-mail de groupe</label>
+      <input id="f_groupe" value="reception@smr-france.com" placeholder="reception@smr-france.com">
       <label for="f_adr">Adresse (facultatif)</label>
       <input id="f_adr" placeholder="Terminal Roulier – 76600 Le Havre">
     </div>
@@ -78,14 +80,14 @@
 <script>
 var LINK = 'https://bl.roulierlh.workers.dev/';
 var COMPANY = 'Terminal Roulier LE HAVRE';
-var IDS = ['nom','fonction','tel','mob','mail','adr'];
+var IDS = ['nom','fonction','tel','mob','mail','groupe','adr'];
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function val(id){return document.getElementById('f_'+id).value.trim();}
 
 function buildSig(){
   var nom = val('nom') || 'Prénom NOM';
-  var fonction = val('fonction'), tel = val('tel'), mob = val('mob'), mail = val('mail'), adr = val('adr');
+  var fonction = val('fonction'), tel = val('tel'), mob = val('mob'), mail = val('mail'), groupe = val('groupe'), adr = val('adr');
   var F = 'font-family:Arial,Helvetica,sans-serif;';
   var h = '';
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:13px;color:#333333;">';
@@ -96,13 +98,15 @@ function buildSig(){
   h += '</td>';
   h += '<td style="padding:0 0 0 14px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
   var lines = [];
-  if (tel) lines.push('T&nbsp;: ' + esc(tel));
-  if (mob) lines.push('M&nbsp;: ' + esc(mob));
+  if (tel) lines.push('Direct&nbsp;: ' + esc(tel));
+  if (mob) lines.push('Mobile&nbsp;: ' + esc(mob));
   if (mail) lines.push('<a href="mailto:' + esc(mail) + '" style="color:#1a5fb4;text-decoration:none;">' + esc(mail) + '</a>');
+  if (groupe) lines.push('Adresse e-mail de groupe&nbsp;: <a href="mailto:' + esc(groupe) + '" style="color:#1a5fb4;text-decoration:none;">' + esc(groupe) + '</a>');
   if (adr) lines.push(esc(adr));
-  lines.push('<a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a>');
   h += lines.join('<br>');
-  h += '</td></tr></table>';
+  h += '</td></tr>';
+  h += '<tr><td colspan="2" style="padding:10px 0 0 0;' + F + 'font-size:12px;"><a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr>';
+  h += '</table>';
   return h;
 }
 
@@ -153,7 +157,7 @@ document.getElementById('btn_copycode').onclick = function(){
 IDS.forEach(function(i){ document.getElementById('f_'+i).addEventListener('input', refresh); });
 try{
   var saved = JSON.parse(localStorage.getItem('sig_fields')||'null');
-  if (saved) IDS.forEach(function(i){ if (saved[i]) document.getElementById('f_'+i).value = saved[i]; });
+  if (saved) IDS.forEach(function(i){ if (saved[i] && i !== 'groupe') document.getElementById('f_'+i).value = saved[i]; });
 }catch(e){}
 refresh();
 </script>
