@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Commande de porte voitures</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiMwYTE2MjgiLz48c3ZnIHg9IjYiIHk9IjYiIHdpZHRoPSI1MiIgaGVpZ2h0PSI1MiIgdmlld0JveD0iMCAwIDk2IDQyIiBmaWxsPSJub25lIiBzdHJva2U9IiM0YTllZmYiIHN0cm9rZS13aWR0aD0iMy42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0zIDMyVjE4bDUtN2g5djIxIi8+PHBhdGggZD0iTTggMTdoNiIvPjxwYXRoIGQ9Ik0xOSAxMWg3NE0xNyAzMmg3NiIvPjxwYXRoIGQ9Ik0yMSAxMWw4IDIxIi8+PHBhdGggZD0iTTMzIDExdi00bDUtMSA0LTRoOWw1IDVoM3Y0Ii8+PGNpcmNsZSBjeD0iNDAiIGN5PSIxMSIgcj0iMiIvPjxjaXJjbGUgY3g9IjU1IiBjeT0iMTEiIHI9IjIiLz48cGF0aCBkPSJNNjQgMTF2LTRsNS0xIDQtNGg5bDUgNWgzdjQiLz48Y2lyY2xlIGN4PSI3MSIgY3k9IjExIiByPSIyIi8+PGNpcmNsZSBjeD0iODYiIGN5PSIxMSIgcj0iMiIvPjxwYXRoIGQ9Ik0zMyAzMnYtNGw1LTEgNC00aDlsNSA1aDN2NCIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMzIiIHI9IjIiLz48Y2lyY2xlIGN4PSI1NSIgY3k9IjMyIiByPSIyIi8+PHBhdGggZD0iTTY0IDMydi00bDUtMSA0LTRoOWw1IDVoM3Y0Ii8+PGNpcmNsZSBjeD0iNzEiIGN5PSIzMiIgcj0iMiIvPjxjaXJjbGUgY3g9Ijg2IiBjeT0iMzIiIHI9IjIiLz48Y2lyY2xlIGN4PSIxMCIgY3k9IjM3IiByPSIzLjUiLz48Y2lyY2xlIGN4PSIyNiIgY3k9IjM3IiByPSIzLjUiLz48Y2lyY2xlIGN4PSIzNyIgY3k9IjM3IiByPSIzLjUiLz48Y2lyY2xlIGN4PSI3MCIgY3k9IjM4IiByPSIzIi8+PGNpcmNsZSBjeD0iODAiIGN5PSIzOCIgcj0iMyIvPjxjaXJjbGUgY3g9IjkwIiBjeT0iMzgiIHI9IjMiLz48L3N2Zz48L3N2Zz4=">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -943,11 +944,12 @@ function dFr(id) { var s = val(id); if (!s) return ''; var p = s.split('-'); ret
 var PK = {
   W: 210, mg: 13,
   black: [20,20,20], dark: [50,50,50], mid: [120,120,120], border: [210,220,235], accent: [74,158,255],
-  header: function(doc, title, sub, num, rtxt) {
+  header: function(doc, title, sub, num, rtxt, icon) {
     var P = PK;
     doc.setFillColor.apply(doc, P.accent); doc.rect(0, 0, P.W, 2, 'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor.apply(doc, P.black);
     doc.text(title, P.mg, 11);
+    if (icon) pdfIcon(doc, icon, P.mg + doc.getTextWidth(title) + 4 + pdfIconW(icon, 9.5), 3.4, 9.5, P.accent);
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.mid);
     doc.text(sub, P.mg, 16);
     doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor.apply(doc, P.accent);
@@ -1090,7 +1092,7 @@ function generatePVPDF() {
   var doc = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
   var mg = PK.mg;
   var today = new Date(), todayFr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
-  PK.header(doc, 'COMMANDE DE PORTE VOITURES', 'Transfert de véhicule uniquement', numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE');
+  PK.header(doc, 'COMMANDE DE PORTE VOITURES', 'Transfert de véhicule uniquement', numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE', 'pv');
   var c = PK.card(doc);
 
   c.start(); c.title('Client & Lieux');
@@ -1133,6 +1135,36 @@ function askAfter(o) {
   document.getElementById('done_stay').textContent = o.stay;
   document.getElementById('done_back').style.display = o.back ? '' : 'none';
   setTimeout(function() { document.getElementById('done_modal').classList.add('open'); }, 400);
+}
+
+// ── Pictogrammes (mêmes dessins que sur l'accueil), tracés en vectoriel dans les PDF ──
+var PDF_ICONS = {"pv":{"w":96.0,"h":42.0,"items":[{"t":"p","d":"M3 32V18l5-7h9v21","sx":1,"tx":0},{"t":"p","d":"M8 17h6","sx":1,"tx":0},{"t":"p","d":"M19 11h74M17 32h76","sx":1,"tx":0},{"t":"p","d":"M21 11l8 21","sx":1,"tx":0},{"t":"p","d":"M33 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M33 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":10.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":26.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":37.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":70.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":80.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":90.0,"y":38.0,"r":3.0,"sx":1,"tx":0}]}};
+function pdfIconW(key, h) { var ic = PDF_ICONS[key]; return ic ? ic.w * h / ic.h : 0; }
+function pdfIcon(doc, key, xr, y, h, rgb) {            // xr = bord droit ; retourne la largeur dessinée
+  var ic = PDF_ICONS[key]; if (!ic) return 0;
+  var k = h / ic.h, w = ic.w * k, x0 = xr - w;
+  doc.setDrawColor(rgb[0], rgb[1], rgb[2]); doc.setLineWidth(2 * k);
+  if (doc.setLineCap) doc.setLineCap('round'); if (doc.setLineJoin) doc.setLineJoin('round');
+  ic.items.forEach(function(it) {
+    var X = function(v) { return x0 + (it.sx * v + it.tx) * k; }, Y = function(v) { return y + v * k; };
+    if (it.t === 'c') { doc.circle(X(it.x), Y(it.y), it.r * k, 'S'); return; }
+    if (it.t === 'r') {
+      var rx = it.sx < 0 ? it.tx - it.x - it.w : it.x + it.tx;
+      doc.roundedRect(x0 + rx * k, Y(it.y), it.w * k, it.h * k, it.rx * k, it.rx * k, 'S'); return;
+    }
+    var tk = it.d.match(/[a-zA-Z]|-?\d*\.?\d+/g), i = 0, cx = 0, cy = 0, sx0 = 0, sy0 = 0, cmd = '';
+    function seg(nx, ny) { doc.line(X(cx), Y(cy), X(nx), Y(ny)); cx = nx; cy = ny; }
+    while (i < tk.length) {
+      if (/[a-zA-Z]/.test(tk[i])) { cmd = tk[i++]; if (cmd === 'z' || cmd === 'Z') { seg(sx0, sy0); continue; } }
+      var rel = cmd === cmd.toLowerCase(), C = cmd.toUpperCase(), nx = cx, ny = cy;
+      if (C === 'M') { nx = +tk[i++]; ny = +tk[i++]; if (rel) { nx += cx; ny += cy; } cx = nx; cy = ny; sx0 = nx; sy0 = ny; cmd = rel ? 'l' : 'L'; }
+      else if (C === 'H') { nx = +tk[i++]; if (rel) nx += cx; seg(nx, cy); }
+      else if (C === 'V') { ny = +tk[i++]; if (rel) ny += cy; seg(cx, ny); }
+      else if (C === 'L') { nx = +tk[i++]; ny = +tk[i++]; if (rel) { nx += cx; ny += cy; } seg(nx, ny); }
+      else i++;
+    }
+  });
+  return w;
 }
 </script>
 </body>

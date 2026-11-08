@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bon de Livraison (Hangar)</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiMwYTE2MjgiLz48c3ZnIHg9IjYiIHk9IjYiIHdpZHRoPSI1MiIgaGVpZ2h0PSI1MiIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YTllZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTAgNWgxOGw4IDh2MTMiLz48cGF0aCBkPSJNMjggNXY4aDgiLz48cGF0aCBkPSJNMTAgNXYzOGgxNCIvPjxwYXRoIGQ9Ik0xNSAxOWgxNU0xNSAyNWgxMU0xNSAzMWg2Ii8+PHBhdGggZD0iTTM5IDI0bDYgNi0xNCAxNC04IDIgMi04eiIvPjxwYXRoIGQ9Ik0zNiAyN2w2IDYiLz48L3N2Zz48L3N2Zz4=">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -1120,6 +1121,7 @@ function generatePDF() {
   doc.setFillColor(accent[0],accent[1],accent[2]); doc.rect(0, 0, W, 2, 'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(black[0],black[1],black[2]);
   doc.text('BON DE LIVRAISON (HANGAR)', mg, 11);
+  pdfIcon(doc, 'bon', mg + doc.getTextWidth('BON DE LIVRAISON (HANGAR)') + 4 + pdfIconW('bon', 9.5), 3.4, 9.5, accent);
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('Document de réception / chargement portuaire', mg, 16);
   doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);
@@ -1415,6 +1417,36 @@ function askAfter(o) {
   document.getElementById('done_stay').textContent = o.stay;
   document.getElementById('done_back').style.display = o.back ? '' : 'none';
   setTimeout(function() { document.getElementById('done_modal').classList.add('open'); }, 400);
+}
+
+// ── Pictogrammes (mêmes dessins que sur l'accueil), tracés en vectoriel dans les PDF ──
+var PDF_ICONS = {"bon":{"w":48.0,"h":48.0,"items":[{"t":"p","d":"M10 5h18l8 8v13","sx":1,"tx":0},{"t":"p","d":"M28 5v8h8","sx":1,"tx":0},{"t":"p","d":"M10 5v38h14","sx":1,"tx":0},{"t":"p","d":"M15 19h15M15 25h11M15 31h6","sx":1,"tx":0},{"t":"p","d":"M39 24l6 6-14 14-8 2 2-8z","sx":1,"tx":0},{"t":"p","d":"M36 27l6 6","sx":1,"tx":0}]}};
+function pdfIconW(key, h) { var ic = PDF_ICONS[key]; return ic ? ic.w * h / ic.h : 0; }
+function pdfIcon(doc, key, xr, y, h, rgb) {            // xr = bord droit ; retourne la largeur dessinée
+  var ic = PDF_ICONS[key]; if (!ic) return 0;
+  var k = h / ic.h, w = ic.w * k, x0 = xr - w;
+  doc.setDrawColor(rgb[0], rgb[1], rgb[2]); doc.setLineWidth(2 * k);
+  if (doc.setLineCap) doc.setLineCap('round'); if (doc.setLineJoin) doc.setLineJoin('round');
+  ic.items.forEach(function(it) {
+    var X = function(v) { return x0 + (it.sx * v + it.tx) * k; }, Y = function(v) { return y + v * k; };
+    if (it.t === 'c') { doc.circle(X(it.x), Y(it.y), it.r * k, 'S'); return; }
+    if (it.t === 'r') {
+      var rx = it.sx < 0 ? it.tx - it.x - it.w : it.x + it.tx;
+      doc.roundedRect(x0 + rx * k, Y(it.y), it.w * k, it.h * k, it.rx * k, it.rx * k, 'S'); return;
+    }
+    var tk = it.d.match(/[a-zA-Z]|-?\d*\.?\d+/g), i = 0, cx = 0, cy = 0, sx0 = 0, sy0 = 0, cmd = '';
+    function seg(nx, ny) { doc.line(X(cx), Y(cy), X(nx), Y(ny)); cx = nx; cy = ny; }
+    while (i < tk.length) {
+      if (/[a-zA-Z]/.test(tk[i])) { cmd = tk[i++]; if (cmd === 'z' || cmd === 'Z') { seg(sx0, sy0); continue; } }
+      var rel = cmd === cmd.toLowerCase(), C = cmd.toUpperCase(), nx = cx, ny = cy;
+      if (C === 'M') { nx = +tk[i++]; ny = +tk[i++]; if (rel) { nx += cx; ny += cy; } cx = nx; cy = ny; sx0 = nx; sy0 = ny; cmd = rel ? 'l' : 'L'; }
+      else if (C === 'H') { nx = +tk[i++]; if (rel) nx += cx; seg(nx, cy); }
+      else if (C === 'V') { ny = +tk[i++]; if (rel) ny += cy; seg(cx, ny); }
+      else if (C === 'L') { nx = +tk[i++]; ny = +tk[i++]; if (rel) { nx += cx; ny += cy; } seg(nx, ny); }
+      else i++;
+    }
+  });
+  return w;
 }
 </script>
 </body>
