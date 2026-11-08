@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signature mail – Terminal Roulier LE HAVRE</title>
+<style>
+  :root{--bg:#0b1220;--panel:#121b2e;--line:#243350;--txt:#e6edf7;--mut:#8fa1bd;--acc:#4a9eff;--ok:#3ecf8e}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;padding:24px 16px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px}
+  p.sub{color:var(--mut);margin:0 0 20px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .card h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 12px;font-weight:600}
+  label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+  input,textarea{width:100%;background:#0b1220;border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:9px 10px;font:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--acc)}
+  textarea{font:12px/1.4 "IBM Plex Mono",monospace;height:140px;resize:vertical}
+  .preview{background:#fff;border-radius:8px;padding:18px;overflow:auto}
+  button{background:var(--acc);color:#04101f;border:0;border-radius:6px;padding:10px 16px;font:600 14px inherit;cursor:pointer;margin-top:14px}
+  button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc);margin-left:8px}
+  .msg{display:inline-block;margin-left:10px;color:var(--ok);font-size:13px;opacity:0;transition:opacity .2s}
+  .msg.on{opacity:1}
+  ol{margin:0;padding-left:20px;color:var(--mut);font-size:13px}
+  ol li{margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Signature mail – Terminal Roulier LE HAVRE</h1>
+  <p class="sub">Chaque utilisateur remplit ses informations, clique sur « Copier la signature », puis la colle dans sa messagerie.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Vos informations</h2>
+      <label for="f_nom">Prénom NOM</label>
+      <input id="f_nom" placeholder="Jean DUPONT">
+      <label for="f_fonction">Fonction</label>
+      <input id="f_fonction" placeholder="Responsable exploitation">
+      <label for="f_tel">Téléphone fixe</label>
+      <input id="f_tel" placeholder="02 35 00 00 00">
+      <label for="f_mob">Mobile</label>
+      <input id="f_mob" placeholder="06 00 00 00 00">
+      <label for="f_mail">Adresse e-mail</label>
+      <input id="f_mail" placeholder="jean.dupont@exemple.fr">
+      <label for="f_adr">Adresse (facultatif)</label>
+      <input id="f_adr" placeholder="Terminal Roulier – 76600 Le Havre">
+    </div>
+
+    <div class="card">
+      <h2>Aperçu</h2>
+      <div class="preview" id="preview"></div>
+      <button id="btn_copy">Copier la signature</button>
+      <button class="sec" id="btn_code">Afficher le code HTML</button>
+      <span class="msg" id="msg">Copiée ✓</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>Mise en place</h2>
+    <ol>
+      <li><b>Outlook</b> : Fichier › Options › Courrier › Signatures › Nouvelle, puis coller (Ctrl+V) dans la zone de texte.</li>
+      <li><b>Gmail</b> : Paramètres › Voir tous les paramètres › Signature › Créer, puis coller.</li>
+      <li><b>Apple Mail / autre</b> : coller dans l'éditeur de signature, ou utiliser « Afficher le code HTML » si la messagerie accepte le HTML brut.</li>
+    </ol>
+  </div>
+
+  <div class="card" id="code_card" style="margin-top:20px;display:none">
+    <h2>Code HTML</h2>
+    <textarea id="code" readonly></textarea>
+    <button id="btn_copycode">Copier le code</button>
+  </div>
+</div>
+
+<script>
+var LINK = 'https://bl.roulierlh.workers.dev/';
+var COMPANY = 'Terminal Roulier LE HAVRE';
+var IDS = ['nom','fonction','tel','mob','mail','adr'];
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function val(id){return document.getElementById('f_'+id).value.trim();}
+
+function buildSig(){
+  var nom = val('nom') || 'Prénom NOM';
+  var fonction = val('fonction'), tel = val('tel'), mob = val('mob'), mail = val('mail'), adr = val('adr');
+  var F = 'font-family:Arial,Helvetica,sans-serif;';
+  var h = '';
+  h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:13px;color:#333333;">';
+  h += '<tr><td style="padding:0 14px 0 0;border-right:3px solid #1a5fb4;vertical-align:top;">';
+  h += '<div style="' + F + 'font-size:15px;font-weight:bold;color:#0b1f3a;">' + esc(nom) + '</div>';
+  if (fonction) h += '<div style="' + F + 'font-size:12px;color:#555555;">' + esc(fonction) + '</div>';
+  h += '<div style="' + F + 'font-size:12px;font-weight:bold;color:#1a5fb4;padding-top:2px;">' + esc(COMPANY) + '</div>';
+  h += '</td>';
+  h += '<td style="padding:0 0 0 14px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
+  var lines = [];
+  if (tel) lines.push('T&nbsp;: ' + esc(tel));
+  if (mob) lines.push('M&nbsp;: ' + esc(mob));
+  if (mail) lines.push('<a href="mailto:' + esc(mail) + '" style="color:#1a5fb4;text-decoration:none;">' + esc(mail) + '</a>');
+  if (adr) lines.push(esc(adr));
+  lines.push('<a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a>');
+  h += lines.join('<br>');
+  h += '</td></tr></table>';
+  return h;
+}
+
+function refresh(){
+  var h = buildSig();
+  document.getElementById('preview').innerHTML = h;
+  document.getElementById('code').value = h;
+  try{ var o={}; IDS.forEach(function(i){o[i]=val(i);}); localStorage.setItem('sig_fields', JSON.stringify(o)); }catch(e){}
+}
+
+function flash(t){
+  var m = document.getElementById('msg');
+  m.textContent = t || 'Copiée ✓';
+  m.classList.add('on');
+  setTimeout(function(){m.classList.remove('on');}, 1800);
+}
+
+function copyRendered(){
+  var html = buildSig();
+  if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+    var item = new ClipboardItem({
+      'text/html': new Blob([html], {type:'text/html'}),
+      'text/plain': new Blob([document.getElementById('preview').innerText], {type:'text/plain'})
+    });
+    navigator.clipboard.write([item]).then(function(){flash();}, fallbackCopy);
+  } else fallbackCopy();
+}
+function fallbackCopy(){
+  try{
+    var el = document.getElementById('preview');
+    var r = document.createRange(); r.selectNodeContents(el);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    document.execCommand('copy'); s.removeAllRanges();
+    flash();
+  }catch(e){ flash('Sélectionnez l’aperçu et copiez (Ctrl+C)'); }
+}
+
+document.getElementById('btn_copy').onclick = copyRendered;
+document.getElementById('btn_code').onclick = function(){
+  var c = document.getElementById('code_card');
+  c.style.display = c.style.display === 'none' ? 'block' : 'none';
+};
+document.getElementById('btn_copycode').onclick = function(){
+  var t = document.getElementById('code'); t.select();
+  try{ document.execCommand('copy'); flash(); }catch(e){}
+};
+
+IDS.forEach(function(i){ document.getElementById('f_'+i).addEventListener('input', refresh); });
+try{
+  var saved = JSON.parse(localStorage.getItem('sig_fields')||'null');
+  if (saved) IDS.forEach(function(i){ if (saved[i]) document.getElementById('f_'+i).value = saved[i]; });
+}catch(e){}
+refresh();
+</script>
+</body>
+</html>
