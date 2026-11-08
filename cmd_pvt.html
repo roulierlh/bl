@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Commande de porte voitures</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiMwYTE2MjgiLz48c3ZnIHg9IjYiIHk9IjYiIHdpZHRoPSI1MiIgaGVpZ2h0PSI1MiIgdmlld0JveD0iMCAwIDk2IDQyIiBmaWxsPSJub25lIiBzdHJva2U9IiM0YTllZmYiIHN0cm9rZS13aWR0aD0iMy42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0zIDMyVjE4bDUtN2g5djIxIi8+PHBhdGggZD0iTTggMTdoNiIvPjxwYXRoIGQ9Ik0xOSAxMWg3NE0xNyAzMmg3NiIvPjxwYXRoIGQ9Ik0yMSAxMWw4IDIxIi8+PHBhdGggZD0iTTMzIDExdi00bDUtMSA0LTRoOWw1IDVoM3Y0Ii8+PGNpcmNsZSBjeD0iNDAiIGN5PSIxMSIgcj0iMiIvPjxjaXJjbGUgY3g9IjU1IiBjeT0iMTEiIHI9IjIiLz48cGF0aCBkPSJNNjQgMTF2LTRsNS0xIDQtNGg5bDUgNWgzdjQiLz48Y2lyY2xlIGN4PSI3MSIgY3k9IjExIiByPSIyIi8+PGNpcmNsZSBjeD0iODYiIGN5PSIxMSIgcj0iMiIvPjxwYXRoIGQ9Ik0zMyAzMnYtNGw1LTEgNC00aDlsNSA1aDN2NCIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMzIiIHI9IjIiLz48Y2lyY2xlIGN4PSI1NSIgY3k9IjMyIiByPSIyIi8+PHBhdGggZD0iTTY0IDMydi00bDUtMSA0LTRoOWw1IDVoM3Y0Ii8+PGNpcmNsZSBjeD0iNzEiIGN5PSIzMiIgcj0iMiIvPjxjaXJjbGUgY3g9Ijg2IiBjeT0iMzIiIHI9IjIiLz48Y2lyY2xlIGN4PSIxMCIgY3k9IjM3IiByPSIzLjUiLz48Y2lyY2xlIGN4PSIyNiIgY3k9IjM3IiByPSIzLjUiLz48Y2lyY2xlIGN4PSIzNyIgY3k9IjM3IiByPSIzLjUiLz48Y2lyY2xlIGN4PSI3MCIgY3k9IjM4IiByPSIzIi8+PGNpcmNsZSBjeD0iODAiIGN5PSIzOCIgcj0iMyIvPjxjaXJjbGUgY3g9IjkwIiBjeT0iMzgiIHI9IjMiLz48L3N2Zz48L3N2Zz4=">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHN2ZyB4PSIxIiB5PSIxIiB3aWR0aD0iNjIiIGhlaWdodD0iNjIiIHZpZXdCb3g9IjAgMCA5NiA0MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGE5ZWZmIiBzdHJva2Utd2lkdGg9IjQuNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMyAzMlYxOGw1LTdoOXYyMSIvPjxwYXRoIGQ9Ik04IDE3aDYiLz48cGF0aCBkPSJNMTkgMTFoNzRNMTcgMzJoNzYiLz48cGF0aCBkPSJNMjEgMTFsOCAyMSIvPjxwYXRoIGQ9Ik0zMyAxMXYtNGw1LTEgNC00aDlsNSA1aDN2NCIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTEiIHI9IjIiLz48Y2lyY2xlIGN4PSI1NSIgY3k9IjExIiByPSIyIi8+PHBhdGggZD0iTTY0IDExdi00bDUtMSA0LTRoOWw1IDVoM3Y0Ii8+PGNpcmNsZSBjeD0iNzEiIGN5PSIxMSIgcj0iMiIvPjxjaXJjbGUgY3g9Ijg2IiBjeT0iMTEiIHI9IjIiLz48cGF0aCBkPSJNMzMgMzJ2LTRsNS0xIDQtNGg5bDUgNWgzdjQiLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjMyIiByPSIyIi8+PGNpcmNsZSBjeD0iNTUiIGN5PSIzMiIgcj0iMiIvPjxwYXRoIGQ9Ik02NCAzMnYtNGw1LTEgNC00aDlsNSA1aDN2NCIvPjxjaXJjbGUgY3g9IjcxIiBjeT0iMzIiIHI9IjIiLz48Y2lyY2xlIGN4PSI4NiIgY3k9IjMyIiByPSIyIi8+PGNpcmNsZSBjeD0iMTAiIGN5PSIzNyIgcj0iMy41Ii8+PGNpcmNsZSBjeD0iMjYiIGN5PSIzNyIgcj0iMy41Ii8+PGNpcmNsZSBjeD0iMzciIGN5PSIzNyIgcj0iMy41Ii8+PGNpcmNsZSBjeD0iNzAiIGN5PSIzOCIgcj0iMyIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iMzgiIHI9IjMiLz48Y2lyY2xlIGN4PSI5MCIgY3k9IjM4IiByPSIzIi8+PC9zdmc+PC9zdmc+">
+<link rel="icon" type="image/png" sizes="64x64" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAK4ElEQVR4AeyYC3BU1RnH/2c3GwnGBz4KbcU6nc74mKkdbLVKaY0KAtFarRU6UzEmwcHWqdpWq51RAXWmVhmt1fFVk1jF0aL4AE0ixorTQatUa5+OpYhg5aXtQAlCSHZPf9/ZvTd3wwYQomMmu3O+e77zPf7nO9953bspDfFfOQFDfAGovALKK2CIZ6C8BYb4AigfguUtUN4CQzwD5S0wxBdA+RYYclug74ovJ6BvRoZa++NbAbN8anKzvwxaXIomNfkrz5nnK3d5AgyvyV9aCqsgu6amxQ/bGd7HkoAv3+0zkw/Vo066CTqxFKWcfr65U/N3JQk1z/uK2tF6yDndUgqrIJtd5fXEzvA+8gTUtPhhn8poIUGdtbPZQH965yY9UsMA4UsWS2bVW5ovpyklDRJC+pzY2anHd5SEjyQBk1r8sZOb/D21Tf4fw722WCBxXF4/yTmdlCQGc2mkZ1bPGL5CrfjOgi4af7ffj/ortc3+Lpb230dmtM1sInsvXZHEMt57XYycIqBVSxLawAh4E+/1ByjxG/AETJ7r93U5vUiQF9D7kVFfBOVz0iWtje7m9nq3OEmt9e5W79RoERdoAr4zodszGRnOEnBmkMijqAVWoKzXZW0N7sYklvFtje42cM7DzkPmcjJYAS+VUoMJIhrwBKS26lDnVBF1QCAWbA8yR2e3sjI6Tr3f7x3po5qkHQifZZDEKpkfbZG1L1HHh2OQO3WDp7TTHFbF86Xw8DkYypqdYRYSIed1BPK4EFPMB6aGPUuQT7LkfClC1wV5Og7U14aZ/GsA4hGCpSaIOCHwp6S71Zn0MzxGfSOBpjEPBT6fhJTODQIeMZ6UoRkKdjXpnj54zd6npJvpK9mvLAlgNLId1rIVjjMA7KzqpeE5zcHxjF5JMYeukmCtBAKwyIAEFLXzo+id0WJlocUoClxkHjWV2q6DWNUvk4ArsiF2haCdRrIVasSvKAEcXrUYXIR8xyUZVJLHK+o8iO1REBQqLChFDdpmR2UlqWJbyBJqaps9GWNGfYhlXSTpxyysgILt60pxk+AVJ6C2xY8i23OR5YvX/NYG5yIigOvyConD7NcRT726dZXSrQlb4zmcHIeRo6NxktZCUengWqgym4iCnddP6aOnYJRl4Fe2Tncu4IBtNkbM4vHYxHgMdnFPRtURltXmA9aPoDyeVw7+GvPnELYxjWk73y0Hh/Ds6ekup9/CjgBQHDw9rISzk/sUnQFSUZz+5b1Ww4mAPjN5tCYaX4roaMne1ToEzGN6pEMJcMLiere1ry2B3ZTNaH+useM+qNb+bfXuF31trI3/yxHetrQ+x2BPWnSe22y6JDHYXxpeNqevVgi8RhdPYNIuZY3a+3SunL5hPAnwHNf4WKuXGGg1FARpz2J0agkNHsjrqfotj0xx2bbp7k+LGtw7/RqhsIFwjS1dPMV10uy3RHgddW5Vv0YoDO+Z6e6VBY1uE82SJSSA2bSrJm/gdQvMk1Df8i52QcZ68dmsmkKDB/Iz7YUFdtCVkAAOhvjscU4rWGZnQi5JDLIZXTTA1KIL3ApkS0yAPFOZUZ3xO6IT5vkqDtqaUtTPXb4jONmVXQrLZGc0+X3MeWcUErAzo/70DPy+SEcyGiO+VH1asx87YpNWcdA+X4oqevTOpHv9KaV8S8kmt/jjubLfLoVlsm6nf3OwTyrlm5TtUQJ6KvQQZ0Y40EjG0ROb/TFJ8IjnpelkEvQs58xBkaxEPYK7eaHZltAVibA5UV4d4I0sUiQaLOl96fNxkjAhId6O3aME2CFDIPMjVMDiw9DOBJt13rrOJ5g2gh1udgS1mqS90IfeNh1UxXZcWHuvDwcy7bjYN4bhTWr25xoeFF6nwVvTB+sFYlphjtgMQ79gRyuLmM109ynnFG8DOp5mn6tcn09wJmwgsCUM3G6LStnPa6W4lri6apLEe8EY1K9DktNwLucXwPAk7z3+KBnHjD/mtmmj4RHwA5KqICtrSdgJSSzjt/VoDAP/oxlYElhZHTFen20GnpntPj1Tr+foLHon2O/gjL4P2regUAiavEjYdJGsV3xKh6nPj/eCDV1pTUW8LranQTIOgmzGz7JmRMHGaxu30ZJSeB0z3Ebu/yn0uQbK92/OTgexVePYTLTLCaDTDGQ+IusTmB37vp5V26yZBBLeqkzJ6+tlVhvReRe9r2MWRMd70dk5/PPzez5+mmP/Jg+Gv64yq5fxGRlsYfCzIlbMCdYMZIOW1gYbp0riOBt+MdviviQe+NemU3qNPj8NCZuCO5XXOGwvjG6JFKLtCgfHKEC+x0l7Bctv6mkP+hGAHAHlbZ3GgzrTyDvNRP51BquQoJRGm1Hgpb3QjzTe9CYvUL35RoTuKjD2L+hCFQfudHQQ8ADLttIo2KKCb12EZTXtq/EvxjMPC8RpjJzu7Ja+a6KQAJbmX6xhxHv+cJ/TMgDmkuEbAHs416VldL7F9BEZlo0YPXgS9go/FGAo6FBaB1RBz0CDyY4euG+njmUwFINWhGU1cfa28WY8Re3Yh0AYBxaE5xTGY/GpvV7357y+DdhEXnOvYjDVwarwwO9AaBw2s7G5nwhmQ38TwoJJqKyJL+h6M9RB2vswWSGYJvwNIxDy65FvMEvDsJp+Nuekx+BnM8Bf5bwWYNNhAZsNPqgUQsD2YZjwPWA6sxE/7C0WVApkciPs32DMD4qftSXnfHuje9yltF5O4Q0K580Y3gWxWjCRRucyuoOPjDo+XGZJGgbli9c87KOrTASXx0Wby6mdFbUGNhTn9QB9TTeMmBrc1dkKHQ7G7STGDsI7+ZD5fHuDOxvbWdhd8l6PvgPo2ACSfNiInYZR7V0kRkDs/0nKIp74jpzUolOtDaZVecJhvzzH02v5tpxsoOtU+KW6NaLASk6xLX43SPodlC9e8QqyQZHY+KqkHWYqb9j75J1iPVfYDxnsKOofWLtXKx1QqcPoM3qXsEl5VdHP6YsRS/0iFAoDPRAKPDF2yuuN0LCH1xirihJAI/5aw/HovdJaS32IGRrx0RnPMu1eWztxpeSfjfH3ejqlp7D9GRQKeKsC8yEfqSzhF3yY3K0MKLyBFkTJ6gOSTEmK4Nnz7P+w72mJSQk2jNmaeXq6wb0F8KJ8q/iJdXPbxa4rkmJ3R8Qna+Rrsl7XJmURD8b/WNrxaojku1K/n9VK8w+2bFPn9LXA82CLvUYVlfEkiCLx+DM+IVHwB0Pxq7rPKrwoFSVA/DbsozNxmgMtZzBd0JuIr17frQup48LebGJOpmK3FLIZWU17XrpCxy6a7p6g91PxfQndZmg9jk+5tI59ZppbA/+hy6szXDd403CMZxGeLvXoxn1VRx9/sHZE2P4353QB8gvh+S8m0ki0b2uf7p4zyXYJeGmK28IevBz6AgfeMOgIPouvtwDMIUns13nYHQdVYfdZ2lOfqnPvmg3/9T+LbCy6amgkGN9srXP/NN3uEklfoJyOZCk3MrDLOWDHg32OxVxdrXG8/Z2O/Apuj2l8XR7eXu+WcpD+pielo5DNgH7MbTKWuC6OYtguAZHik1rzP+FK/i5rZuBzolm0WO1fIv79eRr5jQx67sIZ7n2TGz1b75Yhuwe6hSS+ZLKIBl0CosAHqi4nYKAyOVhxyitgsM7cQMVdXgEDlcnBilNeAYN15gYq7vIKGKhMDlac8goYrDM3UHGXV8BAZXKw4gz6FbCnif8/AAAA//8POFwXAAAABklEQVQDAHZy1L3/x+c6AAAAAElFTkSuQmCC">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -102,7 +103,11 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 }
 .btn-vin:hover { background: rgba(74,158,255,0.25); }
 .vin-badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 2px; background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
-.vin-badge.warn { background: rgba(224,82,82,0.15); border-color: rgba(224,82,82,0.3); color: var(--red); }
+.vin-badge.warn { background: rgba(240,168,48,0.15); border-color: rgba(240,168,48,0.4); color: #f0a830; }
+.vin-badge.bad { background: rgba(224,82,82,0.15); border-color: rgba(224,82,82,0.3); color: var(--red); }
+.vchip .vin-del { opacity: 0.55; } .vchip:hover .vin-del { opacity: 1; }
+.vchip > span { cursor: text; }
+.vin-edit { flex: 1; width: 100%; box-sizing: border-box; background: var(--input-bg); border: 1px solid var(--accent); border-radius: 2px; color: var(--white); font-family: 'IBM Plex Mono', monospace; font-size: 14px; padding: 2px 7px; letter-spacing: 0.05em; text-transform: uppercase; outline: none; }
 .btn-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 4px; transition: color 0.2s; }
 .btn-remove:hover { color: var(--red); }
 .btn-add-marc {
@@ -454,8 +459,9 @@ function renderMarc() {
     var colisNum = parseInt(m.colis) || 0;
     var vinOk = colisNum > 0 && vinCount === colisNum;
     var vinWarn = colisNum > 0 && vinCount !== colisNum;
+    var vinBad = m.vins.some(function(x) { return x.trim() && x.trim().length !== 17; });
     var badgeHtml = vinCount > 0
-      ? '<span class="vin-badge' + (vinWarn ? ' warn' : '') + '">' + 'VIN (' + vinCount + '/' + colisNum + ')' + (vinOk ? ' ✓' : '') + '</span>'
+      ? '<span class="vin-badge' + (vinBad ? ' bad' : (vinWarn ? ' warn' : '')) + '">' + 'VIN (' + vinCount + '/' + colisNum + ')' + (vinOk ? ' ✓' : '') + '</span>'
       : '';
     var removeBtn = marchandises.length > 1
       ? '<button class="btn-remove" onclick="removeMarchandise(' + m.id + ')" title="Supprimer">×</button>'
@@ -470,9 +476,9 @@ function renderMarc() {
     // VIN display block
     var vinDisplay = '';
     if (m.vins.length > 0) {
-      var chips = m.vins.map(function(v) {
+      var chips = m.vins.map(function(v, vi) {
         var ok = v.trim().length === 17;
-        return '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span>';
+        return '<div class="vchip" data-id="' + m.id + '" data-i="' + vi + '" ondblclick="editVinInline(this)" title="Double-clic pour modifier" style="display:flex;align-items:center;gap:6px;"><span style="flex:1;font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span><button class="vin-del" onclick="removeVinFromLot(' + m.id + ',' + vi + ')" title="Supprimer ce VIN">×</button></div>';
       }).join('');
       vinDisplay = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">' +
         '' +
@@ -827,7 +833,7 @@ function renderVinChips(vins) {
   var chips = vins.map(function(v, i) {
     var ok = v.trim().length === 17;
     return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
-      '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:4px 10px;border-radius:2px;flex:1;' +
+      '<span ondblclick="editVinChip(' + i + ',this)" title="Double-clic pour modifier" style="cursor:text;font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:4px 10px;border-radius:2px;flex:1;' +
         'background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';' +
         'border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';' +
         'color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.06em;">' +
@@ -837,6 +843,48 @@ function renderVinChips(vins) {
     '</div>';
   }).join('');
   container.innerHTML = chips;
+}
+
+
+// ── Modifier / supprimer un VIN directement ──
+function removeVinFromLot(id, i) {
+  var m = getMarc(id); if (!m) return;
+  m.vins.splice(i, 1); renderMarc(); updateTotals();
+}
+function editVinInline(el) {                              // double-clic sur un VIN de la carte
+  if (el.querySelector('input')) return;
+  var m = getMarc(+el.dataset.id), i = +el.dataset.i; if (!m) return;
+  var old = m.vins[i], inp = document.createElement('input'), done = false;
+  inp.className = 'vin-edit'; inp.value = old; inp.maxLength = 30;
+  el.innerHTML = ''; el.appendChild(inp); inp.focus(); inp.select();
+  function commit(save) {
+    if (done) return; done = true;
+    var nv = inp.value.trim().toUpperCase();
+    if (save && nv && nv !== old) {
+      if (m.vins.some(function(x, k) { return k !== i && x === nv; })) showToast('Ce VIN existe déjà dans ce lot');
+      else m.vins[i] = nv;
+    }
+    renderMarc(); updateTotals();
+  }
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') commit(true); else if (e.key === 'Escape') commit(false); });
+  inp.addEventListener('blur', function() { commit(true); });
+}
+function editVinChip(i, span) {                           // double-clic sur un VIN dans la fenêtre VIN
+  var m = getMarc(currentVinId); if (!m || span.querySelector('input')) return;
+  var old = m.vins[i], inp = document.createElement('input'), done = false;
+  inp.className = 'vin-edit'; inp.value = old; inp.maxLength = 30; inp.style.fontSize = '11px';
+  span.innerHTML = ''; span.appendChild(inp); inp.focus(); inp.select();
+  function commit(save) {
+    if (done) return; done = true;
+    var nv = inp.value.trim().toUpperCase();
+    if (save && nv && nv !== old) {
+      if (m.vins.some(function(x, k) { return k !== i && x === nv; })) showToast('Ce VIN existe déjà dans ce lot');
+      else m.vins[i] = nv;
+    }
+    renderVinChips(m.vins); updateModalStatus();
+  }
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') commit(true); else if (e.key === 'Escape') commit(false); });
+  inp.addEventListener('blur', function() { commit(true); });
 }
 
 function removeVinChip(idx) {
