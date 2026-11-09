@@ -1029,7 +1029,7 @@ function travauxAuto() {
   var a = val('p_pickup'), b = val('p_deliv'), t = g('p_travaux');
   if (travauxDirty && t.value.trim()) return;
   travauxDirty = false;
-  t.value = (a && b) ? 'TRANSFERT INTERNE DU PARC ' + a + ' VERS ' + b : '';
+  t.value = (a && b) ? 'TRANSFERT INTERNE DU PARC ' + a + ' VERS PARC ' + b : '';
 }
 function syncAddr() {
   travauxAuto();                                   // une adresse choisie d'un côté est grisée de l'autre
