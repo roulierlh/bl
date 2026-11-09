@@ -99,11 +99,10 @@ function buildSig(){
   // carte : cadre fin, coins arrondis (ignorés par Outlook classique), fond clair
   h += '<table cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f8fc" style="border-collapse:separate;border:1px solid #d5dce8;border-radius:12px;background-color:#f6f8fc;"><tr><td style="padding:16px 20px;">';
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:13px;color:#333333;">';
-  h += '<tr>';
   // ligne 1 : prénom / NOM (gauche) + coordonnées (droite, sur 2 lignes)
   h += '<tr>';
-  h += '<td valign="top" style="padding:0 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:top;' + F + 'font-size:15px;line-height:19px;font-weight:bold;color:#0b1f3a;">' + esc(prenom) + '<br>' + esc(nom) + '</td>';
-  h += '<td rowspan="2" valign="top" style="padding:0 0 0 12px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
+  h += '<td valign="middle" style="padding:0 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:middle;text-align:left;' + F + 'font-size:15px;line-height:19px;font-weight:bold;color:#0b1f3a;">' + esc(prenom) + '<br>' + esc(nom) + '<div style="' + F + 'font-size:12px;line-height:18px;font-weight:bold;color:#1a5fb4;"><br>Terminal Roulier<br>LE HAVRE</div></td>';
+  h += '<td valign="top" style="padding:0 0 0 12px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
   if (tel || mob){
     h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:12px;line-height:18px;">';
     if (tel) h += '<tr><td style="padding:0 8px 0 0;white-space:nowrap;">Direct&nbsp;:</td><td style="white-space:nowrap;">' + esc(tel) + '</td></tr>';
@@ -116,8 +115,6 @@ function buildSig(){
   if (adr) lines.push(esc(adr));
   h += lines.join('<br>');
   h += '</td></tr>';
-  // ligne 2 : société alignée en bas
-  h += '<tr><td valign="bottom" style="padding:6px 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:bottom;' + F + 'font-size:12px;line-height:18px;font-weight:bold;color:#1a5fb4;white-space:nowrap;">Terminal Roulier<br>LE HAVRE</td></tr>';
   h += '</table>';
   // ligne vide puis lien vers les documents (largeur fixe pour un retour à la ligne propre)
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="padding:18px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr><tr><td style="padding:8px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="https://ares.smr-france.com/" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos retours quai Cliquez ici</a></td></tr></table>';
