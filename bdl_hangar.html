@@ -370,8 +370,9 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   <div class="modal">
     <div class="modal-header"><h3>Désignation des travaux à effectuer</h3><button class="modal-close" onclick="closeTravaux()">×</button></div>
     <div class="modal-body">
-      <div class="field"><label>Travaux de manutention demandés</label>
-        <textarea id="travaux_txt" style="min-height:160px;text-transform:uppercase;" placeholder="Ex : Déchargement en roulant pour mise à quai, Déchargement au chariot pour mise à quai…" oninput="this.value=this.value.toUpperCase()"></textarea>
+      <div class="field"><label>Travaux de manutention demandés <span class="req">*</span></label>
+        <textarea id="travaux_txt" style="min-height:160px;text-transform:uppercase;" placeholder="Ex : Déchargement en roulant pour mise à quai, Déchargement au chariot pour mise à quai…" oninput="this.value=this.value.toUpperCase();travauxErr(false)"></textarea>
+        <div id="travaux_err" style="display:none;color:#e05252;font-size:12px;margin-top:6px;">Ce champ est obligatoire : décrivez les travaux à effectuer pour continuer.</div>
       </div>
     </div>
     <div class="modal-footer" style="justify-content:flex-end;">
@@ -1430,12 +1431,14 @@ function answerCmd(yes) {
   document.getElementById('cmd_ask').classList.remove('open');
   if (!yes) { generatePDF(); return; }
   saveSnapshot();   // le bon sera généré avec la commande
-  document.getElementById('travaux_txt').value = '';
+  document.getElementById('travaux_txt').value = ''; travauxErr(false);
   document.getElementById('travaux_modal').classList.add('open');
   setTimeout(function() { document.getElementById('travaux_txt').focus(); }, 50);
 }
+function travauxErr(on) { document.getElementById('travaux_err').style.display = on ? 'block' : 'none'; document.getElementById('travaux_txt').style.borderColor = on ? 'var(--red)' : ''; }
 function closeTravaux() { document.getElementById('travaux_modal').classList.remove('open'); }
 function confirmTravaux() {
+  if (!document.getElementById('travaux_txt').value.trim()) { travauxErr(true); document.getElementById('travaux_txt').focus(); return; }
   try { localStorage.setItem('cmd_travaux', document.getElementById('travaux_txt').value); } catch(e) {}
   window.location.href = 'cmd_manut.html?from=bdl';
 }

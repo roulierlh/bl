@@ -40,20 +40,22 @@ a.card:hover{transform:translateY(-3px);background:#16305a}
 <div class="ov" id="ov">
   <div class="box">
     <h3>Désignation des travaux à effectuer</h3>
-    <div class="bd"><label for="trv">Travaux de manutention demandés</label>
-      <textarea id="trv" placeholder="Ex : Déchargement en roulant pour mise à quai, Déchargement au chariot pour mise à quai…"></textarea></div>
+    <div class="bd"><label for="trv">Travaux de manutention demandés <span style="color:#e05252">*</span></label>
+      <textarea id="trv" placeholder="Ex : Déchargement en roulant pour mise à quai, Déchargement au chariot pour mise à quai…" oninput="trvErr(false)"></textarea><div id="trv_err" style="display:none;color:#e05252;font-size:12px;margin-top:6px;">Ce champ est obligatoire : décrivez les travaux à effectuer pour continuer.</div></div>
     <div class="ft"><button onclick="closeOv()">Annuler</button><button class="ok" onclick="goManut()">Valider</button></div>
   </div>
 </div>
 <script>
 document.getElementById('card_manut').addEventListener('click', function(e) {
   e.preventDefault();
-  document.getElementById('trv').value = '';
+  document.getElementById('trv').value = ''; trvErr(false);
   document.getElementById('ov').classList.add('open');
   setTimeout(function() { document.getElementById('trv').focus(); }, 50);
 });
+function trvErr(on) { document.getElementById('trv_err').style.display = on ? 'block' : 'none'; document.getElementById('trv').style.borderColor = on ? '#e05252' : ''; }
 function closeOv() { document.getElementById('ov').classList.remove('open'); }
 function goManut() {
+  if (!document.getElementById('trv').value.trim()) { trvErr(true); document.getElementById('trv').focus(); return; }
   try { localStorage.setItem('cmd_travaux', document.getElementById('trv').value); } catch(e) {}
   window.location.href = 'cmd_manut.html?from=index';
 }
