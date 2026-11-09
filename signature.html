@@ -20,8 +20,8 @@
   input:focus,textarea:focus{outline:none;border-color:var(--acc)}
   textarea{font:12px/1.4 "IBM Plex Mono",monospace;height:140px;resize:vertical}
   .preview{background:#fff;border-radius:8px;padding:18px;overflow:auto}
-  button{background:var(--acc);color:#04101f;border:0;border-radius:6px;padding:10px 16px;font:600 14px inherit;cursor:pointer;margin-top:14px}
-  button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc);margin-left:8px}
+  button{margin-right:8px;background:var(--acc);color:#04101f;border:0;border-radius:6px;padding:10px 16px;font:600 14px inherit;cursor:pointer;margin-top:14px}
+  button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc)}
   .msg{display:inline-block;margin-left:10px;color:var(--ok);font-size:13px;opacity:0;transition:opacity .2s}
   .msg.on{opacity:1}
   ol{margin:0;padding-left:20px;color:var(--mut);font-size:13px}
@@ -36,10 +36,10 @@
   <div class="grid">
     <div class="card">
       <h2>Vos informations</h2>
-      <label for="f_nom">Prénom NOM</label>
-      <input id="f_nom" placeholder="Jean DUPONT">
-      <label for="f_fonction">Fonction</label>
-      <input id="f_fonction" placeholder="Responsable exploitation">
+      <label for="f_prenom">Prénom</label>
+      <input id="f_prenom" placeholder="Jean">
+      <label for="f_nom">NOM</label>
+      <input id="f_nom" placeholder="DUPONT">
       <label for="f_tel">Téléphone fixe</label>
       <input id="f_tel" placeholder="02 35 00 00 00">
       <label for="f_mob">Mobile</label>
@@ -57,6 +57,7 @@
       <div class="preview" id="preview"></div>
       <button id="btn_copy">Copier la signature</button>
       <button class="sec" id="btn_code">Afficher le code HTML</button>
+      <button class="sec" id="btn_dl">Télécharger (.htm)</button>
       <span class="msg" id="msg">Copiée ✓</span>
     </div>
   </div>
@@ -66,6 +67,7 @@
     <ol>
       <li><b>Outlook</b> : Fichier › Options › Courrier › Signatures › Nouvelle, puis coller (Ctrl+V) dans la zone de texte.</li>
       <li><b>Gmail</b> : Paramètres › Voir tous les paramètres › Signature › Créer, puis coller.</li>
+      <li><b>Outlook (fichier)</b> : cliquer sur « Télécharger (.htm) », puis enregistrer le fichier dans <code>%APPDATA%\Microsoft\Signatures</code> (à taper dans la barre d'adresse de l'Explorateur). Redémarrer Outlook : la signature apparaît dans la liste. Valable pour Outlook classique uniquement.</li>
       <li><b>Apple Mail / autre</b> : coller dans l'éditeur de signature, ou utiliser « Afficher le code HTML » si la messagerie accepte le HTML brut.</li>
     </ol>
   </div>
@@ -80,32 +82,41 @@
 <script>
 var LINK = 'https://bl.roulierlh.workers.dev/';
 var COMPANY = 'Terminal Roulier LE HAVRE';
-var IDS = ['nom','fonction','tel','mob','mail','groupe','adr'];
+var IDS = ['prenom','nom','tel','mob','mail','groupe','adr'];
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function val(id){return document.getElementById('f_'+id).value.trim();}
 
 function buildSig(){
-  var nom = val('nom') || 'Prénom NOM';
-  var fonction = val('fonction'), tel = val('tel'), mob = val('mob'), mail = val('mail'), groupe = val('groupe'), adr = val('adr');
+  var prenom = val('prenom') || 'Prénom', nom = val('nom') || 'NOM';
+  var tel = val('tel'), mob = val('mob'), mail = val('mail'), groupe = val('groupe'), adr = val('adr');
   var F = 'font-family:Arial,Helvetica,sans-serif;';
+  var LNK = 'color:#1a5fb4;text-decoration:none;';
   var h = '';
+  // ligne vide au-dessus de la signature
+  h += '<div style="' + F + 'font-size:13px;line-height:18px;">&nbsp;</div>';
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:13px;color:#333333;">';
-  h += '<tr><td style="padding:0 14px 0 0;border-right:3px solid #1a5fb4;vertical-align:top;">';
-  h += '<div style="' + F + 'font-size:15px;font-weight:bold;color:#0b1f3a;">' + esc(nom) + '</div>';
-  if (fonction) h += '<div style="' + F + 'font-size:12px;color:#555555;">' + esc(fonction) + '</div>';
-  h += '<div style="' + F + 'font-size:12px;font-weight:bold;color:#1a5fb4;padding-top:2px;">' + esc(COMPANY) + '</div>';
-  h += '</td>';
-  h += '<td style="padding:0 0 0 14px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
+  h += '<tr>';
+  // ligne 1 : prénom / NOM (gauche) + coordonnées (droite, sur 2 lignes)
+  h += '<tr>';
+  h += '<td valign="top" style="padding:0 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:top;' + F + 'font-size:15px;line-height:19px;font-weight:bold;color:#0b1f3a;">' + esc(prenom) + '<br>' + esc(nom) + '</td>';
+  h += '<td rowspan="2" valign="top" style="padding:0 0 0 12px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
+  if (tel || mob){
+    h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:12px;line-height:18px;">';
+    if (tel) h += '<tr><td style="padding:0 8px 0 0;white-space:nowrap;">Direct&nbsp;:</td><td style="white-space:nowrap;">' + esc(tel) + '</td></tr>';
+    if (mob) h += '<tr><td style="padding:0 8px 0 0;white-space:nowrap;">Mobile&nbsp;:</td><td style="white-space:nowrap;">' + esc(mob) + '</td></tr>';
+    h += '</table>';
+  }
   var lines = [];
-  if (tel) lines.push('Direct&nbsp;: ' + esc(tel));
-  if (mob) lines.push('Mobile&nbsp;: ' + esc(mob));
-  if (mail) lines.push('<a href="mailto:' + esc(mail) + '" style="color:#1a5fb4;text-decoration:none;">' + esc(mail) + '</a>');
-  if (groupe) lines.push('Adresse e-mail de groupe&nbsp;: <a href="mailto:' + esc(groupe) + '" style="color:#1a5fb4;text-decoration:none;">' + esc(groupe) + '</a>');
+  if (mail) lines.push('<a href="mailto:' + esc(mail) + '" style="' + LNK + '">' + esc(mail) + '</a>');
+  if (groupe) lines.push('E-mail de groupe&nbsp;:<br><a href="mailto:' + esc(groupe) + '" style="' + LNK + '">' + esc(groupe) + '</a>');
   if (adr) lines.push(esc(adr));
   h += lines.join('<br>');
   h += '</td></tr>';
-  h += '<tr><td colspan="2" style="padding:10px 0 0 0;' + F + 'font-size:12px;"><a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr>';
+  // ligne 2 : société alignée en bas
+  h += '<tr><td valign="bottom" style="padding:6px 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:bottom;' + F + 'font-size:12px;line-height:18px;font-weight:bold;color:#1a5fb4;white-space:nowrap;">' + esc(COMPANY) + '</td></tr>';
+  // ligne vide puis lien vers les documents
+  h += '<tr><td colspan="2" style="padding:18px 0 0 0;' + F + 'font-size:12px;"><a href="' + LINK + '" style="' + LNK + 'font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr>';
   h += '</table>';
   return h;
 }
@@ -114,7 +125,7 @@ function refresh(){
   var h = buildSig();
   document.getElementById('preview').innerHTML = h;
   document.getElementById('code').value = h;
-  try{ var o={}; IDS.forEach(function(i){o[i]=val(i);}); localStorage.setItem('sig_fields', JSON.stringify(o)); }catch(e){}
+  try{ var o={}; IDS.forEach(function(i){o[i]=val(i);}); localStorage.setItem('sig_fields2', JSON.stringify(o)); }catch(e){}
 }
 
 function flash(t){
@@ -145,6 +156,17 @@ function fallbackCopy(){
 }
 
 document.getElementById('btn_copy').onclick = copyRendered;
+document.getElementById('btn_dl').onclick = function(){
+  var nom = ((val('prenom') + ' ' + val('nom')).trim() || 'Signature Roulier').replace(/[\\\/:*?"<>|]/g,'').trim();
+  var doc = '<!DOCTYPE html>\r\n<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Signature ' + esc(nom) + '</title></head>\r\n<body>' + buildSig() + '</body></html>';
+  var blob = new Blob(['\uFEFF' + doc], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Signature ' + nom + '.htm';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href);}, 1000);
+  flash('Fichier téléchargé ✓');
+};
 document.getElementById('btn_code').onclick = function(){
   var c = document.getElementById('code_card');
   c.style.display = c.style.display === 'none' ? 'block' : 'none';
@@ -156,7 +178,7 @@ document.getElementById('btn_copycode').onclick = function(){
 
 IDS.forEach(function(i){ document.getElementById('f_'+i).addEventListener('input', refresh); });
 try{
-  var saved = JSON.parse(localStorage.getItem('sig_fields')||'null');
+  var saved = JSON.parse(localStorage.getItem('sig_fields2')||'null');
   if (saved) IDS.forEach(function(i){ if (saved[i] && i !== 'groupe') document.getElementById('f_'+i).value = saved[i]; });
 }catch(e){}
 refresh();
