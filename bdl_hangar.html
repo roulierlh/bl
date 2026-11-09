@@ -357,10 +357,12 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 <div class="modal-overlay" id="cmd_ask" style="z-index:650">
   <div class="confirm-box">
     <div class="modal-header"><h3>Bon de livraison (Hangar)</h3></div>
-    <div class="confirm-body">Voulez-vous une commande de manutention ?<small>Si oui, le bon de livraison sera généré en même temps que la commande, avec ses informations reprises.</small></div>
-    <div class="modal-footer" style="justify-content:flex-end;">
+    <div class="confirm-body">Voulez-vous une commande associée ?<small>Choisissez la commande : le bon de livraison sera généré en même temps, avec ses informations reprises.</small></div>
+    <div class="modal-footer" style="justify-content:flex-end;flex-wrap:wrap;gap:8px;">
       <button class="btn-cancel" onclick="answerCmd(false)">Non</button>
-      <button class="btn-ok" onclick="answerCmd(true)">Oui</button>
+      <button class="btn-ok" onclick="answerCmd('manut')">Manutention</button>
+      <button class="btn-ok" onclick="answerCmd('pvt')">Porte voitures</button>
+      <button class="btn-ok" onclick="answerCmd('parc')">Transfert parc</button>
     </div>
   </div>
 </div>
@@ -1431,6 +1433,8 @@ function answerCmd(yes) {
   document.getElementById('cmd_ask').classList.remove('open');
   if (!yes) { generatePDF(); return; }
   saveSnapshot();   // le bon sera généré avec la commande
+  if (yes === 'pvt')  { window.location.href = 'cmd_pvt.html?from=bdl';  return; }
+  if (yes === 'parc') { window.location.href = 'cmd_parc.html?from=bdl'; return; }
   document.getElementById('travaux_txt').value = ''; travauxErr(false);
   document.getElementById('travaux_modal').classList.add('open');
   setTimeout(function() { document.getElementById('travaux_txt').focus(); }, 50);

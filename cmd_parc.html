@@ -328,6 +328,21 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 </div>
 
 
+<!-- COMPLÉTER LA COMMANDE ASSOCIÉE (arrivée depuis le bon de livraison) -->
+<div class="modal-overlay" id="ac_modal" style="z-index:655">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header"><h3>Informations à compléter pour la commande associée</h3><button class="modal-close" onclick="closeAc()">×</button></div>
+    <div class="modal-body">
+      <div class="vin-info">Ces champs obligatoires ne sont pas encore renseignés. Remplissez-les ici, ils seront reportés dans la commande.</div>
+      <div id="ac_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="ac_status"></span>
+      <div style="display:flex;gap:8px;"><button class="btn-cancel" onclick="closeAc()">Plus tard</button><button class="btn-ok" onclick="applyAc()">Valider</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- BON DE LIVRAISON ASSOCIÉ : question puis champs restants -->
 <div class="modal-overlay" id="ba_ask" style="z-index:650">
   <div class="confirm-box">
@@ -1239,7 +1254,7 @@ function generatePVPDF() {
   var doc = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
   var mg = PK.mg;
   var today = new Date(), todayFr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
-  PK.header(doc, 'COMMANDE DE TRANSFERT PARC INTER ROULIER', 'Transfert de véhicule entre parcs' + (baMode ? '  —  Associée au bon de livraison (Hangar) N°' + numRef : ''), numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE', 'parc');
+  PK.header(doc, 'COMMANDE DE TRANSFERT PARC INTER ROULIER', 'Transfert de véhicule entre parcs' + ((baMode || assoc) ? '  —  Associée au bon de livraison (Hangar) N°' + numRef : ''), numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE', 'parc');
   var c = PK.card(doc);
 
   c.start(); c.title('Client & Lieux');
@@ -1582,7 +1597,7 @@ var BA_FIELDS = [
   { id: 'pod',            label: 'Port de déchargement',        ph: 'Port of Discharge' }
 ];
 var BA_PERSIST = ['declarant', 'transitaire', 'armement', 'bdl_par', 'telephone', 'lieu_livraison'];
-function baStart() { document.getElementById('ba_ask').classList.add('open'); }
+function baStart() { if (assoc && bdlSnap) { BA_CFG.gen(); return; } document.getElementById('ba_ask').classList.add('open'); }
 function baAnswer(yes) {
   document.getElementById('ba_ask').classList.remove('open');
   if (!yes) { BA_CFG.gen(); return; }
@@ -1638,7 +1653,7 @@ function baRun(vals) {
   try { BA_CFG.gen(); } finally { baMode = false; }
 }
 function baFinish(doc, fname) {
-  if (!baMode) {
+  if (!baMode && !(assoc && bdlSnap)) {
     doc.save(fname); showToast('✓ PDF généré : ' + fname);
     askAfter({ title: 'Commande générée', msg: 'Le PDF a été téléchargé.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
     return;
@@ -1647,11 +1662,77 @@ function baFinish(doc, fname) {
   setTimeout(function() {
     doc.save(fname);
     showToast('✓ 2 PDF générés : ' + f1 + ' + ' + fname);
-    askAfter({ title: 'Commande + bon de livraison générés', msg: 'Les 2 PDF ont été téléchargés.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
+    askAfter({ title: 'Commande + bon de livraison générés', msg: 'Les 2 PDF ont été téléchargés.<small>Souhaitez-vous rester sur la commande, retourner sur le bon ou quitter ?</small>', stay: 'Rester sur la commande', back: assoc });
   }, 600);
 }
 var BA_CFG = { label: 'TRANSFERT PARC INTER ROULIER', gen: function() { generatePVPDF(); },
   map: function() { return { lieu_livraison: val('p_deliv') }; } };
+
+
+// ── Commande associée à un bon de livraison (arrivée depuis le bon) ──
+var assoc = false;
+function getSnap() { try { return JSON.parse(localStorage.getItem('bdl_last') || 'null'); } catch(e) { return null; } }
+function assocInit() {
+  if (!/[?&]from=bdl/.test(location.search)) return;
+  var s = getSnap(); if (!s || !s.numRef) return;
+  numRef = s.numRef; assoc = true; bdlSnap = s; bdlMarc = s.marchandises || [];
+  bdlAssocText = 'COMMANDE ' + BA_CFG.label + ' ASSOCIÉE N°' + numRef;
+  if (s.marchandises && s.marchandises.length) {
+    marchandises = JSON.parse(JSON.stringify(s.marchandises));
+    marchandises.forEach(function(m) { if (!m.mbis) m.mbis = []; });
+    marcCounter = marchandises.reduce(function(a, x) { return Math.max(a, x.id || 0); }, 0);
+    renderMarc(); updateTotals();
+  }
+  
+  var sub = document.querySelector('.header-subtitle'); if (sub) sub.textContent += '  —  Associée au bon de livraison (Hangar) N°' + numRef;
+  var btn = g('btn_pdf_pv'); if (btn) btn.lastChild.textContent = '\n    Générer la commande + le bon de livraison\n  ';
+  refresh(); showToast('Le bon de livraison sera généré avec la commande');
+  setTimeout(openAc, 350);
+}
+var AC_FIELDS = [
+  { id: 'p_pickup', label: 'Adresse de prise en charge', type: 'select' },
+  { id: 'p_deliv',  label: 'Adresse de livraison',       type: 'select' },
+  { id: 'p_date',   label: 'Date de transfert souhaitée', type: 'date' },
+  { id: 'p_bas',    label: 'BAS / Annonce à joindre',    type: 'checkbox' }
+];
+function acList() { return AC_FIELDS.filter(function(f) { var el = g(f.id); return f.type === 'checkbox' ? !el.checked : !el.value.trim(); }); }
+function openAc() {
+  var list = acList(); if (!list.length) return;
+  var box = g('ac_fields'); box.innerHTML = '';
+  list.forEach(function(f) {
+    var d = document.createElement('div'); d.className = 'field';
+    var ctl;
+    if (f.type === 'select') {
+      ctl = '<select id="ac_' + f.id + '">' + Array.prototype.map.call(g(f.id).options, function(o) { return '<option value="' + o.value + '">' + o.text + '</option>'; }).join('') + '</select>';
+    } else if (f.type === 'checkbox') {
+      ctl = '<label class="chk" style="text-transform:none;letter-spacing:0;font-family:\'IBM Plex Sans\';font-size:13px;color:var(--white)"><input type="checkbox" id="ac_' + f.id + '" /> ' + f.label + '</label>';
+    } else {
+      ctl = '<input type="' + f.type + '" id="ac_' + f.id + '"' + (f.uc ? ' class="uc"' : '') + ' />';
+    }
+    d.innerHTML = '<label>' + f.label + ' <span class="req">*</span></label>' + ctl;
+    box.appendChild(d);
+  });
+  g('ac_status').textContent = '';
+  g('ac_modal').classList.add('open');
+}
+function closeAc() { g('ac_modal').classList.remove('open'); }
+function applyAc() {
+  var bad = '';
+  AC_FIELDS.forEach(function(f) {
+    var el = g('ac_' + f.id); if (!el) return;
+    var t = g(f.id);
+    if (f.type === 'checkbox') { if (el.checked) { t.checked = true; t.dispatchEvent(new Event('change', { bubbles: true })); } return; }
+    var x = el.value.trim(); if (!x) return;
+    t.value = f.uc ? x.toUpperCase() : x;
+    t.dispatchEvent(new Event('input', { bubbles: true })); t.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  if (val('p_pickup') && val('p_pickup') === val('p_deliv') && g('addr_warn')) bad = "L'adresse de prise en charge et l'adresse de livraison doivent être différentes";
+  if (bad) { g('ac_status').textContent = bad; return; }
+  closeAc(); refresh();
+  var left = missingList().length;
+  showToast(left ? 'Il reste ' + left + ' information(s) obligatoire(s) à renseigner' : '✓ Commande complète');
+}
+assocInit();
 
 // ── Après génération : rester / retourner sur le bon / quitter ──
 function askAfter(o) {
