@@ -91,10 +91,12 @@ function buildSig(){
   var prenom = val('prenom') || 'Prénom', nom = val('nom') || 'NOM';
   var tel = val('tel'), mob = val('mob'), mail = val('mail'), groupe = val('groupe'), adr = val('adr');
   var F = 'font-family:Arial,Helvetica,sans-serif;';
-  var LNK = 'color:#1a5fb4;text-decoration:none;';
+  var LNK = 'color:#1a5fb4;text-decoration:none;white-space:nowrap;';
   var h = '';
   // ligne vide au-dessus de la signature
   h += '<div style="' + F + 'font-size:13px;line-height:18px;">&nbsp;</div>';
+  // carte : cadre fin, coins arrondis (ignorés par Outlook classique), fond clair
+  h += '<table cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f8fc" style="border-collapse:separate;border:1px solid #d5dce8;border-radius:12px;background-color:#f6f8fc;"><tr><td style="padding:16px 20px;">';
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:13px;color:#333333;">';
   h += '<tr>';
   // ligne 1 : prénom / NOM (gauche) + coordonnées (droite, sur 2 lignes)
@@ -115,9 +117,10 @@ function buildSig(){
   h += '</td></tr>';
   // ligne 2 : société alignée en bas
   h += '<tr><td valign="bottom" style="padding:6px 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:bottom;' + F + 'font-size:12px;line-height:18px;font-weight:bold;color:#1a5fb4;white-space:nowrap;">' + esc(COMPANY) + '</td></tr>';
-  // ligne vide puis lien vers les documents
-  h += '<tr><td colspan="2" style="padding:18px 0 0 0;' + F + 'font-size:12px;"><a href="' + LINK + '" style="' + LNK + 'font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr>';
   h += '</table>';
+  // ligne vide puis lien vers les documents (largeur fixe pour un retour à la ligne propre)
+  h += '<table cellpadding="0" cellspacing="0" border="0" width="380" style="border-collapse:collapse;width:380px;"><tr><td style="padding:18px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr></table>';
+  h += '</td></tr></table>';
   return h;
 }
 

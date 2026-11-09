@@ -343,23 +343,8 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     </div>
   </div>
 
-  <!-- CARTE 5 — SIGNATURES -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-header-left">
-        <div class="section-dot"></div>
-        <span class="section-title">Réserves &amp; Signatures</span>
-      </div>
-    </div>
-    <div class="section-body">
-      <div class="field" style="margin-bottom:16px;"><label>Réserves</label><textarea id="reserves" placeholder="Indiquer ici toutes réserves éventuelles..."></textarea></div>
-      <div class="grid g2">
-        <div class="field"><label>Le Chargeur (signature / cachet)</label><div class="sig-box" contenteditable="true">Signature…</div></div>
-        <div class="field"><label>L'Exploitant (signature / cachet)</label><div class="sig-box" contenteditable="true">Signature…</div></div>
-      </div>
-      <div class="field" style="margin-top:14px;"><label>Visa Compagnie</label><div class="sig-box" contenteditable="true" style="min-height:50px;">Visa…</div></div>
-    </div>
-  </div>
+  <!-- Réserves & Signatures : retiré du formulaire (le PDF les conserve) ; champ masqué pour le script -->
+  <textarea id="reserves" hidden></textarea>
 
 </div>
 
