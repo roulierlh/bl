@@ -8,10 +8,10 @@
   :root{--bg:#0b1220;--panel:#121b2e;--line:#243350;--txt:#e6edf7;--mut:#8fa1bd;--acc:#4a9eff;--ok:#3ecf8e}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;padding:24px 16px}
-  .wrap{max-width:900px;margin:0 auto}
+  .wrap{max-width:1000px;margin:0 auto}
   h1{font-size:20px;margin:0 0 4px}
   p.sub{color:var(--mut);margin:0 0 20px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .grid{display:grid;grid-template-columns:1fr;gap:20px}
   @media(max-width:760px){.grid{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
   .card h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 12px;font-weight:600}
@@ -41,7 +41,7 @@
       <label for="f_nom">NOM</label>
       <input id="f_nom" placeholder="DUPONT">
       <label for="f_tel">Téléphone fixe</label>
-      <input id="f_tel" placeholder="02 35 00 00 00">
+      <input id="f_tel" value="+33 2 35 53 09 27" placeholder="+33 2 35 53 09 27">
       <label for="f_mob">Mobile</label>
       <input id="f_mob" placeholder="06 00 00 00 00">
       <label for="f_mail">Adresse e-mail</label>
@@ -49,7 +49,7 @@
       <label for="f_groupe">Adresse e-mail de groupe</label>
       <input id="f_groupe" value="reception@smr-france.com" placeholder="reception@smr-france.com">
       <label for="f_adr">Adresse (facultatif)</label>
-      <input id="f_adr" placeholder="Terminal Roulier – 76600 Le Havre">
+      <input id="f_adr" value="Terminal Roulier port 1706" placeholder="Terminal Roulier port 1706">
     </div>
 
     <div class="card">
@@ -119,7 +119,7 @@ function buildSig(){
   h += '<tr><td valign="bottom" style="padding:6px 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:bottom;' + F + 'font-size:12px;line-height:18px;font-weight:bold;color:#1a5fb4;white-space:nowrap;">' + esc(COMPANY) + '</td></tr>';
   h += '</table>';
   // ligne vide puis lien vers les documents (largeur fixe pour un retour à la ligne propre)
-  h += '<table cellpadding="0" cellspacing="0" border="0" width="380" style="border-collapse:collapse;width:380px;"><tr><td style="padding:18px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr><tr><td style="padding:8px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="https://ares.smr-france.com/" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos retours quai Cliquez ici</a></td></tr></table>';
+  h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="padding:18px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr><tr><td style="padding:8px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="https://ares.smr-france.com/" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos retours quai Cliquez ici</a></td></tr></table>';
   h += '</td></tr></table>';
   return h;
 }
