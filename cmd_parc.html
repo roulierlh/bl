@@ -261,7 +261,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 <header class="header">
   <div>
     <div class="header-title">COMMANDE DE TRANSFERT PARC INTER ROULIER</div>
-    <div class="header-subtitle">Transfert de véhicule uniquement</div>
+    <div class="header-subtitle">Transfert de véhicule entre parcs</div>
   </div>
   <div class="hdr-right"><span class="stat ko" id="stat_top">INCOMPLÈTE</span><a class="home" href="index.html">← Accueil</a>
   <button class="btn-pdf" id="btn_pdf_pv" onclick="generatePVPDF()">
@@ -275,8 +275,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Client &amp; Lieux</span></div></div>
     <div class="section-body">
       <div class="grid g2">
-        <div class="field"><label>Client <span class="req">*</span></label><input type="text" id="p_client" class="uc" /></div>
-        <div class="field"><label>Référence de facturation <span class="req">*</span></label><input type="text" id="p_ref" class="uc" /></div>
+        <div class="field" style="grid-column:1/-1;"><label>Client <span class="req">*</span></label><input type="text" id="p_client" class="uc" /></div>
         <div class="field"><label>Adresse de prise en charge <span class="req">*</span></label><select id="p_pickup"><option value="">Choisir…</option><option value="CEVA">CEVA</option><option value="MANUCAR">MANUCAR</option><option value="HOEGH">HOEGH</option><option value="SMR">SMR</option><option value="CAT">CAT</option><option value="WALON">WALON</option></select></div>
         <div class="field"><label>Adresse de livraison <span class="req">*</span></label><select id="p_deliv"><option value="">Choisir…</option><option value="CEVA">CEVA</option><option value="MANUCAR">MANUCAR</option><option value="HOEGH">HOEGH</option><option value="SMR">SMR</option><option value="CAT">CAT</option><option value="WALON">WALON</option></select></div>
       </div>
@@ -313,6 +312,15 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
         <div><div class="t-label">Total Colis</div><div class="t-value" id="total_colis">0</div></div>
         <div><div class="t-label">Poids Brut Total (kg)</div><div class="t-value" id="total_poids">0</div></div>
         <div><div class="t-label">Nombre total d'unités (VIN / MBI)</div><div class="t-value" id="total_vin">0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-header-left"><div class="section-dot"></div><span class="section-title">Désignation des travaux</span></div></div>
+    <div class="section-body">
+      <div class="field"><label>Travaux à effectuer <span class="req">*</span></label>
+        <textarea id="p_travaux" class="uc" style="min-height:90px;" oninput="travauxDirty=true"></textarea>
       </div>
     </div>
   </div>
@@ -991,10 +999,10 @@ function importFromBdl() {
 function missingList() {
   var m = [];
   if (!val('p_client')) m.push('Client');
-  if (!val('p_ref')) m.push('Référence de facturation');
   if (!val('p_pickup')) m.push('Adresse de prise en charge');
   if (!val('p_deliv')) m.push('Adresse de livraison');
   if (val('p_pickup') && val('p_pickup') === val('p_deliv')) m.push('Adresses de prise en charge et de livraison identiques');
+  if (!val('p_travaux')) m.push('Désignation des travaux');
   if (!val('p_date')) m.push('Date de transfert souhaitée');
   if (!g('p_liasse').checked) m.push('Liasse à joindre');
   if (!g('p_bas').checked) m.push('BAS / Annonce à joindre');
@@ -1016,7 +1024,15 @@ function dateWarning() {
   if (new Date() > deadline) return 'Limite de commande dépassée : la commande doit être passée la veille avant 12h.';
   return '';
 }
-function syncAddr() {                                   // une adresse choisie d'un côté est grisée de l'autre
+var travauxDirty = false;                                // vrai dès que l'utilisateur modifie le texte à la main
+function travauxAuto() {
+  var a = val('p_pickup'), b = val('p_deliv'), t = g('p_travaux');
+  if (travauxDirty && t.value.trim()) return;
+  travauxDirty = false;
+  t.value = (a && b) ? 'TRANSFERT INTERNE DU PARC ' + a + ' VERS ' + b : '';
+}
+function syncAddr() {
+  travauxAuto();                                   // une adresse choisie d'un côté est grisée de l'autre
   var a = val('p_pickup'), b = val('p_deliv');
   [['p_pickup', b], ['p_deliv', a]].forEach(function(x) {
     Array.prototype.forEach.call(g(x[0]).options, function(o) { o.disabled = !!(o.value && o.value === x[1]); });
@@ -1203,7 +1219,7 @@ function generatePVPDF() {
   var c = PK.card(doc);
 
   c.start(); c.title('Client & Lieux');
-  c.row2('Client', val('p_client'), 'Référence de facturation', val('p_ref'));
+  c.cell('Client', val('p_client'), mg+3, PK.W - mg*2 - 6); c.y += 10;
   c.row2('Adresse de prise en charge', val('p_pickup'), 'Adresse de livraison', val('p_deliv'));
   c.end();
 
@@ -1213,6 +1229,13 @@ function generatePVPDF() {
   c.end();
 
   marcPdf(doc, c, true);
+
+  if (c.y > 250) { doc.addPage(); c.y = 14; }
+  c.start(); c.title('Désignation des travaux');
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor.apply(doc, PK.black);
+  doc.splitTextToSize(val('p_travaux').toUpperCase(), PK.W - mg*2 - 8).forEach(function(l, i) { doc.text(l, mg + 3, c.y + 3.6 + i * 4); });
+  c.y += 4 * Math.max(1, doc.splitTextToSize(val('p_travaux'), PK.W - mg*2 - 8).length) + 3;
+  c.end();
 
   if (c.y > 266) { doc.addPage(); c.y = 14; }
   c.start();
@@ -1224,7 +1247,7 @@ function generatePVPDF() {
   c.end();
 
   PK.footer(doc, 'Commande de Transfert Parc Inter Roulier', numRef, todayFr);
-  var ref = (val('p_ref') || 'TRANSFERT').replace(/\s+/g, '_');
+  var ref = (val('p_client') || 'TRANSFERT').replace(/\s+/g, '_');
   var fname = 'CommandeTransfertParc_' + ref + '_' + numRef + '.pdf';
   doc.save(fname);
   showToast('✓ PDF généré : ' + fname);
