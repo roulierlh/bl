@@ -8,11 +8,12 @@
   :root{--bg:#0b1220;--panel:#121b2e;--line:#243350;--txt:#e6edf7;--mut:#8fa1bd;--acc:#4a9eff;--ok:#3ecf8e}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;padding:24px 16px}
-  .wrap{max-width:1000px;margin:0 auto}
+  .wrap{max-width:1240px;margin:0 auto}
   h1{font-size:20px;margin:0 0 4px}
   p.sub{color:var(--mut);margin:0 0 20px}
-  .grid{display:grid;grid-template-columns:1fr;gap:20px}
-  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);gap:20px;align-items:start}
+  .c-form{order:1}.c-prev{order:2}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.c-prev,.c-form{order:0}.c-form{order:-1}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
   .card h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 12px;font-weight:600}
   label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
@@ -34,7 +35,7 @@
   <p class="sub">Chaque utilisateur remplit ses informations, clique sur « Copier la signature », puis la colle dans sa messagerie.</p>
 
   <div class="grid">
-    <div class="card">
+    <div class="card c-form">
       <h2>Vos informations</h2>
       <label for="f_prenom">Prénom</label>
       <input id="f_prenom" placeholder="Jean">
@@ -52,7 +53,7 @@
       <input id="f_adr" value="Terminal Roulier port 1706" placeholder="Terminal Roulier port 1706">
     </div>
 
-    <div class="card">
+    <div class="card c-prev">
       <h2>Aperçu</h2>
       <div class="preview" id="preview"></div>
       <button id="btn_copy">Copier la signature</button>
@@ -67,7 +68,7 @@
     <ol>
       <li><b>Outlook</b> : Fichier › Options › Courrier › Signatures › Nouvelle, puis coller (Ctrl+V) dans la zone de texte.</li>
       <li><b>Gmail</b> : Paramètres › Voir tous les paramètres › Signature › Créer, puis coller.</li>
-      <li><b>Outlook (fichier)</b> : cliquer sur « Télécharger (.htm) », puis enregistrer le fichier dans <code>%APPDATA%\Microsoft\Signatures</code> (à taper dans la barre d'adresse de l'Explorateur). Redémarrer Outlook : la signature apparaît dans la liste. Valable pour Outlook classique uniquement.</li>
+      <li><b>Outlook (fichier)</b> : cliquer sur « Télécharger (.htm) », puis enregistrer le fichier dans <code>C:\Users\"utilisateur"\AppData\Roaming\Microsoft\Signatures</code> (remplacer « utilisateur » par le nom de session Windows ; le dossier AppData est masqué, il suffit de coller le chemin dans la barre d'adresse de l'Explorateur). Redémarrer Outlook : la signature apparaît dans la liste. Valable pour Outlook classique uniquement.</li>
       <li><b>Apple Mail / autre</b> : coller dans l'éditeur de signature, ou utiliser « Afficher le code HTML » si la messagerie accepte le HTML brut.</li>
     </ol>
   </div>
