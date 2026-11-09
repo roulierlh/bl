@@ -331,6 +331,32 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   </div>
 </div>
 
+
+<!-- BON DE LIVRAISON ASSOCIÉ : question puis champs restants -->
+<div class="modal-overlay" id="ba_ask" style="z-index:650">
+  <div class="confirm-box">
+    <div class="modal-header"><h3>Commande de manutention</h3></div>
+    <div class="confirm-body">Voulez-vous un bon de livraison associé ?<small>Si oui, le bon de livraison (Hangar) sera généré en même temps que la commande, avec la mention de la commande associée.</small></div>
+    <div class="modal-footer" style="justify-content:flex-end;">
+      <button class="btn-cancel" onclick="baAnswer(false)">Non</button>
+      <button class="btn-ok" onclick="baAnswer(true)">Oui</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="ba_modal" style="z-index:660">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header"><h3>Informations à compléter pour le bon de livraison</h3><button class="modal-close" onclick="baClose()">×</button></div>
+    <div class="modal-body">
+      <div class="vin-info">Ces champs obligatoires du bon de livraison ne sont pas encore renseignés. Le bon sera généré avec la commande.</div>
+      <div id="ba_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="ba_status"></span>
+      <div style="display:flex;gap:8px;"><button class="btn-cancel" onclick="baClose()">Annuler</button><button class="btn-ok" onclick="baApply()">Valider et générer</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- VALIDATION MODAL -->
 <div id="val_modal">
   <div class="val-box">
@@ -1028,7 +1054,7 @@ function validateAndGenerateCmd() {
     document.getElementById('val_modal').classList.add('open');
     return;
   }
-  generateCommandePDF();
+  if (assoc) generateCommandePDF(); else baStart();
 }
 
 document.getElementById('c_siret').addEventListener('input', function() {
@@ -1161,6 +1187,12 @@ function generateBdlPDF() {
   pdfIcon(doc, 'bon', mg + doc.getTextWidth('BON DE LIVRAISON (HANGAR)') + 4 + pdfIconW('bon', 9.5), 3.4, 9.5, accent);
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('Document de réception / chargement portuaire', mg, 16);
+  if (typeof bdlAssocText === 'string' && bdlAssocText) {   // mention de la commande associée
+    var subW = doc.getTextWidth('Document de réception / chargement portuaire');
+    doc.setFont('helvetica','bold'); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text('  —  ' + bdlAssocText, mg + subW, 16);
+    doc.setFont('helvetica','normal'); doc.setTextColor(mid[0],mid[1],mid[2]);
+  }
   doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);
   doc.text('N°'+numRef, W-mg, 11, { align:'right' });
   doc.setFont('helvetica','bold'); doc.setFontSize(7);
@@ -1419,6 +1451,92 @@ function generateBdlPDF() {
 }
 
 
+
+// ── Bon de livraison associé (généré en même temps que la commande) ──
+var baMode = false, bdlAssocText = '';
+var BA_FIELDS = [
+  { id: 'lieu_livraison', label: 'Lieu de livraison',           ph: 'ex : MSMR' },
+  { id: 'transitaire',    label: 'Transitaire au connaissement', ph: 'Transitaire' },
+  { id: 'declarant',      label: 'Déclarant',                   ph: 'Nom du déclarant' },
+  { id: 'armement',       label: 'Armement',                    ph: 'ex : HOEGH' },
+  { id: 'bdl_par',        label: 'Bon de livraison établi par', ph: 'Prénom Nom' },
+  { id: 'telephone',      label: 'Téléphone',                   ph: '+33 X XX XX XX XX', nouc: true },
+  { id: 'booking',        label: 'Booking',                     ph: 'N° de booking' },
+  { id: 'navire',         label: 'Navire',                      ph: 'Nom du navire' },
+  { id: 'pod',            label: 'Port de déchargement',        ph: 'Port of Discharge' }
+];
+var BA_PERSIST = ['declarant', 'transitaire', 'armement', 'bdl_par', 'telephone', 'lieu_livraison'];
+function baStart() { document.getElementById('ba_ask').classList.add('open'); }
+function baAnswer(yes) {
+  document.getElementById('ba_ask').classList.remove('open');
+  if (!yes) { BA_CFG.gen(); return; }
+  baOpen();
+}
+function baBase() {                                       // infos déjà connues : mémoire du bon + champs de la commande
+  var s = {};
+  try { var d = JSON.parse(localStorage.getItem('bdl_declarant') || '{}'); for (var k in d) { if (d[k]) s[k] = d[k]; } } catch(e) {}
+  var m = BA_CFG.map(); for (var k2 in m) { if (m[k2] && String(m[k2]).trim()) s[k2] = String(m[k2]).trim(); }
+  return s;
+}
+function baList() { var s = baBase(); return BA_FIELDS.filter(function(f) { return !s[f.id]; }); }
+function baOpen() {
+  var list = baList();
+  if (!list.length) { baRun({}); return; }
+  var box = document.getElementById('ba_fields'); box.innerHTML = '';
+  list.forEach(function(f) {
+    var d = document.createElement('div'); d.className = 'field';
+    d.innerHTML = '<label>' + f.label + ' <span class="req">*</span></label><input type="text" id="ba_' + f.id + '"' + (f.nouc ? '' : ' class="uc"') + ' placeholder="' + f.ph + '" />';
+    box.appendChild(d);
+  });
+  document.getElementById('ba_status').textContent = '';
+  document.getElementById('ba_modal').classList.add('open');
+  var first = box.querySelector('input'); if (first) first.focus();
+}
+function baClose() { document.getElementById('ba_modal').classList.remove('open'); }
+function baApply() {
+  var vals = {}, empty = false;
+  baList().forEach(function(f) {
+    var el = document.getElementById('ba_' + f.id); if (!el) return;
+    var x = el.value.trim();
+    if (!x) { empty = true; el.style.borderColor = 'var(--red)'; }
+    else { el.style.borderColor = ''; vals[f.id] = f.nouc ? x : x.toUpperCase(); }
+  });
+  if (empty) { document.getElementById('ba_status').textContent = 'Tous ces champs sont obligatoires'; return; }
+  baClose(); baRun(vals);
+}
+function baRun(vals) {
+  var s = baBase(); for (var k in vals) s[k] = vals[k];
+  try {                                                    // mémorise les champs récurrents pour le prochain bon
+    var d = JSON.parse(localStorage.getItem('bdl_declarant') || '{}');
+    BA_PERSIST.forEach(function(id) { if (vals[id]) d[id] = vals[id]; });
+    localStorage.setItem('bdl_declarant', JSON.stringify(d));
+  } catch(e) {}
+  var t = new Date(), p2 = function(n) { return (n < 10 ? '0' : '') + n; };
+  s.date_edition = t.getFullYear() + '-' + p2(t.getMonth() + 1) + '-' + p2(t.getDate());
+  s.type_operation = ''; s.reserves = '';
+  s.marchandises = JSON.parse(JSON.stringify(marchandises.filter(marcNonEmpty)));
+  s.numRef = numRef;
+  bdlSnap = s; bdlMarc = s.marchandises;
+  bdlAssocText = 'COMMANDE ' + BA_CFG.label + ' ASSOCIÉE N°' + numRef;
+  baMode = true;
+  try { BA_CFG.gen(); } finally { baMode = false; }
+}
+function baFinish(doc, fname) {
+  if (!baMode) {
+    doc.save(fname); showToast('✓ PDF généré : ' + fname);
+    askAfter({ title: 'Commande générée', msg: 'Le PDF a été téléchargé.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
+    return;
+  }
+  var f1 = generateBdlPDF();
+  setTimeout(function() {
+    doc.save(fname);
+    showToast('✓ 2 PDF générés : ' + f1 + ' + ' + fname);
+    askAfter({ title: 'Commande + bon de livraison générés', msg: 'Les 2 PDF ont été téléchargés.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
+  }, 600);
+}
+var BA_CFG = { label: 'MANUTENTION', gen: function() { generateCommandePDF(); },
+  map: function() { return { dossier: v('c_dossier'), bdl_par: v('c_fait_par'), declarant: v('c_client'), armement: v('c_compagnie'), navire: v('c_navire'), booking: v('c_booking') }; } };
+
 function marcPdf(doc, c) {
   var W = PK.W, mg = PK.mg, list = marchandises.filter(marcNonEmpty);
   if (!list.length) return;
@@ -1495,7 +1613,7 @@ function marcPdf(doc, c) {
 function generateCommandePDF() {
   var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   PK.header(doc, assoc ? 'COMMANDE MANUTENTION ASSOCIÉE' : 'COMMANDE DE MANUTENTION',
-            assoc ? 'Associée au bon de livraison (Hangar) N°' + numRef : 'Ordre de manutention portuaire', numRef,
+            assoc ? 'Associée au bon de livraison (Hangar) N°' + numRef : 'Ordre de manutention portuaire' + (baMode ? '  —  Associée au bon de livraison (Hangar) N°' + numRef : ''), numRef,
             dFr('c_date') + '  —  Date limite : ' + dFr('c_date_limite'), 'manut');
   var c = PK.card(doc);
 
@@ -1522,12 +1640,11 @@ function generateCommandePDF() {
   var ref = (v('c_dossier') || v('c_booking') || 'COMMANDE').replace(/\s+/g, '_');
   var fname = (assoc ? 'CommandeManutentionAssociee_' : 'CommandeManutention_') + ref + '_' + numRef + '.pdf';
   if (assoc && bdlSnap) {
+    bdlAssocText = 'COMMANDE MANUTENTION ASSOCIÉE N°' + numRef;     // mention aussi sur le bon
     var f1 = generateBdlPDF();
     setTimeout(function() { doc.save(fname); showToast('✓ 2 PDF générés : ' + f1 + ' + ' + fname); askAfter({ title: 'Commande + bon de livraison générés', msg: 'Les 2 PDF ont été téléchargés.<small>Souhaitez-vous rester sur la commande, retourner sur le bon ou quitter ?</small>', stay: 'Rester sur la commande', back: true }); }, 600);
   } else {
-    doc.save(fname);
-    showToast('✓ PDF généré : ' + fname);
-    askAfter({ title: 'Commande générée', msg: 'Le PDF a été téléchargé.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
+    baFinish(doc, fname);
   }
 }
 

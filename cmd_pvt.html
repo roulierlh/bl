@@ -264,7 +264,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="header-subtitle">Transfert de véhicule uniquement</div>
   </div>
   <div class="hdr-right"><span class="stat ko" id="stat_top">INCOMPLÈTE</span><a class="home" href="index.html">← Accueil</a>
-  <button class="btn-pdf" id="btn_pdf_pv" onclick="generatePVPDF()">
+  <button class="btn-pdf" id="btn_pdf_pv" onclick="baStart()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
     Générer la commande porte-voitures
   </button></div>
@@ -290,7 +290,6 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
     <div class="section-body">
       <div class="grid g3">
         <div class="field"><label>Documents à joindre <span class="req">*</span></label>
-          <label class="chk" style="text-transform:none;letter-spacing:0;font-family:'IBM Plex Sans';font-size:13px;color:var(--white)"><input type="checkbox" id="p_liasse" /> Liasse</label>
           <label class="chk" style="text-transform:none;letter-spacing:0;font-family:'IBM Plex Sans';font-size:13px;color:var(--white)"><input type="checkbox" id="p_bas" /> BAS / Annonce</label>
         </div>
         <div class="field"><label>Date de transfert souhaitée <span class="req">*</span></label><input type="date" id="p_date" /></div>
@@ -319,6 +318,32 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   </div>
 
   <div class="rules">Limite de commande : la veille avant 12h<br>Les commandes incomplètes ne seront pas traitées.</div>
+</div>
+
+
+<!-- BON DE LIVRAISON ASSOCIÉ : question puis champs restants -->
+<div class="modal-overlay" id="ba_ask" style="z-index:650">
+  <div class="confirm-box">
+    <div class="modal-header"><h3>Commande de porte voitures</h3></div>
+    <div class="confirm-body">Voulez-vous un bon de livraison associé ?<small>Si oui, le bon de livraison (Hangar) sera généré en même temps que la commande, avec la mention de la commande associée.</small></div>
+    <div class="modal-footer" style="justify-content:flex-end;">
+      <button class="btn-cancel" onclick="baAnswer(false)">Non</button>
+      <button class="btn-ok" onclick="baAnswer(true)">Oui</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="ba_modal" style="z-index:660">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header"><h3>Informations à compléter pour le bon de livraison</h3><button class="modal-close" onclick="baClose()">×</button></div>
+    <div class="modal-body">
+      <div class="vin-info">Ces champs obligatoires du bon de livraison ne sont pas encore renseignés. Le bon sera généré avec la commande.</div>
+      <div id="ba_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="ba_status"></span>
+      <div style="display:flex;gap:8px;"><button class="btn-cancel" onclick="baClose()">Annuler</button><button class="btn-ok" onclick="baApply()">Valider et générer</button></div>
+    </div>
+  </div>
 </div>
 
 <div id="val_modal"><div class="val-box"><div class="val-header"><h3>Commande incomplète</h3></div><div class="val-body" id="val_body"></div><div class="val-footer"><button class="btn-val-close" onclick="document.getElementById('val_modal').classList.remove('open')">OK</button></div></div></div>
@@ -996,7 +1021,6 @@ function missingList() {
   if (!val('p_pickup')) m.push('Magasin de prise en charge');
   if (!val('p_deliv')) m.push('Magasin de livraison');
   if (!val('p_date')) m.push('Date de transfert souhaitée');
-  if (!g('p_liasse').checked) m.push('Liasse à joindre');
   if (!g('p_bas').checked) m.push('BAS / Annonce à joindre');
   var n = vinCount();
   if (n === 0) m.push('Au moins un VIN');
@@ -1189,7 +1213,7 @@ function generatePVPDF() {
   var doc = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
   var mg = PK.mg;
   var today = new Date(), todayFr = String(today.getDate()).padStart(2,'0') + '/' + String(today.getMonth()+1).padStart(2,'0') + '/' + today.getFullYear();
-  PK.header(doc, 'COMMANDE DE PORTE VOITURES', 'Transfert de véhicule uniquement', numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE', 'pv');
+  PK.header(doc, 'COMMANDE DE PORTE VOITURES', 'Transfert de véhicule uniquement' + (baMode ? '  —  Associée au bon de livraison (Hangar) N°' + numRef : ''), numRef, 'Transfert souhaité le ' + dFr('p_date') + '  —  COMPLÈTE', 'pv');
   var c = PK.card(doc);
 
   c.start(); c.title('Client & Lieux');
@@ -1199,7 +1223,7 @@ function generatePVPDF() {
   c.end();
 
   c.start(); c.title('Documents & Date');
-  c.row3('Documents à joindre', (g('p_liasse').checked ? '[X]' : '[ ]') + ' Liasse   ' + (g('p_bas').checked ? '[X]' : '[ ]') + ' BAS / Annonce',
+  c.row3('Documents à joindre', (g('p_bas').checked ? '[X]' : '[ ]') + ' BAS / Annonce',
          'Date de transfert souhaitée', dFr('p_date'), 'Statut commande', 'COMPLÈTE');
   c.end();
 
@@ -1217,13 +1241,385 @@ function generatePVPDF() {
   PK.footer(doc, 'Commande de Porte Voitures', numRef, todayFr);
   var ref = (val('p_ref') || 'TRANSFERT').replace(/\s+/g, '_');
   var fname = 'CommandePorteVoitures_' + ref + '_' + numRef + '.pdf';
-  doc.save(fname);
-  showToast('✓ PDF généré : ' + fname);
-  askAfter({ title: 'Commande générée', msg: 'Le PDF a été téléchargé.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
+  baFinish(doc, fname);
 }
 
 addMarchandise();
 refresh();
+
+// ── Bon de livraison associé (généré en même temps que la commande) ──
+var bdlSnap = null, bdlMarc = [];
+function bv(id) { return bdlSnap ? (bdlSnap[id] || '') : ''; }
+function bdlDate(id) { var s = bv(id); if (!s) return '—'; var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+function generateBdlPDF() {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  var W = 210, mg = 13;
+  var black  = [20, 20, 20];
+  var dark   = [50, 50, 50];
+  var mid    = [120, 120, 120];
+  var border = [210, 220, 235];
+  var accent = [74, 158, 255];
+  var green  = [40, 160, 70];
+  var red    = [200, 60, 60];
+  var y = 0;
+
+  // ── HEADER ──
+  doc.setFillColor(accent[0],accent[1],accent[2]); doc.rect(0, 0, W, 2, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(black[0],black[1],black[2]);
+  doc.text('BON DE LIVRAISON (HANGAR)', mg, 11);
+  pdfIcon(doc, 'bon', mg + doc.getTextWidth('BON DE LIVRAISON (HANGAR)') + 4 + pdfIconW('bon', 9.5), 3.4, 9.5, accent);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('Document de réception / chargement portuaire', mg, 16);
+  if (typeof bdlAssocText === 'string' && bdlAssocText) {   // mention de la commande associée
+    var subW = doc.getTextWidth('Document de réception / chargement portuaire');
+    doc.setFont('helvetica','bold'); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text('  —  ' + bdlAssocText, mg + subW, 16);
+    doc.setFont('helvetica','normal'); doc.setTextColor(mid[0],mid[1],mid[2]);
+  }
+  doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);
+  doc.text('N°'+numRef, W-mg, 11, { align:'right' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(7);
+  doc.text('Terminal Roulier LE HAVRE', mg, 5.7);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text(bdlDate('date_edition')+(bv('type_operation') ? '  —  '+bv('type_operation') : ''), W-mg, 16, { align:'right' });
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.25);
+  doc.line(mg, 19, W-mg, 19);
+  y = 23;
+
+  // ── CARD ──
+  var cardY = 0;
+  function cardStart() { cardY = y; }
+  function cardEnd() {
+    doc.setDrawColor(accent[0],accent[1],accent[2]); doc.setLineWidth(0.3);
+    doc.roundedRect(mg, cardY, W-mg*2, y - cardY + 1, 2, 2, 'S');
+    y += 2;
+  }
+
+  // ── SECTION TITLE ──
+  // Bandeau de titre de carte (même rendu pour toutes les cartes)
+  function band(t, x, yy, w) {
+    doc.setFillColor(236, 244, 255);
+    doc.roundedRect(x+0.3, yy+0.3, w-0.6, 7, 1.7, 1.7, 'F');
+    doc.rect(x+0.3, yy+3.8, w-0.6, 3.5, 'F');
+    doc.setFillColor(accent[0],accent[1],accent[2]);
+    doc.rect(x+3, yy+2.8, 1.4, 1.8, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(30, 95, 185);
+    doc.text(t.toUpperCase(), x+6, yy+4.8);
+  }
+  function secTitle(t) {
+    band(t, mg, y, W-mg*2);
+    y += 11;
+  }
+
+  // ── CELL ──  label + valeur + ligne grise sous valeur
+  function cell(label, val, x, cw) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text(label.toUpperCase(), x, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    if (val && val.trim()) doc.text(val, x, y+4.5);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.line(x, y+5.5, x+cw-2, y+5.5);
+  }
+
+  function row2(l1,v1,l2,v2) { var cw=(W-mg*2)/2; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-4); y+=10; }
+  function row3(l1,v1,l2,v2,l3,v3) { var cw=(W-mg*2)/3; cell(l1,v1,mg+3,cw-3); cell(l2,v2,mg+cw+1,cw-3); cell(l3,v3,mg+cw*2+1,cw-3); y+=10; }
+
+  // ── SECTIONS 1 + 2 CÔTE À CÔTE ──
+  var halfW = (W - mg*2 - 4) / 2;
+  var card1Y = y;
+  var card2Y = y;
+  var y1 = y; // curseur carte 1
+  var y2 = y; // curseur carte 2
+  var xL = mg;       // colonne gauche
+  var xR = mg + halfW + 4; // colonne droite
+
+  // Titre carte 1
+  band('Informations du Bon de Livraison', xL, y1, halfW);
+  y1 += 11;
+
+  // Titre carte 2
+  band('Déclarant & Armement', xR, y2, halfW);
+  y2 += 11;
+
+  function cellH(label, val, x, cw, yc) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text(label.toUpperCase(), x, yc);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    if (val && val.trim()) doc.text(val, x, yc+4.5);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.line(x, yc+5.5, x+cw-2, yc+5.5);
+    return yc + 10;
+  }
+
+  function row2H(l1,v1,l2,v2, x, yc, tw) {
+    var cw = tw/2;
+    cellH(l1,v1,x+3,cw-3,yc);
+    return cellH(l2,v2,x+cw+1,cw-4,yc);
+  }
+
+  // Carte 1 : contenu
+  y1 = cellH("Date d'édition", bdlDate('date_edition'), xL+3, halfW/2-3, y1);
+  y1 = cellH("Type d'opération", bv('type_operation'), xL+halfW/2+1, halfW/2-4, y1-10) + 0; // même ligne
+  y1 -= 0; // déjà avancé
+  y1 = cellH('Lieu de livraison', bv('lieu_livraison').toUpperCase(), xL+3, halfW-4, y1);
+  y1 = cellH('N° Réception', '', xL+3, halfW/3-2, y1);
+  y1 = cellH('Date de réception', '', xL+halfW/3+2, halfW/3-2, y1-10);
+  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10) + 10;
+
+  // Carte 2 : contenu
+  y2 = row2H('Transitaire', bv('transitaire').toUpperCase(), 'Déclarant', bv('declarant').toUpperCase(), xR, y2, halfW);
+  y2 = cellH('Armement', bv('armement').toUpperCase(), xR+3, halfW-4, y2);
+  y2 = cellH('BDL établi par', bv('bdl_par').toUpperCase(), xR+3, halfW-4, y2);
+  y2 = cellH('Téléphone', bv('telephone'), xR+3, halfW-4, y2);
+
+  // Hauteur finale = max des deux colonnes
+  y = Math.max(y1, y2) + 1;
+
+  // Bordures arrondies des deux cartes
+  doc.setDrawColor(accent[0],accent[1],accent[2]); doc.setLineWidth(0.3);
+  doc.roundedRect(xL, card1Y, halfW, y - card1Y, 2, 2, 'S');
+  doc.roundedRect(xR, card2Y, halfW, y - card2Y, 2, 2, 'S');
+  y += 2;
+
+  // ── SECTION 3 ──
+  cardStart();
+  secTitle('Informations de Transport');
+  row3('Booking', bv('booking').toUpperCase(), 'Dossier', bv('dossier').toUpperCase(), '', '');
+  row3('Navire', bv('navire').toUpperCase(), 'Port de déchargement', bv('pod').toUpperCase(), 'Destination finale', bv('destination_finale').toUpperCase());
+  row2('Informations particulières', bv('infos_particulieres').toUpperCase(), '', '');
+  cardEnd();
+
+  // ── SECTION 4 — MARCHANDISES ──
+  cardStart();
+  secTitle('Description de la marchandise');
+
+  bdlMarc.forEach(function(m, idx) {
+    if (y > 240) { cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)'); }
+
+    var lotH = 16, lotY = y;
+    var vl = (m.vins || []).filter(function(x) { return String(x).trim(); });
+    var perRow = vl.length > 10 ? 4 : 1, rowH = 4.2, rowsN = Math.ceil(vl.length / perRow);
+    var k1 = Math.min(rowsN, Math.max(0, Math.floor((270 - lotY - 15.5) / rowH)));
+    var boxH = k1 ? 14 + k1 * rowH + 1.5 : lotH;
+    if (idx % 2 === 0) { doc.setFillColor(250,252,255); doc.rect(mg+2, lotY, W-mg*2-4, boxH, 'F'); }
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+    doc.roundedRect(mg+2, lotY, W-mg*2-4, boxH, 1, 1, 'S');
+
+    var cw = W - mg*2 - 8;
+    var col = [
+      { l: 'Nature de la marchandise', w: 0.35 },
+      { l: 'Longueur (m)', w: 0.11 },
+      { l: 'Largeur (m)',  w: 0.11 },
+      { l: 'Hauteur (m)',  w: 0.11 },
+      { l: 'Poids (kg)',   w: 0.13 },
+      { l: 'Colis',        w: 0.08 }
+    ];
+    var vals = [
+      (m.nature||'').toUpperCase(),
+      m.longueur||'', m.largeur||'', m.hauteur||'', m.poids||'', m.colis||''
+    ];
+
+    var xCur = mg + 5;
+    col.forEach(function(c, i) {
+      var colW = cw * c.w;
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+      doc.text(c.l.toUpperCase(), xCur, lotY+5);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+      if (vals[i]) doc.text(vals[i], xCur, lotY+11, { maxWidth: colW - 2 });
+      doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+      doc.line(xCur, lotY+12.5, xCur + colW - 2, lotY+12.5);
+      xCur += colW;
+    });
+
+    y = lotY + (vl.length ? 14 : lotH);
+    if (vl.length) {
+      var vx0 = mg + 5, vcw = (W - mg*2 - 8) / perRow, startRow = 0, nRows = k1;
+      while (true) {
+        for (var rr = 0; rr < nRows; rr++) {
+          for (var cc = 0; cc < perRow; cc++) {
+            var ix = (startRow + rr) * perRow + cc;
+            if (ix >= vl.length) break;
+            var vin = String(vl[ix]).trim(), vok = vin.length === 17;
+            doc.setFont('courier','normal'); doc.setFontSize(7);
+            if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
+            doc.text((ix + 1) + '. ' + vin, vx0 + cc * vcw, y + 3);
+          }
+          y += rowH;
+        }
+        startRow += nRows;
+        if (startRow >= rowsN) { y += 1.5; break; }
+        cardEnd(); doc.addPage(); y = 14; cardStart(); secTitle('Description de la marchandise (suite)');
+        nRows = Math.min(rowsN - startRow, Math.max(1, Math.floor((270 - y - 3) / rowH)));
+        doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+        doc.roundedRect(mg+2, y, W-mg*2-4, nRows * rowH + 3, 1, 1, 'S');
+        y += 1.5;
+      }
+    }
+    y += 2;
+  });
+  cardEnd();
+
+  // Totaux
+  var totalC = bdlMarc.reduce(function(s,m){return s+(parseInt(m.colis)||0);},0);
+  var totalP = bdlMarc.reduce(function(s,m){return s+(parseFloat(m.poids)||0);},0);
+  var totalPStr = String(totalP).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  if (y > 265) { doc.addPage(); y = 14; }
+  cardStart();
+  doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('TOTAL', mg+3, y+3);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+  doc.text(totalC+' colis  —  Poids brut total : '+totalPStr+' kg', mg+3, y+7);
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
+  doc.line(mg+3, y+8, W-mg-3, y+8);
+  y += 10;
+  cardEnd();
+
+  // Réserves
+  var res = bv('reserves');
+  if (res) {
+    if (y > 250) { doc.addPage(); y = 14; }
+    cardStart();
+    secTitle('Réserves');
+    doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(dark[0],dark[1],dark[2]);
+    var lines = doc.splitTextToSize(res, W-mg*2-6);
+    doc.text(lines, mg+3, y);
+    y += lines.length * 4 + 3;
+    cardEnd();
+  }
+
+  // Signatures — toujours collées en bas de la dernière page
+  var sigCardH = 9 + 22 + 4 + 15 + 2 + 3; // titre + chargeur+gap + visa + marge
+  var footerY = 287; // juste au-dessus du footer
+  var sigStartY = footerY - sigCardH;
+
+  // Si le contenu actuel dépasse déjà sigStartY → nouvelle page
+  if (y > sigStartY) { doc.addPage(); y = 14; sigStartY = footerY - sigCardH; }
+
+  // Pousser y vers le bas pour coller en bas
+  y = sigStartY;
+
+  cardStart();
+  secTitle('Réserves & Signatures');
+  var sigW = (W-mg*2-8)/2;
+  doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
+  doc.roundedRect(mg+3, y, sigW, 22, 1, 1, 'S');
+  doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+  doc.text('LE CHARGEUR — Signature / Cachet', mg+5, y+4.5);
+  doc.roundedRect(mg+5+sigW, y, sigW, 22, 1, 1, 'S');
+  doc.text("L'EXPLOITANT — Signature / Cachet", mg+7+sigW, y+4.5);
+  y += 25;
+  doc.roundedRect(mg+3, y, W-mg*2-6, 15, 1, 1, 'S');
+  doc.text('VISA COMPAGNIE', mg+5, y+4.5);
+  y += 17;
+  cardEnd();
+
+  // ── FOOTER sur chaque page ──
+  var totalPages = doc.internal.getNumberOfPages();
+  for (var p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.2);
+    doc.line(mg, 289, W-mg, 289);
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text('Bon de Livraison (Hangar)', mg, 293);
+    doc.setFont('courier','bold'); doc.setFontSize(6.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+    doc.text('N°'+numRef, W/2, 293, {align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(mid[0],mid[1],mid[2]);
+    doc.text('Édité le '+bdlDate('date_edition'), W-mg, 293, {align:'right'});
+  }
+
+  var booking = bv('booking').replace(/\s+/g,'_') || 'BOOKING';
+  var fname = 'BonDeLivraisonHangar_'+booking+'_'+numRef+'.pdf';
+  doc.save(fname);
+  return fname;
+}
+
+
+
+// ── Bon de livraison associé (généré en même temps que la commande) ──
+var baMode = false, bdlAssocText = '';
+var BA_FIELDS = [
+  { id: 'lieu_livraison', label: 'Lieu de livraison',           ph: 'ex : MSMR' },
+  { id: 'transitaire',    label: 'Transitaire au connaissement', ph: 'Transitaire' },
+  { id: 'declarant',      label: 'Déclarant',                   ph: 'Nom du déclarant' },
+  { id: 'armement',       label: 'Armement',                    ph: 'ex : HOEGH' },
+  { id: 'bdl_par',        label: 'Bon de livraison établi par', ph: 'Prénom Nom' },
+  { id: 'telephone',      label: 'Téléphone',                   ph: '+33 X XX XX XX XX', nouc: true },
+  { id: 'booking',        label: 'Booking',                     ph: 'N° de booking' },
+  { id: 'navire',         label: 'Navire',                      ph: 'Nom du navire' },
+  { id: 'pod',            label: 'Port de déchargement',        ph: 'Port of Discharge' }
+];
+var BA_PERSIST = ['declarant', 'transitaire', 'armement', 'bdl_par', 'telephone', 'lieu_livraison'];
+function baStart() { document.getElementById('ba_ask').classList.add('open'); }
+function baAnswer(yes) {
+  document.getElementById('ba_ask').classList.remove('open');
+  if (!yes) { BA_CFG.gen(); return; }
+  baOpen();
+}
+function baBase() {                                       // infos déjà connues : mémoire du bon + champs de la commande
+  var s = {};
+  try { var d = JSON.parse(localStorage.getItem('bdl_declarant') || '{}'); for (var k in d) { if (d[k]) s[k] = d[k]; } } catch(e) {}
+  var m = BA_CFG.map(); for (var k2 in m) { if (m[k2] && String(m[k2]).trim()) s[k2] = String(m[k2]).trim(); }
+  return s;
+}
+function baList() { var s = baBase(); return BA_FIELDS.filter(function(f) { return !s[f.id]; }); }
+function baOpen() {
+  var list = baList();
+  if (!list.length) { baRun({}); return; }
+  var box = document.getElementById('ba_fields'); box.innerHTML = '';
+  list.forEach(function(f) {
+    var d = document.createElement('div'); d.className = 'field';
+    d.innerHTML = '<label>' + f.label + ' <span class="req">*</span></label><input type="text" id="ba_' + f.id + '"' + (f.nouc ? '' : ' class="uc"') + ' placeholder="' + f.ph + '" />';
+    box.appendChild(d);
+  });
+  document.getElementById('ba_status').textContent = '';
+  document.getElementById('ba_modal').classList.add('open');
+  var first = box.querySelector('input'); if (first) first.focus();
+}
+function baClose() { document.getElementById('ba_modal').classList.remove('open'); }
+function baApply() {
+  var vals = {}, empty = false;
+  baList().forEach(function(f) {
+    var el = document.getElementById('ba_' + f.id); if (!el) return;
+    var x = el.value.trim();
+    if (!x) { empty = true; el.style.borderColor = 'var(--red)'; }
+    else { el.style.borderColor = ''; vals[f.id] = f.nouc ? x : x.toUpperCase(); }
+  });
+  if (empty) { document.getElementById('ba_status').textContent = 'Tous ces champs sont obligatoires'; return; }
+  baClose(); baRun(vals);
+}
+function baRun(vals) {
+  var s = baBase(); for (var k in vals) s[k] = vals[k];
+  try {                                                    // mémorise les champs récurrents pour le prochain bon
+    var d = JSON.parse(localStorage.getItem('bdl_declarant') || '{}');
+    BA_PERSIST.forEach(function(id) { if (vals[id]) d[id] = vals[id]; });
+    localStorage.setItem('bdl_declarant', JSON.stringify(d));
+  } catch(e) {}
+  var t = new Date(), p2 = function(n) { return (n < 10 ? '0' : '') + n; };
+  s.date_edition = t.getFullYear() + '-' + p2(t.getMonth() + 1) + '-' + p2(t.getDate());
+  s.type_operation = ''; s.reserves = '';
+  s.marchandises = JSON.parse(JSON.stringify(marchandises.filter(marcNonEmpty)));
+  s.numRef = numRef;
+  bdlSnap = s; bdlMarc = s.marchandises;
+  bdlAssocText = 'COMMANDE ' + BA_CFG.label + ' ASSOCIÉE N°' + numRef;
+  baMode = true;
+  try { BA_CFG.gen(); } finally { baMode = false; }
+}
+function baFinish(doc, fname) {
+  if (!baMode) {
+    doc.save(fname); showToast('✓ PDF généré : ' + fname);
+    askAfter({ title: 'Commande générée', msg: 'Le PDF a été téléchargé.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
+    return;
+  }
+  var f1 = generateBdlPDF();
+  setTimeout(function() {
+    doc.save(fname);
+    showToast('✓ 2 PDF générés : ' + f1 + ' + ' + fname);
+    askAfter({ title: 'Commande + bon de livraison générés', msg: 'Les 2 PDF ont été téléchargés.<small>Souhaitez-vous rester sur la commande ou quitter ?</small>', stay: 'Rester sur la commande' });
+  }, 600);
+}
+var BA_CFG = { label: 'PORTE VOITURES', gen: function() { generatePVPDF(); },
+  map: function() { return { dossier: val('p_ref'), lieu_livraison: val('p_deliv') }; } };
 
 // ── Après génération : rester / retourner sur le bon / quitter ──
 function askAfter(o) {
@@ -1235,7 +1631,7 @@ function askAfter(o) {
 }
 
 // ── Pictogrammes (mêmes dessins que sur l'accueil), tracés en vectoriel dans les PDF ──
-var PDF_ICONS = {"pv":{"w":96.0,"h":42.0,"items":[{"t":"p","d":"M3 32V18l5-7h9v21","sx":1,"tx":0},{"t":"p","d":"M8 17h6","sx":1,"tx":0},{"t":"p","d":"M19 11h74M17 32h76","sx":1,"tx":0},{"t":"p","d":"M21 11l8 21","sx":1,"tx":0},{"t":"p","d":"M33 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M33 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":10.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":26.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":37.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":70.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":80.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":90.0,"y":38.0,"r":3.0,"sx":1,"tx":0}]}};
+var PDF_ICONS = {"bon":{"w":48.0,"h":48.0,"items":[{"t":"p","d":"M10 5h18l8 8v13","sx":1,"tx":0},{"t":"p","d":"M28 5v8h8","sx":1,"tx":0},{"t":"p","d":"M10 5v38h14","sx":1,"tx":0},{"t":"p","d":"M15 19h15M15 25h11M15 31h6","sx":1,"tx":0},{"t":"p","d":"M39 24l6 6-14 14-8 2 2-8z","sx":1,"tx":0},{"t":"p","d":"M36 27l6 6","sx":1,"tx":0}]},"pv":{"w":96.0,"h":42.0,"items":[{"t":"p","d":"M3 32V18l5-7h9v21","sx":1,"tx":0},{"t":"p","d":"M8 17h6","sx":1,"tx":0},{"t":"p","d":"M19 11h74M17 32h76","sx":1,"tx":0},{"t":"p","d":"M21 11l8 21","sx":1,"tx":0},{"t":"p","d":"M33 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M33 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":10.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":26.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":37.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":70.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":80.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":90.0,"y":38.0,"r":3.0,"sx":1,"tx":0}]}};
 function pdfIconW(key, h) { var ic = PDF_ICONS[key]; return ic ? ic.w * h / ic.h : 0; }
 function pdfIcon(doc, key, xr, y, h, rgb) {            // xr = bord droit ; retourne la largeur dessinée
   var ic = PDF_ICONS[key]; if (!ic) return 0;
