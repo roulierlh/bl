@@ -1379,7 +1379,7 @@ function generateBdlPDF() {
             var ix = (startRow + rr) * perRow + cc;
             if (ix >= vl.length) break;
             var vin = String(vl[ix]).trim(), vok = vin.length === 17;
-            doc.setFont('courier','bold'); doc.setFontSize(8);
+            doc.setFont('courier','bold'); doc.setFontSize(9);
             if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
             doc.text((ix + 1) + '. ' + vin, vx0 + cc * vcw, y + 3);
           }
@@ -1610,7 +1610,7 @@ function marcPdf(doc, c) {
             var ix = (startRow + rr) * perRow + cc;
             if (ix >= vl.length) break;
             var vin = String(vl[ix]).trim(), vok = vin.length === 17;
-            doc.setFont('courier','bold'); doc.setFontSize(8);
+            doc.setFont('courier','bold'); doc.setFontSize(9);
             if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
             doc.text((ix + 1) + '. ' + vin, vx0 + cc * vcw, c.y + 3);
           }
