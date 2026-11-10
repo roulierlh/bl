@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comment ça fonctionne – Documents portuaires</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap');
+:root{--navy:#0a1628;--mid:#112240;--accent:#4a9eff;--white:#f0f4f8;--muted:#8899aa;--border:rgba(74,158,255,0.25)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--navy);color:var(--white);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 16px}
+h1{font-family:'IBM Plex Mono',monospace;font-size:16px;letter-spacing:.08em;text-align:center;margin-bottom:6px}
+p.sub{color:var(--muted);font-size:12px;letter-spacing:.06em;margin-bottom:20px;text-align:center}
+.wrap{width:100%;max-width:960px}
+video{width:100%;border:1px solid var(--border);border-radius:6px;background:#000;display:block}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+button,a.btn{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;padding:9px 16px;border-radius:2px;cursor:pointer;border:1px solid var(--border);background:var(--mid);color:var(--white);text-decoration:none}
+button:hover,a.btn:hover{background:#16305a}
+button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5}
+</style></head><body>
+<h1>COMMENT ÇA FONCTIONNE</h1>
+<p class="sub">Bon de livraison et commandes associées · ≈ 1 minute</p>
+<div class="wrap">
+<video id="v" src="tutoriel.mp4" controls playsinline preload="metadata" poster="tutoriel_vignette.jpg"></video>
+<div class="bar">
+<button id="voix" class="on" onclick="toggleVoix()">🔊 Voix off : activée</button>
+<a class="btn" href="index.html">← Retour à l'accueil</a>
+</div>
+<p class="note" id="note">La voix off est lue par votre navigateur ; les légendes restent affichées dans la vidéo.</p>
+</div>
+<script>
+var CUES=[
+ [0,"Bienvenue. Voici comment fonctionnent le bon de livraison et les commandes."],
+ [4,"Depuis l'accueil, choisissez le document : bon de livraison, manutention, porte voitures ou transfert parc."],
+ [11,"Pour le bon de livraison, renseignez le transport une seule fois : navire, booking, dossier."],
+ [17,"À la validation, le site propose une commande associée : manutention, porte voitures ou transfert parc."],
+ [24,"Pour la manutention, la description des travaux est obligatoire."],
+ [29,"Pour les autres, la commande s'ouvre préremplie avec les données du bon. Il ne reste que quelques champs à compléter."],
+ [37,"Les VIN et MBI se saisissent à la main ou se collent depuis Excel."],
+ [42,"Un clic génère les deux PDF, avec le même numéro et la mention de commande associée."],
+ [49,"Le transfert parc propose des listes déroulantes, avec un départ différent de la livraison."],
+ [55,"Vous pouvez aussi commencer par la commande, puis générer le bon associé. C'est tout !"],
+ [62,""]
+];
+var v=document.getElementById('v'), voix=true, cur=-1, speaking=false, held=false, SS=window.speechSynthesis;
+function frVoice(){ if(!SS) return null; var l=SS.getVoices(); return l.find(function(x){return /^fr[-_]FR/i.test(x.lang)&&/natural|online|google|thomas|amelie|audrey/i.test(x.name)})||l.find(function(x){return /^fr/i.test(x.lang)})||null; }
+function say(t){
+  if(!SS||!voix||!t) return;
+  SS.cancel(); var u=new SpeechSynthesisUtterance(t); u.lang='fr-FR'; var f=frVoice(); if(f)u.voice=f; u.rate=1.0;
+  speaking=true; u.onend=u.onerror=function(){ speaking=false; if(held){held=false;v.play();} };
+  SS.speak(u);
+}
+function idx(t){ for(var i=CUES.length-2;i>=0;i--) if(t>=CUES[i][0]) return i; return 0; }
+v.addEventListener('timeupdate',function(){
+  var i=idx(v.currentTime);
+  if(i!==cur){
+    // si la phrase précédente n'est pas finie, on attend la fin avant d'enchaîner
+    if(speaking&&voix&&i===cur+1&&!v.paused){ v.pause(); held=true; return; }
+    cur=i; say(CUES[i][1]);
+  }
+});
+v.addEventListener('play',function(){ if(cur<0){cur=idx(v.currentTime);say(CUES[cur][1]);} else if(SS&&SS.paused) SS.resume(); });
+v.addEventListener('pause',function(){ if(!held&&SS) SS.pause(); });
+v.addEventListener('seeking',function(){ if(SS)SS.cancel(); speaking=false; held=false; cur=-1; });
+v.addEventListener('ended',function(){ if(SS)SS.cancel(); cur=-1; });
+function toggleVoix(){
+  voix=!voix; var b=document.getElementById('voix');
+  b.textContent=voix?'🔊 Voix off : activée':'🔇 Voix off : coupée'; b.classList.toggle('on',voix);
+  if(!voix&&SS){SS.cancel();speaking=false;if(held){held=false;v.play();}} else if(voix&&!v.paused){cur=-1;}
+}
+if(!SS){ document.getElementById('note').textContent="La voix off n'est pas disponible sur ce navigateur : suivez les légendes affichées dans la vidéo."; document.getElementById('voix').style.display='none'; }
+else if(SS.onvoiceschanged!==undefined) SS.onvoiceschanged=function(){};
+</script>
+</body></html>
