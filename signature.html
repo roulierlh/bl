@@ -90,7 +90,7 @@ var IDS = ['prenom','nom','tel','mob','mail','groupe','adr'];
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function val(id){return document.getElementById('f_'+id).value.trim();}
 
-function buildSig(){
+function buildSig(mso){
   var prenom = val('prenom') || 'Prénom', nom = val('nom') || 'NOM';
   var tel = val('tel'), mob = val('mob'), mail = val('mail'), groupe = val('groupe'), adr = val('adr');
   var F = 'font-family:Arial,Helvetica,sans-serif;';
@@ -99,30 +99,36 @@ function buildSig(){
   // ligne vide au-dessus de la signature
   h += '<div style="' + F + 'font-size:13px;line-height:18px;">&nbsp;</div>';
   // carte : cadre fin, coins arrondis (ignorés par Outlook classique), fond clair
-  h += '<table cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f8fc" style="border-collapse:separate;border:1px solid #d5dce8;border-radius:12px;background-color:#f6f8fc;"><tr><td style="padding:16px 20px;">';
+  var cardOpen = '<table cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f8fc" style="border-collapse:separate;border:1px solid #d5dce8;border-radius:12px;background-color:#f6f8fc;"><tr><td style="padding:16px 20px;">';
+  if (mso) {
+    // Outlook classique : rectangle arrondi VML (les autres clients utilisent la table CSS)
+    h += '<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" arcsize="9%" fillcolor="#f6f8fc" strokecolor="#d5dce8" strokeweight="1px" style="width:640px;"><v:textbox inset="20px,16px,20px,16px" style="mso-fit-shape-to-text:true"><![endif]-->';
+    h += '<!--[if !mso]><!-->' + cardOpen + '<!--<![endif]-->';
+  } else h += cardOpen;
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:13px;color:#333333;">';
-  // ligne 1 : prénom / NOM (gauche) + coordonnées (droite, sur 2 lignes)
+  // gauche : prénom / NOM / ligne vide / société (balises <font> + <span> : Outlook classique ignore la couleur d'un <div>)
   h += '<tr>';
-  h += '<td valign="middle" style="padding:0 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:middle;text-align:left;' + F + 'font-size:15px;line-height:19px;font-weight:bold;color:#0b1f3a;">' + esc(prenom) + '<br>' + esc(nom) + '<div style="' + F + 'font-size:12px;line-height:18px;font-weight:bold;color:#1a5fb4;"><br>Terminal Roulier<br>LE HAVRE</div></td>';
-  h += '<td valign="top" style="padding:0 0 0 12px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
-  if (tel || mob){
-    h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:12px;line-height:18px;">';
-    var TC = F + 'font-size:12px;line-height:18px;color:#000000;white-space:nowrap;';
-    var nb = function(t){ return esc(t).replace(/ /g,'&nbsp;'); };
-    if (tel) h += '<tr><td style="padding:0 8px 0 0;' + TC + '"><font color="#000000">Direct&nbsp;:</font></td><td style="padding:0 30px 0 0;' + TC + '"><font color="#000000">' + nb(tel) + '</font></td></tr>';
-    if (mob) h += '<tr><td style="padding:0 8px 0 0;' + TC + '"><font color="#000000">Mobile&nbsp;:</font></td><td style="padding:0 30px 0 0;' + TC + '"><font color="#000000">' + nb(mob) + '</font></td></tr>';
-    h += '</table>';
-  }
-  var lines = [];
-  if (mail) lines.push('<a href="mailto:' + esc(mail) + '" style="' + LNK + '">' + esc(mail) + '</a>');
-  if (groupe) lines.push('E-mail de groupe&nbsp;:<br><a href="mailto:' + esc(groupe) + '" style="' + LNK + '">' + esc(groupe) + '</a>');
-  if (adr) lines.push(esc(adr));
-  h += lines.join('<br>');
+  h += '<td valign="middle" style="padding:0 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:middle;text-align:left;' + F + 'font-size:15px;line-height:19px;font-weight:bold;color:#0b1f3a;"><font color="#0b1f3a" face="Arial" style="font-size:15px;line-height:19px;"><b>' + esc(prenom) + '<br>' + esc(nom) + '</b></font><br><br><font color="#1a5fb4" face="Arial" style="font-size:12px;line-height:18px;"><b>Terminal&nbsp;Roulier<br>LE&nbsp;HAVRE</b></font></td>';
+  // droite : une seule table, toutes les lignes alignées sur la même marge gauche
+  h += '<td width="14" style="width:14px;min-width:14px;font-size:1px;line-height:1px;">&nbsp;</td>';   // espace après la barre bleue (cellule dédiée : Outlook classique ignore parfois le padding)
+  h += '<td valign="top" style="padding:0;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
+  h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:12px;line-height:18px;">';
+  var TC = F + 'font-size:12px;line-height:18px;color:#000000;white-space:nowrap;text-align:left;';
+  var TX = F + 'font-size:12px;line-height:18px;color:#333333;text-align:left;';
+  var nb = function(t){ return esc(t).replace(/ /g,'&nbsp;'); };
+  if (tel) h += '<tr><td align="left" style="padding:0 8px 0 0;' + TC + '"><font color="#000000">Direct&nbsp;:</font></td><td align="left" style="padding:0 30px 0 0;' + TC + '"><font color="#000000">' + nb(tel) + '</font></td></tr>';
+  if (mob) h += '<tr><td align="left" style="padding:0 8px 0 0;' + TC + '"><font color="#000000">Mobile&nbsp;:</font></td><td align="left" style="padding:0 30px 0 0;' + TC + '"><font color="#000000">' + nb(mob) + '</font></td></tr>';
+  var row = function(c){ return '<tr><td colspan="2" align="left" style="padding:0;' + TX + '">' + c + '</td></tr>'; };
+  if (mail) h += row('<a href="mailto:' + esc(mail) + '" style="' + LNK + '">' + esc(mail) + '</a>');
+  if (groupe) h += row('<font color="#333333">E-mail de groupe&nbsp;:</font>') + row('<a href="mailto:' + esc(groupe) + '" style="' + LNK + '">' + esc(groupe) + '</a>');
+  if (adr) h += row('<font color="#333333">' + esc(adr) + '</font>');
+  h += '</table>';
   h += '</td></tr>';
   h += '</table>';
   // ligne vide puis lien vers les documents (largeur fixe pour un retour à la ligne propre)
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="padding:18px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="' + LINK + '" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos Documents portuaires (bons de livraison manuels et commandes de manutention) Cliquez ici</a></td></tr><tr><td style="padding:8px 0 0 0;' + F + 'font-size:12px;line-height:18px;"><a href="https://ares.smr-france.com/" style="color:#1a5fb4;text-decoration:none;font-weight:bold;">Pour vos retours quai Cliquez ici</a></td></tr></table>';
-  h += '</td></tr></table>';
+  if (mso) h += '<!--[if !mso]><!--></td></tr></table><!--<![endif]--><!--[if mso]></v:textbox></v:roundrect><![endif]-->';
+  else h += '</td></tr></table>';
   return h;
 }
 
@@ -163,7 +169,7 @@ function fallbackCopy(){
 document.getElementById('btn_copy').onclick = copyRendered;
 document.getElementById('btn_dl').onclick = function(){
   var nom = ((val('prenom') + ' ' + val('nom')).trim() || 'Signature Roulier').replace(/[\\\/:*?"<>|]/g,'').trim();
-  var doc = '<!DOCTYPE html>\r\n<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Signature ' + esc(nom) + '</title></head>\r\n<body>' + buildSig() + '</body></html>';
+  var doc = '<!DOCTYPE html>\r\n<html lang="fr" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><!--[if gte mso 9]><style>v\\:* {behavior:url(#default#VML);display:inline-block}</style><![endif]--><title>Signature ' + esc(nom) + '</title></head>\r\n<body>' + buildSig(true) + '</body></html>';
   var blob = new Blob(['\uFEFF' + doc], {type:'text/html;charset=utf-8'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
