@@ -351,7 +351,7 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
   <div class="modal" style="width:560px;">
     <div class="modal-header"><h3>Informations à compléter pour le bon de livraison</h3><button class="modal-close" onclick="baClose()">×</button></div>
     <div class="modal-body">
-      <div class="vin-info">Ces champs obligatoires du bon de livraison ne sont pas encore renseignés. Le bon sera généré avec la commande.</div>
+      <div class="vin-info">Les champs marqués * sont obligatoires pour le bon de livraison ; les champs facultatifs peuvent rester vides. Le bon sera généré avec la commande.</div>
       <div id="ba_fields" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
     </div>
     <div class="modal-footer">
@@ -1125,7 +1125,7 @@ var PK = {
     o.cell = function(label, val, x, cw) {
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, P.mid);
       doc.text(label.toUpperCase(), x, o.y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.black);
+      fitVal(doc, val, cw - 2); doc.setTextColor.apply(doc, P.black);
       if (val && String(val).trim()) doc.text(String(val), x, o.y + 4.5, { maxWidth: cw - 2 });
       doc.setDrawColor.apply(doc, P.border); doc.setLineWidth(0.15);
       doc.line(x, o.y + 5.5, x + cw - 2, o.y + 5.5);
@@ -1168,7 +1168,7 @@ function marcPdf(doc, c, units) {
       var colW = cw * cl.w;
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
       doc.text(cl.l.toUpperCase(), xCur, lotY + 5);
-      doc.setFontSize(7); doc.setTextColor.apply(doc, PK.black);
+      fitVal(doc, vals[i], colW - 2); doc.setTextColor.apply(doc, PK.black);
       if (vals[i]) doc.text(String(vals[i]), xCur, lotY + 11, { maxWidth: colW - 2 });
       doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
       doc.line(xCur, lotY + 12.5, xCur + colW - 2, lotY + 12.5);
@@ -1185,7 +1185,7 @@ function marcPdf(doc, c, units) {
             var ix = (startRow + rr) * perRow + cc;
             if (ix >= vl.length) break;
             var vin = vl[ix].v, vok = vin.length === 17, tx = vx0 + cc * vcw, txt = (ix + 1) + '. ' + vin;
-            doc.setFont('courier','normal'); doc.setFontSize(7);
+            doc.setFont('courier','bold'); doc.setFontSize(8);
             if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
             doc.text(txt, tx, c.y + 3);
             if (vl[ix].m) {
@@ -1214,7 +1214,7 @@ function marcPdf(doc, c, units) {
   c.start();
   doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor.apply(doc, PK.mid);
   doc.text('TOTAL', mg + 3, c.y + 3);
-  doc.setFontSize(7); doc.setTextColor.apply(doc, PK.black);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor.apply(doc, PK.black);
   doc.text(totC + ' colis  —  Poids brut total : ' + String(totP).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' kg' + (units ? '  —  ' + vinCount() + ' unité(s) (VIN / MBI)' : ''), mg + 3, c.y + 7);
   doc.setDrawColor.apply(doc, PK.border); doc.setLineWidth(0.15);
   doc.line(mg + 3, c.y + 8, W - mg - 3, c.y + 8);
@@ -1331,7 +1331,7 @@ function generateBdlPDF() {
   function cell(label, val, x, cw) {
     doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
     doc.text(label.toUpperCase(), x, y);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    fitVal(doc, val, cw - 2); doc.setTextColor(black[0],black[1],black[2]);
     if (val && val.trim()) doc.text(val, x, y+4.5);
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
     doc.line(x, y+5.5, x+cw-2, y+5.5);
@@ -1360,7 +1360,7 @@ function generateBdlPDF() {
   function cellH(label, val, x, cw, yc) {
     doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
     doc.text(label.toUpperCase(), x, yc);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    fitVal(doc, val, cw - 2); doc.setTextColor(black[0],black[1],black[2]);
     if (val && val.trim()) doc.text(val, x, yc+4.5);
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
     doc.line(x, yc+5.5, x+cw-2, yc+5.5);
@@ -1440,7 +1440,7 @@ function generateBdlPDF() {
       var colW = cw * c.w;
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
       doc.text(c.l.toUpperCase(), xCur, lotY+5);
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+      fitVal(doc, vals[i], colW - 2); doc.setTextColor(black[0],black[1],black[2]);
       if (vals[i]) doc.text(vals[i], xCur, lotY+11, { maxWidth: colW - 2 });
       doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
       doc.line(xCur, lotY+12.5, xCur + colW - 2, lotY+12.5);
@@ -1456,7 +1456,7 @@ function generateBdlPDF() {
             var ix = (startRow + rr) * perRow + cc;
             if (ix >= vl.length) break;
             var vin = String(vl[ix]).trim(), vok = vin.length === 17;
-            doc.setFont('courier','normal'); doc.setFontSize(7);
+            doc.setFont('courier','bold'); doc.setFontSize(8);
             if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
             doc.text((ix + 1) + '. ' + vin, vx0 + cc * vcw, y + 3);
           }
@@ -1483,7 +1483,7 @@ function generateBdlPDF() {
   cardStart();
   doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('TOTAL', mg+3, y+3);
-  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(black[0],black[1],black[2]);
   doc.text(totalC+' colis  —  Poids brut total : '+totalPStr+' kg', mg+3, y+7);
   doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
   doc.line(mg+3, y+8, W-mg-3, y+8);
@@ -1564,6 +1564,10 @@ var BA_FIELDS = [
   { id: 'navire',         label: 'Navire',                      ph: 'Nom du navire' },
   { id: 'pod',            label: 'Port de déchargement',        ph: 'Port of Discharge' }
 ];
+var BA_OPT = [
+  { id: 'destination_finale',  label: 'Destination finale',        ph: 'Destination finale' },
+  { id: 'infos_particulieres', label: 'Informations particulières', ph: 'Informations particulières', area: true }
+];
 var BA_PERSIST = ['declarant', 'transitaire', 'armement', 'bdl_par', 'telephone', 'lieu_livraison'];
 function baStart() { if (assoc && bdlSnap) { BA_CFG.gen(); return; } document.getElementById('ba_ask').classList.add('open'); }
 function baAnswer(yes) {
@@ -1580,11 +1584,16 @@ function baBase() {                                       // infos déjà connue
 function baList() { var s = baBase(); return BA_FIELDS.filter(function(f) { return !s[f.id]; }); }
 function baOpen() {
   var list = baList();
-  if (!list.length) { baRun({}); return; }
   var box = document.getElementById('ba_fields'); box.innerHTML = '';
   list.forEach(function(f) {
     var d = document.createElement('div'); d.className = 'field';
     d.innerHTML = '<label>' + f.label + ' <span class="req">*</span></label><input type="text" id="ba_' + f.id + '"' + (f.nouc ? '' : ' class="uc"') + ' placeholder="' + f.ph + '" />';
+    box.appendChild(d);
+  });
+  BA_OPT.forEach(function(f) {
+    var d = document.createElement('div'); d.className = 'field'; d.style.gridColumn = f.area ? '1 / -1' : '';
+    d.innerHTML = '<label>' + f.label + ' <span style="text-transform:none;letter-spacing:0;color:var(--muted)">(facultatif)</span></label>' +
+      (f.area ? '<textarea id="ba_' + f.id + '" class="uc" style="min-height:60px" placeholder="' + f.ph + '"></textarea>' : '<input type="text" id="ba_' + f.id + '" class="uc" placeholder="' + f.ph + '" />');
     box.appendChild(d);
   });
   document.getElementById('ba_status').textContent = '';
@@ -1600,7 +1609,8 @@ function baApply() {
     if (!x) { empty = true; el.style.borderColor = 'var(--red)'; }
     else { el.style.borderColor = ''; vals[f.id] = f.nouc ? x : x.toUpperCase(); }
   });
-  if (empty) { document.getElementById('ba_status').textContent = 'Tous ces champs sont obligatoires'; return; }
+  if (empty) { document.getElementById('ba_status').textContent = 'Les champs marqués * sont obligatoires'; return; }
+  BA_OPT.forEach(function(f) { var el = document.getElementById('ba_' + f.id); if (el && el.value.trim()) vals[f.id] = el.value.trim().toUpperCase(); });
   baClose(); baRun(vals);
 }
 function baRun(vals) {
@@ -1715,6 +1725,11 @@ function askAfter(o) {
 
 // ── Pictogrammes (mêmes dessins que sur l'accueil), tracés en vectoriel dans les PDF ──
 var PDF_ICONS = {"bon":{"w":48.0,"h":48.0,"items":[{"t":"p","d":"M10 5h18l8 8v13","sx":1,"tx":0},{"t":"p","d":"M28 5v8h8","sx":1,"tx":0},{"t":"p","d":"M10 5v38h14","sx":1,"tx":0},{"t":"p","d":"M15 19h15M15 25h11M15 31h6","sx":1,"tx":0},{"t":"p","d":"M39 24l6 6-14 14-8 2 2-8z","sx":1,"tx":0},{"t":"p","d":"M36 27l6 6","sx":1,"tx":0}]},"pv":{"w":96.0,"h":42.0,"items":[{"t":"p","d":"M3 32V18l5-7h9v21","sx":1,"tx":0},{"t":"p","d":"M8 17h6","sx":1,"tx":0},{"t":"p","d":"M19 11h74M17 32h76","sx":1,"tx":0},{"t":"p","d":"M21 11l8 21","sx":1,"tx":0},{"t":"p","d":"M33 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 11v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":11.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M33 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":40.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":55.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"p","d":"M64 32v-4l5-1 4-4h9l5 5h3v4","sx":1,"tx":0},{"t":"c","x":71.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":86.0,"y":32.0,"r":2.0,"sx":1,"tx":0},{"t":"c","x":10.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":26.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":37.0,"y":37.0,"r":3.5,"sx":1,"tx":0},{"t":"c","x":70.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":80.0,"y":38.0,"r":3.0,"sx":1,"tx":0},{"t":"c","x":90.0,"y":38.0,"r":3.0,"sx":1,"tx":0}]}};
+function fitVal(doc, txt, maxw) {                    // valeur saisie : gras, 8,5 pt, réduite si trop large
+  var s = 8.5; doc.setFont('helvetica','bold'); doc.setFontSize(s);
+  var t = String(txt == null ? '' : txt);
+  while (s > 6 && doc.getTextWidth(t) > maxw) { s -= 0.5; doc.setFontSize(s); }
+}
 function pdfIconW(key, h) { var ic = PDF_ICONS[key]; return ic ? ic.w * h / ic.h : 0; }
 function pdfIcon(doc, key, xr, y, h, rgb) {            // xr = bord droit ; retourne la largeur dessinée
   var ic = PDF_ICONS[key]; if (!ic) return 0;

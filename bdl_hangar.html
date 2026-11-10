@@ -1199,7 +1199,7 @@ function generatePDF() {
   function cell(label, val, x, cw) {
     doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
     doc.text(label.toUpperCase(), x, y);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    fitVal(doc, val, cw - 2); doc.setTextColor(black[0],black[1],black[2]);
     if (val && val.trim()) doc.text(val, x, y+4.5);
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
     doc.line(x, y+5.5, x+cw-2, y+5.5);
@@ -1228,7 +1228,7 @@ function generatePDF() {
   function cellH(label, val, x, cw, yc) {
     doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
     doc.text(label.toUpperCase(), x, yc);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+    fitVal(doc, val, cw - 2); doc.setTextColor(black[0],black[1],black[2]);
     if (val && val.trim()) doc.text(val, x, yc+4.5);
     doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
     doc.line(x, yc+5.5, x+cw-2, yc+5.5);
@@ -1308,7 +1308,7 @@ function generatePDF() {
       var colW = cw * c.w;
       doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
       doc.text(c.l.toUpperCase(), xCur, lotY+5);
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+      fitVal(doc, vals[i], colW - 2); doc.setTextColor(black[0],black[1],black[2]);
       if (vals[i]) doc.text(vals[i], xCur, lotY+11, { maxWidth: colW - 2 });
       doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
       doc.line(xCur, lotY+12.5, xCur + colW - 2, lotY+12.5);
@@ -1324,7 +1324,7 @@ function generatePDF() {
             var ix = (startRow + rr) * perRow + cc;
             if (ix >= vl.length) break;
             var vin = String(vl[ix]).trim(), vok = vin.length === 17;
-            doc.setFont('courier','normal'); doc.setFontSize(7);
+            doc.setFont('courier','bold'); doc.setFontSize(8);
             if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
             doc.text((ix + 1) + '. ' + vin, vx0 + cc * vcw, y + 3);
           }
@@ -1351,7 +1351,7 @@ function generatePDF() {
   cardStart();
   doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('TOTAL', mg+3, y+3);
-  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(black[0],black[1],black[2]);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(black[0],black[1],black[2]);
   doc.text(totalC+' colis  —  Poids brut total : '+totalPStr+' kg', mg+3, y+7);
   doc.setDrawColor(border[0],border[1],border[2]); doc.setLineWidth(0.15);
   doc.line(mg+3, y+8, W-mg-3, y+8);
@@ -1461,6 +1461,11 @@ function askAfter(o) {
 
 // ── Pictogrammes (mêmes dessins que sur l'accueil), tracés en vectoriel dans les PDF ──
 var PDF_ICONS = {"bon":{"w":48.0,"h":48.0,"items":[{"t":"p","d":"M10 5h18l8 8v13","sx":1,"tx":0},{"t":"p","d":"M28 5v8h8","sx":1,"tx":0},{"t":"p","d":"M10 5v38h14","sx":1,"tx":0},{"t":"p","d":"M15 19h15M15 25h11M15 31h6","sx":1,"tx":0},{"t":"p","d":"M39 24l6 6-14 14-8 2 2-8z","sx":1,"tx":0},{"t":"p","d":"M36 27l6 6","sx":1,"tx":0}]}};
+function fitVal(doc, txt, maxw) {                    // valeur saisie : gras, 8,5 pt, réduite si trop large
+  var s = 8.5; doc.setFont('helvetica','bold'); doc.setFontSize(s);
+  var t = String(txt == null ? '' : txt);
+  while (s > 6 && doc.getTextWidth(t) > maxw) { s -= 0.5; doc.setFontSize(s); }
+}
 function pdfIconW(key, h) { var ic = PDF_ICONS[key]; return ic ? ic.w * h / ic.h : 0; }
 function pdfIcon(doc, key, xr, y, h, rgb) {            // xr = bord droit ; retourne la largeur dessinée
   var ic = PDF_ICONS[key]; if (!ic) return 0;
