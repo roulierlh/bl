@@ -7,6 +7,9 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap');
 :root{--navy:#0a1628;--mid:#112240;--accent:#4a9eff;--white:#f0f4f8;--muted:#8899aa;--border:rgba(74,158,255,0.25)}
 *{box-sizing:border-box;margin:0;padding:0}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(filigrane.jpg) center bottom/cover no-repeat;opacity:.3;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 35%);mask-image:linear-gradient(to bottom,transparent 0,#000 35%)}
+html{background:var(--navy)}body{background:transparent!important}
+
 body{background:var(--navy);color:var(--white);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
 h1{font-family:'IBM Plex Mono',monospace;font-size:18px;letter-spacing:.08em;margin-bottom:8px;text-align:center;line-height:1.5}
 p.sub{color:var(--muted);font-size:12px;letter-spacing:.08em;margin-bottom:36px;text-align:center}
