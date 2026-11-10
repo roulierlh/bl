@@ -223,6 +223,8 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 .pg td.dragging { opacity:.4; }
 .pp-msg { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent); margin-top:8px; min-height:14px; }
 .pp-note { color:var(--muted); font-size:11px; margin:10px 0 4px; font-family:'IBM Plex Mono',monospace; }
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(filigrane.jpg) center bottom/cover no-repeat;opacity:.2;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 35%);mask-image:linear-gradient(to bottom,transparent 0,#000 35%)}
+html{background:var(--navy)}body{background:transparent!important}
 </style>
 </head>
 <body>
