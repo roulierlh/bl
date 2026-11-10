@@ -680,15 +680,15 @@ function renderMarc() {
         '</div>' +
         '<div class="field">' +
           '<label>Longueur (m)</label>' +
-          '<input type="number" value="' + esc(m.longueur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'longueur\',this.value)" onblur="formatDim(this,' + m.id + ',\'longueur\')" />' +
+          '<input type="number" value="' + esc(m.longueur) + '" placeholder="0,000" step="0.001" min="0" oninput="setField(' + m.id + ',\'longueur\',this.value)" onblur="formatDim(this,' + m.id + ',\'longueur\')" />' +
         '</div>' +
         '<div class="field">' +
           '<label>Largeur (m)</label>' +
-          '<input type="number" value="' + esc(m.largeur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'largeur\',this.value)" onblur="formatDim(this,' + m.id + ',\'largeur\')" />' +
+          '<input type="number" value="' + esc(m.largeur) + '" placeholder="0,000" step="0.001" min="0" oninput="setField(' + m.id + ',\'largeur\',this.value)" onblur="formatDim(this,' + m.id + ',\'largeur\')" />' +
         '</div>' +
         '<div class="field">' +
           '<label>Hauteur (m)</label>' +
-          '<input type="number" value="' + esc(m.hauteur) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'hauteur\',this.value)" onblur="formatDim(this,' + m.id + ',\'hauteur\')" />' +
+          '<input type="number" value="' + esc(m.hauteur) + '" placeholder="0,000" step="0.001" min="0" oninput="setField(' + m.id + ',\'hauteur\',this.value)" onblur="formatDim(this,' + m.id + ',\'hauteur\')" />' +
         '</div>' +
         '<div class="field">' +
           '<label>Poids (kg) <span class="req">*</span></label>' +
@@ -728,7 +728,7 @@ function updateTotals() {
   var p = marchandises.reduce(function(s,m) { return s + (parseFloat(m.poids)||0); }, 0);
   var v = marchandises.reduce(function(s,m) { return s + m.vins.filter(function(x){return x.trim();}).length; }, 0);
   document.getElementById('total_colis').textContent = c;
-  document.getElementById('total_poids').textContent = p.toLocaleString('fr-FR');
+  document.getElementById('total_poids').textContent = p.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   document.getElementById('total_vin').textContent = v;
   checkPdfBtn();
 }
@@ -740,7 +740,7 @@ function esc(s) {
 function formatDim(input, id, key) {
   var val = parseFloat(input.value);
   if (!isNaN(val)) {
-    var formatted = val.toFixed(2);
+    var formatted = val.toFixed(key === 'poids' ? 2 : 3);
     input.value = formatted;
     setField(id, key, formatted);
   }
@@ -1084,7 +1084,7 @@ function pastePreview() {
     box.innerHTML = '<div class="pp-note">Le classement des marchandises s’affichera ici.</div>';
     st.textContent = ''; st.className = 'modal-status'; ok.disabled = true; ok.style.opacity = '.4'; return;
   }
-  var f2 = function(x) { return x === null ? '' : x.toFixed(2); }, noW = 0;
+  var f2 = function(x) { return x === null ? '' : x.toFixed(3); }, noW = 0;
   var ro = function(label, val) { return '<div class="field"><label>' + label + '</label><input type="text" disabled value="' + esc(val) + '" /></div>'; };
   var html = pLots.map(function(g) {
     if (g.poids === null) noW++;
@@ -1113,7 +1113,7 @@ function pastePreview() {
 function applyPaste() {
   if (!pLots.length) return;
   var keep = document.getElementById('paste_mode').value === 'add' ? marchandises.filter(function(m) { return !marcIsEmpty(m); }) : [];
-  var f2 = function(x) { return x === null ? '' : x.toFixed(2); };
+  var f2 = function(x) { return x === null ? '' : x.toFixed(3); };
   pLots.forEach(function(g) {
     marcCounter++;
     keep.push({ id: marcCounter, nature: g.nature, longueur: f2(g.l), largeur: f2(g.w), hauteur: f2(g.h),
@@ -1300,7 +1300,7 @@ function generatePDF() {
     ];
     var vals = [
       (m.nature||'').toUpperCase(),
-      m.longueur||'', m.largeur||'', m.hauteur||'', m.poids||'', m.colis||''
+      n3(m.longueur), n3(m.largeur), n3(m.hauteur), n2(m.poids), m.colis||''
     ];
 
     var xCur = mg + 5;
@@ -1346,7 +1346,7 @@ function generatePDF() {
   // Totaux
   var totalC = marchandises.reduce(function(s,m){return s+(parseInt(m.colis)||0);},0);
   var totalP = marchandises.reduce(function(s,m){return s+(parseFloat(m.poids)||0);},0);
-  var totalPStr = String(totalP).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  var totalPStr = fr3(totalP);
   if (y > 265) { doc.addPage(); y = 14; }
   cardStart();
   doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(mid[0],mid[1],mid[2]);
@@ -1461,6 +1461,9 @@ function askAfter(o) {
 
 // ── Pictogrammes (mêmes dessins que sur l'accueil), tracés en vectoriel dans les PDF ──
 var PDF_ICONS = {"bon":{"w":48.0,"h":48.0,"items":[{"t":"p","d":"M10 5h18l8 8v13","sx":1,"tx":0},{"t":"p","d":"M28 5v8h8","sx":1,"tx":0},{"t":"p","d":"M10 5v38h14","sx":1,"tx":0},{"t":"p","d":"M15 19h15M15 25h11M15 31h6","sx":1,"tx":0},{"t":"p","d":"M39 24l6 6-14 14-8 2 2-8z","sx":1,"tx":0},{"t":"p","d":"M36 27l6 6","sx":1,"tx":0}]}};
+function n2(x) { var f = parseFloat(x); return (x === '' || x == null || isNaN(f)) ? (x || '') : f.toFixed(2); }   // poids : 2 décimales
+function n3(x) { var f = parseFloat(x); return (x === '' || x == null || isNaN(f)) ? (x || '') : f.toFixed(3); }   // 3 décimales
+function fr3(x) { var p = (parseFloat(x) || 0).toFixed(2).split('.'); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ',' + p[1]; }
 function fitVal(doc, txt, maxw) {                    // valeur saisie : gras, 8,5 pt, réduite si trop large
   var s = 8.5; doc.setFont('helvetica','bold'); doc.setFontSize(s);
   var t = String(txt == null ? '' : txt);
