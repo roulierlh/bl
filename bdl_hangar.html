@@ -229,10 +229,10 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 
 <header class="header">
   <div>
-    <div class="header-title">BON DE LIVRAISON (HANGAR)</div>
+    <div class="header-title" style="display:flex;align-items:center;gap:12px"><span>BON DE LIVRAISON (HANGAR)</span><svg class="hico" style="color:var(--accent);flex:none;width:30px;height:30px" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5h18l8 8v13"/><path d="M28 5v8h8"/><path d="M10 5v38h14"/><path d="M15 19h15M15 25h11M15 31h6"/><path d="M39 24l6 6-14 14-8 2 2-8z"/><path d="M36 27l6 6"/></svg></div>
     <div class="header-subtitle">Document de réception / chargement portuaire</div>
   </div>
-  <div class="hdr-right"><span class="stat ko" id="stat_top" title="">INCOMPLÈTE</span><a class="home" href="index.html">← Accueil</a>
+  <div class="hdr-right"><a class="home" href="index.html">← Accueil</a><span class="stat ko" id="stat_top" title="">INCOMPLÈTE</span>
   <button class="btn-pdf" id="btn_pdf" onclick="validateAndGenerate()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
     Générer le bon de livraison (hangar)
@@ -1157,7 +1157,7 @@ function generatePDF() {
   doc.setFillColor(accent[0],accent[1],accent[2]); doc.rect(0, 0, W, 2, 'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(black[0],black[1],black[2]);
   doc.text('BON DE LIVRAISON (HANGAR)', mg, 11);
-  pdfIcon(doc, 'bon', mg + doc.getTextWidth('BON DE LIVRAISON (HANGAR)') + 4 + pdfIconW('bon', 9.5), 3.4, 9.5, accent);
+  pdfIcon(doc, 'bon', mg + doc.getTextWidth('BON DE LIVRAISON (HANGAR)') + 4 + pdfIconW('bon', 7), 4.65, 7, accent);
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('Document de réception / chargement portuaire', mg, 16);
   doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor(accent[0],accent[1],accent[2]);

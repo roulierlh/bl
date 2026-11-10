@@ -260,10 +260,10 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 </style>
 <header class="header">
   <div>
-    <div class="header-title">COMMANDE DE TRANSFERT PARC INTER ROULIER</div>
+    <div class="header-title" style="display:flex;align-items:center;gap:12px"><span>COMMANDE DE TRANSFERT PARC INTER ROULIER</span><svg class="hico" style="color:var(--accent);flex:none;width:96px;height:30px" viewBox="0 0 96 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M0 22V16L5 14L10 7H22 L27 13L31 15V22Z"/><path d="M11.5 13L14 8.5H21 L24 13Z"/><path d="M17.5 8.5V13"/><circle cx="8" cy="22" r="3.2"/><circle cx="24" cy="22" r="3.2"/><path d="M64 22V16L69 14L74 7H86 L91 13L95 15V22Z"/><path d="M75.5 13L78 8.5H85 L88 13Z"/><path d="M81.5 8.5V13"/><circle cx="72" cy="22" r="3.2"/><circle cx="88" cy="22" r="3.2"/><path d="M38 15H58"/><path d="M53 10L58 15L53 20"/></svg></div>
     <div class="header-subtitle">Transfert de véhicule entre parcs</div>
   </div>
-  <div class="hdr-right"><span class="stat ko" id="stat_top">INCOMPLÈTE</span><a class="home" href="index.html">← Accueil</a>
+  <div class="hdr-right"><a class="home" href="index.html">← Accueil</a><span class="stat ko" id="stat_top">INCOMPLÈTE</span>
   <button class="btn-pdf" id="btn_pdf_pv" onclick="baStart()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
     Générer la commande de transfert
@@ -1101,7 +1101,7 @@ var PK = {
     doc.setFillColor.apply(doc, P.accent); doc.rect(0, 0, P.W, 2, 'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor.apply(doc, P.black);
     doc.text(title, P.mg, 11);
-    if (icon) pdfIcon(doc, icon, P.mg + doc.getTextWidth(title) + 4 + pdfIconW(icon, 9.5), 3.4, 9.5, P.accent);
+    if (icon) pdfIcon(doc, icon, P.mg + doc.getTextWidth(title) + 4 + pdfIconW(icon, 7), 4.65, 7, P.accent);
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, P.mid);
     doc.text(sub, P.mg, 16);
     doc.setFont('courier','bold'); doc.setFontSize(11); doc.setTextColor.apply(doc, P.accent);
@@ -1315,7 +1315,7 @@ function generateBdlPDF() {
   doc.setFillColor(accent[0],accent[1],accent[2]); doc.rect(0, 0, W, 2, 'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(black[0],black[1],black[2]);
   doc.text('BON DE LIVRAISON (HANGAR)', mg, 11);
-  pdfIcon(doc, 'bon', mg + doc.getTextWidth('BON DE LIVRAISON (HANGAR)') + 4 + pdfIconW('bon', 9.5), 3.4, 9.5, accent);
+  pdfIcon(doc, 'bon', mg + doc.getTextWidth('BON DE LIVRAISON (HANGAR)') + 4 + pdfIconW('bon', 7), 4.65, 7, accent);
   doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(mid[0],mid[1],mid[2]);
   doc.text('Document de réception / chargement portuaire', mg, 16);
   if (typeof bdlAssocText === 'string' && bdlAssocText) {   // mention de la commande associée
