@@ -110,7 +110,8 @@ function buildSig(mso){
   h += '<tr>';
   h += '<td valign="middle" style="padding:0 8px 0 0;border-right:3px solid #1a5fb4;vertical-align:middle;text-align:left;' + F + 'font-size:15px;line-height:19px;font-weight:bold;color:#0b1f3a;"><font color="#0b1f3a" face="Arial" style="font-size:15px;line-height:19px;"><b>' + esc(prenom) + '<br>' + esc(nom) + '</b></font><br><br><font color="#1a5fb4" face="Arial" style="font-size:12px;line-height:18px;"><b>Terminal&nbsp;Roulier<br>LE&nbsp;HAVRE</b></font></td>';
   // droite : une seule table, toutes les lignes alignées sur la même marge gauche
-  h += '<td valign="top" style="padding:0 0 0 12px;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
+  h += '<td width="14" style="width:14px;min-width:14px;font-size:1px;line-height:1px;">&nbsp;</td>';   // espace après la barre bleue (cellule dédiée : Outlook classique ignore parfois le padding)
+  h += '<td valign="top" style="padding:0;vertical-align:top;' + F + 'font-size:12px;line-height:18px;">';
   h += '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;' + F + 'font-size:12px;line-height:18px;">';
   var TC = F + 'font-size:12px;line-height:18px;color:#000000;white-space:nowrap;text-align:left;';
   var TX = F + 'font-size:12px;line-height:18px;color:#333333;text-align:left;';
