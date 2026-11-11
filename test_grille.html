@@ -67,6 +67,7 @@ textarea{width:100%;min-height:70px;background:#0b1830;border:1px solid var(--bo
       <button onclick="loadDemo()">Exemple rempli</button>
       <button onclick="clearAll()">Tout vider</button>
     </div>
+    <div id="report" style="display:none;margin:0 0 10px;padding:10px 12px;border:1px solid var(--ok);border-radius:4px;background:rgba(62,207,142,.08);font-size:12px;line-height:1.7"></div>
     <table id="grid"><thead><tr>
       <th></th><th style="width:19%">Nature</th><th style="width:21%">VIN</th><th style="width:12%">MBI</th>
       <th>Long. (m)</th><th>Larg. (m)</th><th>Haut. (m)</th><th>Poids (kg)</th><th></th><th></th>
@@ -167,29 +168,59 @@ function bindInputs(){
   });
 }
 
-/* ---- collage de bloc (Excel) : VIN / MBI reconnus partout, le reste rempli dans l'ordre ---- */
+/* ---- collage intelligent : chaque cellule est interprétée selon son CONTENU, pas selon sa colonne ---- */
+var DIM_RE = /^(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?$/;
+var NUM_RE = /^\d+(?:[ .,]\d+)*$/;
+function toNum(x){ return parseFloat(String(x).replace(/\s/g, '').replace(',', '.')); }
 function pasteBlock(text, r0, c0){
   var lines = text.replace(/\r/g, '').split('\n').filter(function(l){ return l.trim() !== ''; });
-  var order = ['nature','longueur','largeur','hauteur','poids'];
-  var startK = COLS[c0].k, startIdx = Math.max(0, order.indexOf(startK));
-  lines.forEach(function(line, n){
-    var r = r0 + n; while (rows.length <= r) rows.push(blank());
+  var stats = {rows:0, dims:0, attached:0, kg:0, memo:0, check:[]};
+  var r = r0 - 1, last = null;
+  lines.forEach(function(line){
     var cells = line.split('\t').map(function(x){ return x.trim(); }).filter(function(x){ return x !== ''; });
-    var rest = [];
-    cells.forEach(function(x){
-      var u = x.toUpperCase();
-      if (VIN_RE.test(u)) rows[r].vin = u;
-      else if (MBI_ANY.test(u)) rows[r].mbi = u;
-      else rest.push(x);
+    if (!cells.length) return;
+    if (!cells.some(function(x){ return VIN_RE.test(x.toUpperCase()); }) && cells.every(function(x){ return /^(nature|mod[eè]le|vin|mbi|poids|longueur|largeur|hauteur|dimensions?|colis|ann[ée]e|type)/i.test(x); })) return;   // ligne d'en-tête
+    var vinIdx = -1; cells.forEach(function(x, i){ if (vinIdx < 0 && VIN_RE.test(x.toUpperCase())) vinIdx = i; });
+    var info = {nature:'', vin:'', mbi:'', L:'', l:'', H:'', kg:'', smalls:[]};
+    cells.forEach(function(x, i){
+      var u = x.toUpperCase().replace(/\s+/g, ' ');
+      var dm = x.match(DIM_RE);
+      if (VIN_RE.test(u)) info.vin = u;
+      else if (MBI_ANY.test(u)) info.mbi = u;
+      else if (dm && Math.max(toNum(dm[1]), toNum(dm[2]), toNum(dm[3])) < 30){ info.L = fmt(dm[1], 3); info.l = fmt(dm[2], 3); info.H = fmt(dm[3], 3); stats.dims++; }
+      else if (NUM_RE.test(x)){
+        var n = toNum(x);
+        if (vinIdx >= 0 && i < vinIdx) info.nature = info.nature || x;               // nombre AVANT le VIN = nom de modèle (ex : 2008)
+        else if (n >= 30) { info.kg = fmt(n, 2); stats.kg++; }                          // grand nombre = poids en kg
+        else info.smalls.push(fmt(n, 3));                                              // petit nombre = une dimension
+      }
+      else info.nature = info.nature ? info.nature + ' ' + u : u;
     });
-    rest.forEach(function(x, i){
-      var k = order[startIdx + i]; if (!k) return;
-      rows[r][k] = (k === 'nature') ? x.toUpperCase() : fmt(x, k === 'poids' ? 2 : 3);
-    });
-    if (rows[r].nature) autofill(r);
-    learn(r);
+    if (info.smalls.length === 3 && !info.L){ info.L = info.smalls[0]; info.l = info.smalls[1]; info.H = info.smalls[2]; stats.dims++; }
+    var onlyExtras = !info.vin && !info.mbi && !info.nature;
+    if (onlyExtras && last){                                                           // ligne de dimensions / poids isolée → rattachée à l'unité au-dessus
+      if (info.L && !last.longueur){ last.longueur = info.L; last.largeur = info.l; last.hauteur = info.H; stats.attached++; }
+      if (info.kg && !last.poids) last.poids = info.kg;
+      return;
+    }
+    r++; while (rows.length <= r) rows.push(blank());
+    var x = rows[r]; last = x; stats.rows++;
+    x.nature = info.nature; x.vin = info.vin; x.mbi = info.mbi;
+    x.longueur = info.L; x.largeur = info.l; x.hauteur = info.H; x.poids = info.kg;
+    if (/^\d+$/.test(info.nature)){ var m = 'nature « ' + info.nature + ' » lue comme un nom de modèle (c\'est un nombre) – à vérifier'; if (stats.check.indexOf(m) < 0) stats.check.push(m); }
   });
-  render([r0, c0]);
+  rows.forEach(function(x, i){ if (i >= r0 && x.nature){ var before = [x.longueur, x.largeur, x.hauteur, x.poids].join(); autofill(i); if ([x.longueur, x.largeur, x.hauteur, x.poids].join() !== before) stats.memo++; } learn(i); });
+  render([Math.max(r0, 0), 0]); report(stats);
+}
+function report(s){
+  var el = document.getElementById('report'); var out = [];
+  out.push('<b>' + s.rows + '</b> unité(s) créée(s)');
+  if (s.dims) out.push('<b>' + s.dims + '</b> dimension(s) « 4,304/1,775/1,550 » séparée(s) en longueur / largeur / hauteur');
+  if (s.kg) out.push('<b>' + s.kg + '</b> poids reconnu(s) (grand nombre = kg)');
+  if (s.attached) out.push('<b>' + s.attached + '</b> ligne(s) de dimensions rattachée(s) à l\'unité du dessus');
+  if (s.memo) out.push('<b>' + s.memo + '</b> ligne(s) complétée(s) par la mémoire des modèles');
+  el.innerHTML = out.map(function(t){ return '<div>✓ ' + t + '</div>'; }).join('') + s.check.map(function(t){ return '<div style="color:var(--warn)">⚠ ' + t + '</div>'; }).join('');
+  el.style.display = 'block';
 }
 
 /* ---- mémoire des modèles ---- */
