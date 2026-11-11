@@ -33,6 +33,7 @@ td input:hover{border-color:rgba(74,158,255,.3)}
 td input:focus{outline:none;border-color:var(--accent);background:#0d2040}
 td input.bad{border-color:var(--ko);background:rgba(255,107,107,.1)}
 td input.miss{border-color:var(--warn);border-style:dashed}
+td input.guess{border-color:#ff8c1a;background:rgba(255,140,26,.2)}
 td input.auto{animation:fl 1.4s ease-out}
 @keyframes fl{0%{background:rgba(62,207,142,.45)}100%{background:#0b1830}}
 .ico{padding:5px 8px;font-size:12px}
@@ -65,6 +66,7 @@ textarea{width:100%;min-height:70px;background:#0b1830;border:1px solid var(--bo
       <input class="n" id="rep_n" type="number" min="1" max="200" value="5" style="background:#0b1830;border:1px solid var(--border);border-radius:3px;color:#fff;padding:7px;">
       <button onclick="repeatActive()">× fois</button>
       <button onclick="loadDemo()">Exemple rempli</button>
+      <button onclick="validateAll()" style="border-color:#ff8c1a;color:#ff8c1a">✓ Tout valider (orange)</button>
       <button onclick="clearAll()">Tout vider</button>
     </div>
     <div id="report" style="display:none;margin:0 0 10px;padding:10px 12px;border:1px solid var(--ok);border-radius:4px;background:rgba(62,207,142,.08);font-size:12px;line-height:1.7"></div>
@@ -72,7 +74,7 @@ textarea{width:100%;min-height:70px;background:#0b1830;border:1px solid var(--bo
       <th></th><th style="width:19%">Nature</th><th style="width:21%">VIN</th><th style="width:12%">MBI</th>
       <th>Long. (m)</th><th>Larg. (m)</th><th>Haut. (m)</th><th>Poids (kg)</th><th></th><th></th>
     </tr></thead><tbody id="body"></tbody></table>
-    <div class="bar"><span>Unités : <b id="t_n">0</b></span><span>Poids total : <b id="t_p">0,00</b> kg</span><span>VIN : <b id="t_v">0</b></span><span>Anomalies : <b id="t_a">0</b></span></div>
+    <div class="bar"><span>Unités : <b id="t_n">0</b></span><span>Poids total : <b id="t_p">0,00</b> kg</span><span>VIN : <b id="t_v">0</b></span><span>Anomalies : <b id="t_a">0</b></span><span style="color:#ff8c1a">À vérifier : <b id="t_g" style="color:#ff8c1a">0</b></span></div>
   </div>
 
   <div class="row2">
@@ -82,6 +84,7 @@ textarea{width:100%;min-height:70px;background:#0b1830;border:1px solid var(--bo
         <kbd>Tab</kbd> case suivante · <kbd>Entrée</kbd> case du dessous (nouvelle ligne si dernière) · <kbd>↑</kbd><kbd>↓</kbd> naviguer<br>
         <b>Coller depuis Excel</b> (Ctrl+V) dans n'importe quelle case : les lignes se remplissent à partir de la case choisie. VIN et MBI sont reconnus automatiquement, où qu'ils soient.<br>
         <b>Mémoire des modèles</b> : tapez « CLIO » → dimensions et poids déjà connus se remplissent (case verte). Un nouveau modèle complet est mémorisé automatiquement.<br>
+        <b>Orange</b> = valeur <u>devinée</u> à vérifier (nature reprise de la ligne du dessus, dimensions ou poids repris de la mémoire, dimensions rattachées…). Modifier la case, ou « Tout valider », retire l'orange.<br>
         <b>Points</b> : <span class="dot ok"></span> ligne complète · <span class="dot w"></span> infos manquantes · <span class="dot ko"></span> erreur (VIN invalide ou doublon).
       </p>
       <label class="lab">Modèles mémorisés <button class="ico" onclick="resetModels()" style="margin-left:8px">Réinitialiser</button></label>
@@ -118,7 +121,8 @@ var SEED = { 'CLIO': {longueur:'4.050', largeur:'1.730', hauteur:'1.440', poids:
              '208': {longueur:'4.060', largeur:'1.740', hauteur:'1.430', poids:'1050.00'} };
 function models(){ try{ var m = JSON.parse(localStorage.getItem(KEY)||'null'); if (m) return m; }catch(e){} return JSON.parse(JSON.stringify(SEED)); }
 function saveModels(m){ try{ localStorage.setItem(KEY, JSON.stringify(m)); }catch(e){} }
-function blank(){ return {nature:'',vin:'',mbi:'',longueur:'',largeur:'',hauteur:'',poids:''}; }
+function blank(){ return {nature:'',vin:'',mbi:'',longueur:'',largeur:'',hauteur:'',poids:'',g:{}}; }
+function G(x){ return x.g || (x.g = {}); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 function fmt(v, d){ var f = parseFloat(String(v).replace(',', '.')); return isNaN(f) ? '' : f.toFixed(d); }
 
@@ -148,10 +152,11 @@ function bindInputs(){
     el.addEventListener('input', function(){
       var v = el.value;
       if (col.k === 'nature' || col.k === 'vin' || col.k === 'mbi') { var u = v.toUpperCase(); if (u !== v){ var p = el.selectionStart; el.value = v = u; el.setSelectionRange(p, p);} }
-      rows[r][col.k] = v; validate();
+      rows[r][col.k] = v; delete G(rows[r])[col.k]; validate();
     });
     el.addEventListener('change', function(){
       if (col.dec){ el.value = rows[r][col.k] = fmt(el.value, col.dec); }
+      if (col.k === 'nature' && !rows[r].nature) { /* rien */ }
       if (col.k === 'nature') autofill(r);
       learn(r); validate();
     });
@@ -172,9 +177,17 @@ function bindInputs(){
 var DIM_RE = /^(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?$/;
 var NUM_RE = /^\d+(?:[ .,]\d+)*$/;
 function toNum(x){ return parseFloat(String(x).replace(/\s/g, '').replace(',', '.')); }
+function inherit(x, base){
+  var n = 0;
+  if (!x.nature && base && base.nature){ x.nature = base.nature; G(x).nature = true; n = 1; }
+  if (base && x.nature && x.nature === base.nature){
+    ['longueur','largeur','hauteur','poids'].forEach(function(k){ if (!x[k] && base[k]){ x[k] = base[k]; G(x)[k] = true; } });
+  }
+  return n;
+}
 function pasteBlock(text, r0, c0){
   var lines = text.replace(/\r/g, '').split('\n').filter(function(l){ return l.trim() !== ''; });
-  var stats = {rows:0, dims:0, attached:0, kg:0, memo:0, check:[]};
+  var stats = {rows:0, dims:0, attached:0, kg:0, memo:0, inh:0, check:[]};
   var r = r0 - 1, last = null;
   lines.forEach(function(line){
     var cells = line.split('\t').map(function(x){ return x.trim(); }).filter(function(x){ return x !== ''; });
@@ -196,17 +209,24 @@ function pasteBlock(text, r0, c0){
       }
       else info.nature = info.nature ? info.nature + ' ' + u : u;
     });
-    if (info.smalls.length === 3 && !info.L){ info.L = info.smalls[0]; info.l = info.smalls[1]; info.H = info.smalls[2]; stats.dims++; }
+    if (info.smalls.length === 3 && !info.L){ info.L = info.smalls[0]; info.l = info.smalls[1]; info.H = info.smalls[2]; stats.dims++; info.gd = true; }
     var onlyExtras = !info.vin && !info.mbi && !info.nature;
     if (onlyExtras && last){                                                           // ligne de dimensions / poids isolée → rattachée à l'unité au-dessus
-      if (info.L && !last.longueur){ last.longueur = info.L; last.largeur = info.l; last.hauteur = info.H; stats.attached++; }
-      if (info.kg && !last.poids) last.poids = info.kg;
+      if (info.L && !last.longueur){ last.longueur = info.L; last.largeur = info.l; last.hauteur = info.H; G(last).longueur = G(last).largeur = G(last).hauteur = true; stats.attached++; }
+      if (info.kg && !last.poids){ last.poids = info.kg; G(last).poids = true; }
       return;
     }
     r++; while (rows.length <= r) rows.push(blank());
+    if (r > r0) rows[r] = blank();                                                    // lignes suivantes : on repart de zéro (la 1re garde ce qui était déjà saisi)
     var x = rows[r]; last = x; stats.rows++;
-    x.nature = info.nature; x.vin = info.vin; x.mbi = info.mbi;
-    x.longueur = info.L; x.largeur = info.l; x.hauteur = info.H; x.poids = info.kg;
+    var base = r > 0 ? rows[r-1] : null;                                                // ligne créée / présente juste au-dessus
+    if (info.nature){ x.nature = info.nature; delete G(x).nature; }
+    if (info.vin) x.vin = info.vin;
+    if (info.mbi) x.mbi = info.mbi;
+    if (info.L){ x.longueur = info.L; x.largeur = info.l; x.hauteur = info.H; if (info.gd){ G(x).longueur = G(x).largeur = G(x).hauteur = true; } else { delete G(x).longueur; delete G(x).largeur; delete G(x).hauteur; } }
+    if (info.kg){ x.poids = info.kg; delete G(x).poids; }
+    if (/^\d+$/.test(info.nature)) G(x).nature = true;                                  // nombre lu comme nom de modèle : deviné
+    stats.inh += inherit(x, base);                                                      // pas de nature → reprend celle de la ligne du dessus
     if (/^\d+$/.test(info.nature)){ var m = 'nature « ' + info.nature + ' » lue comme un nom de modèle (c\'est un nombre) – à vérifier'; if (stats.check.indexOf(m) < 0) stats.check.push(m); }
   });
   rows.forEach(function(x, i){ if (i >= r0 && x.nature){ var before = [x.longueur, x.largeur, x.hauteur, x.poids].join(); autofill(i); if ([x.longueur, x.largeur, x.hauteur, x.poids].join() !== before) stats.memo++; } learn(i); });
@@ -218,6 +238,7 @@ function report(s){
   if (s.dims) out.push('<b>' + s.dims + '</b> dimension(s) « 4,304/1,775/1,550 » séparée(s) en longueur / largeur / hauteur');
   if (s.kg) out.push('<b>' + s.kg + '</b> poids reconnu(s) (grand nombre = kg)');
   if (s.attached) out.push('<b>' + s.attached + '</b> ligne(s) de dimensions rattachée(s) à l\'unité du dessus');
+  if (s.inh) out.push('<b>' + s.inh + '</b> ligne(s) sans nature : nature (et dimensions / poids) reprises de la ligne du dessus <span style="color:#ff8c1a">(orange)</span>');
   if (s.memo) out.push('<b>' + s.memo + '</b> ligne(s) complétée(s) par la mémoire des modèles');
   el.innerHTML = out.map(function(t){ return '<div>✓ ' + t + '</div>'; }).join('') + s.check.map(function(t){ return '<div style="color:var(--warn)">⚠ ' + t + '</div>'; }).join('');
   el.style.display = 'block';
@@ -226,7 +247,7 @@ function report(s){
 /* ---- mémoire des modèles ---- */
 function autofill(r){
   var m = models()[rows[r].nature.toUpperCase()]; if (!m) return;
-  ['longueur','largeur','hauteur','poids'].forEach(function(k){ if (!rows[r][k]) { rows[r][k] = m[k]; flash(r, k); } });
+  ['longueur','largeur','hauteur','poids'].forEach(function(k){ if (!rows[r][k]) { rows[r][k] = m[k]; G(rows[r])[k] = true; flash(r, k); } });
 }
 function flash(r, k){
   setTimeout(function(){
@@ -249,14 +270,15 @@ function resetModels(){ try{ localStorage.removeItem(KEY); }catch(e){} listModel
 
 /* ---- actions ---- */
 function addRow(focus, col){ rows.push(blank()); render(focus === true ? [rows.length-1, 0] : (typeof col === 'number' ? [rows.length-1, col] : null)); }
-function dupRow(i){ var c = JSON.parse(JSON.stringify(rows[i])); c.vin = ''; c.mbi = ''; rows.splice(i+1, 0, c); render([i+1, 1]); }
+function dupRow(i){ var c = JSON.parse(JSON.stringify(rows[i])); c.vin = ''; c.mbi = ''; c.g = {}; rows.splice(i+1, 0, c); render([i+1, 1]); }
 function delRow(i){ rows.splice(i, 1); if (!rows.length) rows.push(blank()); render(); }
 function repeatActive(){
   var n = Math.max(1, Math.min(200, parseInt(document.getElementById('rep_n').value, 10) || 1));
   var src = rows[active] || rows[rows.length-1];
-  for (var k = 0; k < n; k++){ var c = JSON.parse(JSON.stringify(src)); c.vin = ''; c.mbi = ''; rows.splice(active + 1 + k, 0, c); }
+  for (var k = 0; k < n; k++){ var c = JSON.parse(JSON.stringify(src)); c.vin = ''; c.mbi = ''; c.g = {}; rows.splice(active + 1 + k, 0, c); }
   render([active + 1, 1]);
 }
+function validateAll(){ rows.forEach(function(x){ x.g = {}; }); validate(); document.getElementById('report').style.display = 'none'; }
 function clearAll(){ rows = [blank()]; render([0,0]); }
 function loadDemo(){
   rows = [
@@ -265,7 +287,7 @@ function loadDemo(){
     {nature:'CLIO', vin:'VF1RFB00X51000003', mbi:'', longueur:'4.050', largeur:'1.730', hauteur:'1.440', poids:'1100.00'},
     {nature:'MASTER', vin:'VF1MAF00X51000009', mbi:'MBIAB12CD', longueur:'5.550', largeur:'2.070', hauteur:'2.500', poids:'2100.00'},
     {nature:'208', vin:'VR3UPHNKSKT000001', mbi:'', longueur:'4.060', largeur:'1.740', hauteur:'1.430', poids:'1050.00'}
-  ]; render();
+  ].map(function(x){ x.g = {}; return x; }); render();
 }
 function bulkCreate(){
   var nat = document.getElementById('bulk_nat').value.trim().toUpperCase();
@@ -276,7 +298,8 @@ function bulkCreate(){
     var x = blank(); x.nature = nat;
     line.split(/[\t ;,]+/).forEach(function(t){ var u = t.trim().toUpperCase(); if (VIN_RE.test(u)) x.vin = u; else if (MBI_ANY.test(u)) x.mbi = u; });
     if (!x.vin && !x.mbi) return;
-    rows.push(x); if (nat) autofill(rows.length-1);
+    var base = rows.length ? rows[rows.length-1] : null;
+    rows.push(x); if (!nat) inherit(x, base); if (x.nature) autofill(rows.length-1);
   });
   if (!rows.length) rows.push(blank());
   document.getElementById('bulk').value = ''; render();
@@ -286,7 +309,7 @@ function bulkCreate(){
 function validate(){
   var seen = {}, dup = {};
   rows.forEach(function(r){ if (r.vin){ if (seen[r.vin]) dup[r.vin] = 1; seen[r.vin] = 1; } });
-  var anomalies = 0, nVin = 0, kg = 0, nUnits = 0;
+  var anomalies = 0, nVin = 0, kg = 0, nUnits = 0, nGuess = 0;
   rows.forEach(function(r, i){
     var empty = !r.nature && !r.vin && !r.mbi && !r.longueur && !r.largeur && !r.hauteur && !r.poids;
     var vinBad = r.vin && (!VIN_RE.test(r.vin) || dup[r.vin]);
@@ -297,6 +320,8 @@ function validate(){
       var c = COLS[+el.dataset.c].k;
       el.classList.toggle('bad', (c === 'vin' && !!vinBad) || (c === 'mbi' && !!mbiBad));
       el.classList.toggle('miss', !empty && !r[c] && c !== 'vin' && c !== 'mbi');
+      el.classList.toggle('guess', !!(r.g && r.g[c] && r[c]));
+      if (r.g && r.g[c] && r[c]) nGuess++;
     });
     var dot = document.getElementById('dot' + i);
     if (dot) dot.className = 'dot ' + (empty ? '' : (vinBad || mbiBad ? 'ko' : (miss ? 'w' : 'ok')));
@@ -307,6 +332,7 @@ function validate(){
   document.getElementById('t_n').textContent = nUnits;
   document.getElementById('t_v').textContent = nVin;
   document.getElementById('t_a').textContent = anomalies;
+  document.getElementById('t_g').textContent = nGuess;
   document.getElementById('t_p').textContent = kg.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
   groups();
 }
