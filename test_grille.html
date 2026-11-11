@@ -190,7 +190,7 @@ function pasteBlock(text, r0, c0){
       else if (dm && Math.max(toNum(dm[1]), toNum(dm[2]), toNum(dm[3])) < 30){ info.L = fmt(dm[1], 3); info.l = fmt(dm[2], 3); info.H = fmt(dm[3], 3); stats.dims++; }
       else if (NUM_RE.test(x)){
         var n = toNum(x);
-        if (vinIdx >= 0 && i < vinIdx) info.nature = info.nature || x;               // nombre AVANT le VIN = nom de modèle (ex : 2008)
+        if (vinIdx >= 0 && i < vinIdx && !/[.,]/.test(x)) info.nature = info.nature || x;               // entier AVANT le VIN = nom de modèle (ex : 2008) ; avec virgule = poids / dimension
         else if (n >= 30) { info.kg = fmt(n, 2); stats.kg++; }                          // grand nombre = poids en kg
         else info.smalls.push(fmt(n, 3));                                              // petit nombre = une dimension
       }
