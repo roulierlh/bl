@@ -258,6 +258,8 @@ table.g2 td input.auto{animation:g2fl 1.4s ease-out}
 .g2-plus:hover{background:rgba(74,158,255,.1)}
 .g2-hint{color:var(--muted);font-size:12px;line-height:1.6;margin:10px 0 4px}
 .g2-hint .o{color:#ff8c1a;font-weight:600}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,textarea:-webkit-autofill,select:-webkit-autofill{-webkit-text-fill-color:var(--white)!important;caret-color:#fff;box-shadow:0 0 0 1000px #13244a inset!important;border-color:var(--input-border);transition:background-color 99999s ease-in-out 0s}
+input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;box-shadow:0 0 0 1000px #13244a inset!important}
 </style>
 </head>
 <body>
@@ -588,14 +590,7 @@ document.addEventListener('input', function(e) {
   checkPdfBtn();
 });
 
-// ── AUTO-SCROLL SUR TAB ──
-document.addEventListener('focusin', function(e) {
-  var el = e.target;
-  if (el.closest && el.closest('table.g2')) return;
-  if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-});
+// (auto-scroll sur focus supprimé : il déplaçait les champs pendant le double-clic)
 
 document.addEventListener('input', function(e) {
   if (e.target.classList.contains('uc')) {
