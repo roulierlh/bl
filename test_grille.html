@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEST – Saisie des unités (tableau)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+:root{--navy:#0a1628;--mid:#112240;--panel:#0f1d36;--accent:#4a9eff;--white:#f0f4f8;--muted:#8899aa;--border:rgba(74,158,255,.25);--ok:#3ecf8e;--ko:#ff6b6b;--warn:#ffb020}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--navy)}
+body{color:var(--white);font:13px 'IBM Plex Sans',sans-serif;min-height:100vh;padding:20px 16px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font:600 15px 'IBM Plex Mono',monospace;letter-spacing:.08em}
+.tag{display:inline-block;margin-left:10px;padding:2px 8px;border:1px solid var(--warn);color:var(--warn);border-radius:3px;font:600 10px 'IBM Plex Mono',monospace;letter-spacing:.1em;vertical-align:middle}
+p.sub{color:var(--muted);margin:6px 0 16px;line-height:1.5}
+.card{background:rgba(17,34,64,.92);border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:14px}
+.card h2{font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+button{font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.05em;padding:8px 12px;border-radius:3px;border:1px solid var(--border);background:var(--panel);color:var(--white);cursor:pointer}
+button:hover{background:#16305a}
+button.pri{background:var(--accent);border-color:var(--accent);color:#04101f}
+input.n{width:54px}
+input,textarea,select{font:inherit}
+table{width:100%;border-collapse:collapse}
+th{font:600 10px 'IBM Plex Mono',monospace;letter-spacing:.08em;color:var(--muted);text-align:left;padding:4px 4px 6px;text-transform:uppercase;white-space:nowrap}
+td{padding:2px}
+td.ix{width:28px;color:var(--muted);font:11px 'IBM Plex Mono',monospace;text-align:right;padding-right:6px}
+td.st{width:26px;text-align:center}
+td.act{width:64px;white-space:nowrap;text-align:right}
+td input{width:100%;background:#0b1830;border:1px solid transparent;border-radius:3px;color:var(--white);padding:7px 8px;font:12px 'IBM Plex Mono',monospace}
+td input:hover{border-color:rgba(74,158,255,.3)}
+td input:focus{outline:none;border-color:var(--accent);background:#0d2040}
+td input.bad{border-color:var(--ko);background:rgba(255,107,107,.1)}
+td input.miss{border-color:var(--warn);border-style:dashed}
+td input.auto{animation:fl 1.4s ease-out}
+@keyframes fl{0%{background:rgba(62,207,142,.45)}100%{background:#0b1830}}
+.ico{padding:5px 8px;font-size:12px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--ok)}.dot.ko{background:var(--ko)}.dot.w{background:var(--warn)}
+.bar{display:flex;gap:22px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);color:var(--muted);font:11px 'IBM Plex Mono',monospace}
+.bar b{color:var(--white)}
+.hint{color:var(--muted);font-size:12px;line-height:1.6}
+.hint kbd{background:#0b1830;border:1px solid var(--border);border-radius:3px;padding:1px 6px;font:11px 'IBM Plex Mono',monospace;color:var(--white)}
+textarea{width:100%;min-height:70px;background:#0b1830;border:1px solid var(--border);border-radius:3px;color:var(--white);padding:8px;font:12px 'IBM Plex Mono',monospace}
+.row2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+@media(max-width:900px){.row2{grid-template-columns:1fr}}
+.lab{display:block;color:var(--muted);font-size:11px;margin:8px 0 4px}
+.models span{display:inline-block;margin:0 6px 6px 0;padding:3px 9px;border:1px solid var(--border);border-radius:999px;font:11px 'IBM Plex Mono',monospace;color:var(--white)}
+.gtab td,.gtab th{padding:6px 8px;border-bottom:1px solid rgba(74,158,255,.12)}
+.gtab td{font:12px 'IBM Plex Mono',monospace}
+.empty{color:var(--muted);padding:8px 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SAISIE DES UNITÉS – TABLEAU UNIQUE<span class="tag">PAGE DE TEST</span></h1>
+  <p class="sub">Un seul tableau pour tout : on tape directement dans les cases, on colle depuis Excel n'importe où, et les modèles déjà saisis se remplissent tout seuls. Cette page est indépendante : aucune autre page n'est modifiée.</p>
+
+  <div class="card">
+    <h2>Unités</h2>
+    <div class="tools">
+      <button class="pri" onclick="addRow(true)">+ Ajouter une ligne</button>
+      <span style="color:var(--muted)">Répéter la ligne active</span>
+      <input class="n" id="rep_n" type="number" min="1" max="200" value="5" style="background:#0b1830;border:1px solid var(--border);border-radius:3px;color:#fff;padding:7px;">
+      <button onclick="repeatActive()">× fois</button>
+      <button onclick="loadDemo()">Exemple rempli</button>
+      <button onclick="clearAll()">Tout vider</button>
+    </div>
+    <table id="grid"><thead><tr>
+      <th></th><th style="width:19%">Nature</th><th style="width:21%">VIN</th><th style="width:12%">MBI</th>
+      <th>Long. (m)</th><th>Larg. (m)</th><th>Haut. (m)</th><th>Poids (kg)</th><th></th><th></th>
+    </tr></thead><tbody id="body"></tbody></table>
+    <div class="bar"><span>Unités : <b id="t_n">0</b></span><span>Poids total : <b id="t_p">0,00</b> kg</span><span>VIN : <b id="t_v">0</b></span><span>Anomalies : <b id="t_a">0</b></span></div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <h2>Comment ça marche</h2>
+      <p class="hint">
+        <kbd>Tab</kbd> case suivante · <kbd>Entrée</kbd> case du dessous (nouvelle ligne si dernière) · <kbd>↑</kbd><kbd>↓</kbd> naviguer<br>
+        <b>Coller depuis Excel</b> (Ctrl+V) dans n'importe quelle case : les lignes se remplissent à partir de la case choisie. VIN et MBI sont reconnus automatiquement, où qu'ils soient.<br>
+        <b>Mémoire des modèles</b> : tapez « CLIO » → dimensions et poids déjà connus se remplissent (case verte). Un nouveau modèle complet est mémorisé automatiquement.<br>
+        <b>Points</b> : <span class="dot ok"></span> ligne complète · <span class="dot w"></span> infos manquantes · <span class="dot ko"></span> erreur (VIN invalide ou doublon).
+      </p>
+      <label class="lab">Modèles mémorisés <button class="ico" onclick="resetModels()" style="margin-left:8px">Réinitialiser</button></label>
+      <div class="models" id="models"></div>
+    </div>
+    <div class="card">
+      <h2>Coller une liste de VIN</h2>
+      <p class="hint">Collez 30 VIN (une colonne, éventuellement avec les MBI) : une ligne est créée pour chacun.</p>
+      <label class="lab">Nature appliquée à toutes les lignes (facultatif)</label>
+      <input id="bulk_nat" list="dl_nat" placeholder="ex : CLIO" style="width:100%;background:#0b1830;border:1px solid var(--border);border-radius:3px;color:#fff;padding:8px;font:12px 'IBM Plex Mono',monospace;text-transform:uppercase">
+      <label class="lab">VIN / MBI</label>
+      <textarea id="bulk" placeholder="VF1RFB00X51000000&#10;VF1RFB00X51000001&#10;MBIAB12CD ..."></textarea>
+      <div class="tools" style="margin-top:8px"><button class="pri" onclick="bulkCreate()">Créer les lignes</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Aperçu du regroupement dans le PDF</h2>
+    <p class="hint" style="margin-bottom:8px">Les unités de même nature, mêmes dimensions et même poids sont regroupées automatiquement en un seul lot.</p>
+    <div id="groups"></div>
+  </div>
+</div>
+<datalist id="dl_nat"></datalist>
+
+<script>
+var VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i, MBI_RE = /^MBI[A-Z0-9]{6}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
+var COLS = [
+  {k:'nature'}, {k:'vin'}, {k:'mbi'},
+  {k:'longueur', dec:3}, {k:'largeur', dec:3}, {k:'hauteur', dec:3}, {k:'poids', dec:2}
+];
+var rows = [], active = 0, KEY = 'gridtest_models';
+var SEED = { 'CLIO': {longueur:'4.050', largeur:'1.730', hauteur:'1.440', poids:'1100.00'},
+             'MASTER': {longueur:'5.550', largeur:'2.070', hauteur:'2.500', poids:'2100.00'},
+             '208': {longueur:'4.060', largeur:'1.740', hauteur:'1.430', poids:'1050.00'} };
+function models(){ try{ var m = JSON.parse(localStorage.getItem(KEY)||'null'); if (m) return m; }catch(e){} return JSON.parse(JSON.stringify(SEED)); }
+function saveModels(m){ try{ localStorage.setItem(KEY, JSON.stringify(m)); }catch(e){} }
+function blank(){ return {nature:'',vin:'',mbi:'',longueur:'',largeur:'',hauteur:'',poids:''}; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function fmt(v, d){ var f = parseFloat(String(v).replace(',', '.')); return isNaN(f) ? '' : f.toFixed(d); }
+
+function render(focus){
+  var b = document.getElementById('body'); b.innerHTML = '';
+  rows.forEach(function(r, i){
+    var tr = document.createElement('tr');
+    var h = '<td class="ix">' + (i+1) + '</td>';
+    COLS.forEach(function(c, j){
+      h += '<td><input data-r="'+i+'" data-c="'+j+'" value="'+esc(r[c.k])+'" ' +
+           (c.k==='nature' ? 'list="dl_nat" ' : '') + (c.k==='longueur'||c.k==='largeur'||c.k==='hauteur'||c.k==='poids' ? 'inputmode="decimal" ' : '') +
+           'autocomplete="off" spellcheck="false"></td>';
+    });
+    h += '<td class="st"><span class="dot" id="dot'+i+'"></span></td>' +
+         '<td class="act"><button class="ico" title="Dupliquer cette ligne" onclick="dupRow('+i+')">⧉</button> <button class="ico" title="Supprimer" onclick="delRow('+i+')">✕</button></td>';
+    tr.innerHTML = h; b.appendChild(tr);
+  });
+  bindInputs(); validate();
+  if (focus) focusCell(focus[0], focus[1]);
+}
+function focusCell(r, c){ var e = document.querySelector('input[data-r="'+r+'"][data-c="'+c+'"]'); if (e){ e.focus(); e.select(); } }
+
+function bindInputs(){
+  document.querySelectorAll('#body input').forEach(function(el){
+    var r = +el.dataset.r, c = +el.dataset.c, col = COLS[c];
+    el.addEventListener('focus', function(){ active = r; });
+    el.addEventListener('input', function(){
+      var v = el.value;
+      if (col.k === 'nature' || col.k === 'vin' || col.k === 'mbi') { var u = v.toUpperCase(); if (u !== v){ var p = el.selectionStart; el.value = v = u; el.setSelectionRange(p, p);} }
+      rows[r][col.k] = v; validate();
+    });
+    el.addEventListener('change', function(){
+      if (col.dec){ el.value = rows[r][col.k] = fmt(el.value, col.dec); }
+      if (col.k === 'nature') autofill(r);
+      learn(r); validate();
+    });
+    el.addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){ e.preventDefault(); el.dispatchEvent(new Event('change')); if (r === rows.length-1) addRow(false, c); else focusCell(r+1, c); }
+      else if (e.key === 'ArrowDown'){ e.preventDefault(); if (r < rows.length-1) focusCell(r+1, c); }
+      else if (e.key === 'ArrowUp'){ e.preventDefault(); if (r > 0) focusCell(r-1, c); }
+    });
+    el.addEventListener('paste', function(e){
+      var t = (e.clipboardData || window.clipboardData).getData('text');
+      if (!/[\t\n\r]/.test(t.replace(/[\r\n]+$/, ''))) return;   // simple valeur : collage normal
+      e.preventDefault(); pasteBlock(t, r, c);
+    });
+  });
+}
+
+/* ---- collage de bloc (Excel) : VIN / MBI reconnus partout, le reste rempli dans l'ordre ---- */
+function pasteBlock(text, r0, c0){
+  var lines = text.replace(/\r/g, '').split('\n').filter(function(l){ return l.trim() !== ''; });
+  var order = ['nature','longueur','largeur','hauteur','poids'];
+  var startK = COLS[c0].k, startIdx = Math.max(0, order.indexOf(startK));
+  lines.forEach(function(line, n){
+    var r = r0 + n; while (rows.length <= r) rows.push(blank());
+    var cells = line.split('\t').map(function(x){ return x.trim(); }).filter(function(x){ return x !== ''; });
+    var rest = [];
+    cells.forEach(function(x){
+      var u = x.toUpperCase();
+      if (VIN_RE.test(u)) rows[r].vin = u;
+      else if (MBI_ANY.test(u)) rows[r].mbi = u;
+      else rest.push(x);
+    });
+    rest.forEach(function(x, i){
+      var k = order[startIdx + i]; if (!k) return;
+      rows[r][k] = (k === 'nature') ? x.toUpperCase() : fmt(x, k === 'poids' ? 2 : 3);
+    });
+    if (rows[r].nature) autofill(r);
+    learn(r);
+  });
+  render([r0, c0]);
+}
+
+/* ---- mémoire des modèles ---- */
+function autofill(r){
+  var m = models()[rows[r].nature.toUpperCase()]; if (!m) return;
+  ['longueur','largeur','hauteur','poids'].forEach(function(k){ if (!rows[r][k]) { rows[r][k] = m[k]; flash(r, k); } });
+}
+function flash(r, k){
+  setTimeout(function(){
+    var j = COLS.findIndex(function(c){ return c.k === k; });
+    var e = document.querySelector('input[data-r="'+r+'"][data-c="'+j+'"]');
+    if (e){ e.value = rows[r][k]; e.classList.remove('auto'); void e.offsetWidth; e.classList.add('auto'); }
+  }, 0);
+}
+function learn(r){
+  var x = rows[r]; if (!x.nature || !x.longueur || !x.largeur || !x.hauteur || !x.poids) return;
+  var m = models(), n = x.nature.toUpperCase();
+  m[n] = {longueur:x.longueur, largeur:x.largeur, hauteur:x.hauteur, poids:x.poids}; saveModels(m); listModels();
+}
+function listModels(){
+  var m = models(), k = Object.keys(m).sort();
+  document.getElementById('dl_nat').innerHTML = k.map(function(n){ return '<option value="'+esc(n)+'">'; }).join('');
+  document.getElementById('models').innerHTML = k.map(function(n){ var v = m[n]; return '<span title="'+v.longueur+' × '+v.largeur+' × '+v.hauteur+' m · '+v.poids+' kg">'+esc(n)+'</span>'; }).join('') || '<span class="hint">Aucun modèle mémorisé</span>';
+}
+function resetModels(){ try{ localStorage.removeItem(KEY); }catch(e){} listModels(); }
+
+/* ---- actions ---- */
+function addRow(focus, col){ rows.push(blank()); render(focus === true ? [rows.length-1, 0] : (typeof col === 'number' ? [rows.length-1, col] : null)); }
+function dupRow(i){ var c = JSON.parse(JSON.stringify(rows[i])); c.vin = ''; c.mbi = ''; rows.splice(i+1, 0, c); render([i+1, 1]); }
+function delRow(i){ rows.splice(i, 1); if (!rows.length) rows.push(blank()); render(); }
+function repeatActive(){
+  var n = Math.max(1, Math.min(200, parseInt(document.getElementById('rep_n').value, 10) || 1));
+  var src = rows[active] || rows[rows.length-1];
+  for (var k = 0; k < n; k++){ var c = JSON.parse(JSON.stringify(src)); c.vin = ''; c.mbi = ''; rows.splice(active + 1 + k, 0, c); }
+  render([active + 1, 1]);
+}
+function clearAll(){ rows = [blank()]; render([0,0]); }
+function loadDemo(){
+  rows = [
+    {nature:'CLIO', vin:'VF1RFB00X51000001', mbi:'', longueur:'4.050', largeur:'1.730', hauteur:'1.440', poids:'1100.00'},
+    {nature:'CLIO', vin:'VF1RFB00X51000002', mbi:'', longueur:'4.050', largeur:'1.730', hauteur:'1.440', poids:'1100.00'},
+    {nature:'CLIO', vin:'VF1RFB00X51000003', mbi:'', longueur:'4.050', largeur:'1.730', hauteur:'1.440', poids:'1100.00'},
+    {nature:'MASTER', vin:'VF1MAF00X51000009', mbi:'MBIAB12CD', longueur:'5.550', largeur:'2.070', hauteur:'2.500', poids:'2100.00'},
+    {nature:'208', vin:'VR3UPHNKSKT000001', mbi:'', longueur:'4.060', largeur:'1.740', hauteur:'1.430', poids:'1050.00'}
+  ]; render();
+}
+function bulkCreate(){
+  var nat = document.getElementById('bulk_nat').value.trim().toUpperCase();
+  var lines = document.getElementById('bulk').value.replace(/\r/g,'').split('\n').filter(function(l){ return l.trim(); });
+  if (!lines.length) return;
+  if (rows.length === 1 && !rows[0].vin && !rows[0].nature) rows = [];
+  lines.forEach(function(line){
+    var x = blank(); x.nature = nat;
+    line.split(/[\t ;,]+/).forEach(function(t){ var u = t.trim().toUpperCase(); if (VIN_RE.test(u)) x.vin = u; else if (MBI_ANY.test(u)) x.mbi = u; });
+    if (!x.vin && !x.mbi) return;
+    rows.push(x); if (nat) autofill(rows.length-1);
+  });
+  if (!rows.length) rows.push(blank());
+  document.getElementById('bulk').value = ''; render();
+}
+
+/* ---- validation + totaux + regroupement ---- */
+function validate(){
+  var seen = {}, dup = {};
+  rows.forEach(function(r){ if (r.vin){ if (seen[r.vin]) dup[r.vin] = 1; seen[r.vin] = 1; } });
+  var anomalies = 0, nVin = 0, kg = 0, nUnits = 0;
+  rows.forEach(function(r, i){
+    var empty = !r.nature && !r.vin && !r.mbi && !r.longueur && !r.largeur && !r.hauteur && !r.poids;
+    var vinBad = r.vin && (!VIN_RE.test(r.vin) || dup[r.vin]);
+    var mbiBad = r.mbi && !MBI_RE.test(r.mbi);
+    var miss = !empty && (!r.nature || !r.longueur || !r.largeur || !r.hauteur || !r.poids);
+    var inputs = document.querySelectorAll('input[data-r="'+i+'"]');
+    inputs.forEach(function(el){
+      var c = COLS[+el.dataset.c].k;
+      el.classList.toggle('bad', (c === 'vin' && !!vinBad) || (c === 'mbi' && !!mbiBad));
+      el.classList.toggle('miss', !empty && !r[c] && c !== 'vin' && c !== 'mbi');
+    });
+    var dot = document.getElementById('dot' + i);
+    if (dot) dot.className = 'dot ' + (empty ? '' : (vinBad || mbiBad ? 'ko' : (miss ? 'w' : 'ok')));
+    if (!empty){ nUnits++; if (vinBad || mbiBad || miss) anomalies++; }
+    if (r.vin) nVin++;
+    kg += parseFloat(r.poids) || 0;
+  });
+  document.getElementById('t_n').textContent = nUnits;
+  document.getElementById('t_v').textContent = nVin;
+  document.getElementById('t_a').textContent = anomalies;
+  document.getElementById('t_p').textContent = kg.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  groups();
+}
+function groups(){
+  var g = {}, order = [];
+  rows.forEach(function(r){
+    if (!r.nature && !r.vin) return;
+    var k = [r.nature, r.longueur, r.largeur, r.hauteur, r.poids].join('|');
+    if (!g[k]){ g[k] = {r:r, n:0, vins:0}; order.push(k); }
+    g[k].n++; if (r.vin) g[k].vins++;
+  });
+  var el = document.getElementById('groups');
+  if (!order.length){ el.innerHTML = '<div class="empty">Aucune unité saisie.</div>'; return; }
+  el.innerHTML = '<table class="gtab"><tr><th>Lot</th><th>Nature</th><th>Dimensions (m)</th><th>Poids unitaire</th><th>Colis</th><th>VIN</th></tr>' +
+    order.map(function(k, i){ var x = g[k]; return '<tr><td>' + (i+1) + '</td><td>' + esc(x.r.nature || '—') + '</td><td>' + (x.r.longueur||'—') + ' × ' + (x.r.largeur||'—') + ' × ' + (x.r.hauteur||'—') + '</td><td>' + (x.r.poids||'—') + ' kg</td><td>' + x.n + '</td><td>' + x.vins + '</td></tr>'; }).join('') + '</table>';
+}
+
+rows = [blank()]; render([0,0]); listModels();
+</script>
+</body>
+</html>
