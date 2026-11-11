@@ -675,11 +675,12 @@ function inherit(x, base) {
 function pasteBlock(text, r0, c0) {
   var lines = text.replace(/\r/g, '').split('\n').filter(function(l) { return l.trim() !== ''; });
   var colText = {};                                                                            // colonnes contenant du texte de nature (hors en-tête, VIN, MBI, dimensions, unités)
+  var anyText = false;
   lines.forEach(function(line) {
     var rw = line.split('\t').map(function(x) { return x.trim(); });
     var vals = rw.filter(function(x) { return x !== ''; });
     if (vals.length && !vals.some(function(x) { return VIN_RE.test(x.toUpperCase()); }) && vals.every(function(x) { return /^(nature|mod[eè]le|vin|mbi|poids|longueur|largeur|hauteur|dimensions?|colis|ann[ée]e|type|d[ée]signation|description)/i.test(x); })) return;
-    rw.forEach(function(x, j) { if (x && /[A-Za-zÀ-ÿ]{2,}/.test(x) && !VIN_RE.test(x.toUpperCase()) && !MBI_ANY.test(x.toUpperCase()) && !DIM_RE.test(x) && !/^(kg|m|t|tonnes?|n\/?a)$/i.test(x)) colText[j] = true; });
+    rw.forEach(function(x, j) { if (x && /[A-Za-zÀ-ÿ]{2,}/.test(x) && !VIN_RE.test(x.toUpperCase()) && !MBI_ANY.test(x.toUpperCase()) && !DIM_RE.test(x) && !/^(kg|m|t|tonnes?|n\/?a)$/i.test(x)) { colText[j] = true; anyText = true; } });
   });
   var stats = {rows:0, dims:0, attached:0, kg:0, memo:0, inh:0, check:[]};
   var r = r0 - 1, last = null;
@@ -698,11 +699,12 @@ function pasteBlock(text, r0, c0) {
       else if (dm && Math.max(gNum(dm[1]), gNum(dm[2]), gNum(dm[3])) < 30) { info.L = gFmt(dm[1], 3); info.l = gFmt(dm[2], 3); info.H = gFmt(dm[3], 3); stats.dims++; }
       else if (NUM_RE.test(x)) {
         var n = gNum(x);
-        if (!/[.,]/.test(x) && ((vinIdx >= 0 && i < vinIdx) || colText[cidx[i]])) { info.nature = info.nature || x; info.numNat = true; }   // entier AVANT le VIN = nom de modèle (ex : 2008)
+        if (!/[.,]/.test(x) && (colText[cidx[i]] || (!anyText && vinIdx >= 0 && i < vinIdx))) { info.nature = info.nature || x; info.numNat = true; }   // entier AVANT le VIN = nom de modèle (ex : 2008)
         else if (n >= 30) { info.kg = gFmt(n, 2); stats.kg++; }                               // grand nombre = poids en kg
         else info.smalls.push(gFmt(n, 3));                                                    // petit nombre = une dimension
       }
-      else info.nature = info.nature ? info.nature + ' ' + u : u;
+      else if (!info.nature) info.nature = u;
+      else { stats.ignored = (stats.ignored || 0) + 1; }                                      // cellules différentes : on ne les fusionne jamais
     });
     if (info.smalls.length === 3 && !info.L) { info.L = info.smalls[0]; info.l = info.smalls[1]; info.H = info.smalls[2]; stats.dims++; info.gd = true; }
     var onlyExtras = !info.vin && !info.mbi && !info.nature;
@@ -735,6 +737,7 @@ function gReport(s) {
   if (s.dims) out.push('<b>' + s.dims + '</b> dimension(s) séparée(s) en longueur / largeur / hauteur');
   if (s.kg) out.push('<b>' + s.kg + '</b> poids reconnu(s) (grand nombre = kg)');
   if (s.attached) out.push('<b>' + s.attached + '</b> ligne(s) de dimensions rattachée(s) à l\'unité du dessus');
+  if (s.ignored) out.push('<span style="color:#ffb020">' + s.ignored + ' texte(s) supplémentaire(s) dans une même ligne ignoré(s) (non fusionnés avec la nature)</span>');
   if (s.inh) out.push('<b>' + s.inh + '</b> ligne(s) sans nature : nature (et dimensions / poids) reprises de la ligne du dessus <span style="color:#ff8c1a">(orange)</span>');
   if (s.memo) out.push('<b>' + s.memo + '</b> ligne(s) complétée(s) par la mémoire des modèles <span style="color:#ff8c1a">(orange)</span>');
   el.innerHTML = out.map(function(t) { return '<div>✓ ' + t + '</div>'; }).join('') + s.check.map(function(t) { return '<div style="color:#ffb020">⚠ ' + t + '</div>'; }).join('');
