@@ -19,7 +19,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 html{background:var(--navy)}body{background:transparent!important}
 </style></head><body>
 <h1>COMMENT ÇA FONCTIONNE</h1>
-<p class="sub">Bon de livraison et commandes associées · ≈ 1 minute</p>
+<p class="sub">Bon de livraison et commandes associées · ≈ 1 min 45</p>
 <div class="wrap">
 <video id="v" src="tutoriel.mp4" controls playsinline preload="metadata" poster="tutoriel_vignette.jpg"></video>
 <div class="bar">
@@ -30,17 +30,20 @@ html{background:var(--navy)}body{background:transparent!important}
 </div>
 <script>
 var CUES=[
- [0,"Bienvenue. Voici comment fonctionnent le bon de livraison et les commandes."],
- [4,"Depuis l'accueil, choisissez le document : bon de livraison, manutention, porte voitures ou transfert parc."],
- [11,"Pour le bon de livraison, renseignez le transport une seule fois : navire, booking, dossier."],
- [17,"À la validation, le site propose une commande associée : manutention, porte voitures ou transfert parc."],
- [24,"Pour la manutention, la description des travaux est obligatoire."],
- [29,"Pour les autres, la commande s'ouvre préremplie avec les données du bon. Il ne reste que quelques champs à compléter."],
- [37,"Les VIN et MBI se saisissent à la main ou se collent depuis Excel."],
- [42,"Un clic génère les deux PDF, avec le même numéro et la mention de commande associée."],
- [49,"Le transfert parc propose des listes déroulantes, avec un départ différent de la livraison."],
- [55,"Vous pouvez aussi commencer par la commande, puis générer le bon associé. C'est tout !"],
- [62,""]
+ [0,"Depuis l'accueil, choisissez le document à établir."],
+ [7,"Pour le bon de livraison, renseignez les informations une seule fois : elles sont mémorisées pour la fois suivante."],
+ [17,"Dans la description de la marchandise, une ligne égale une unité. Écrivez directement dans les cases…"],
+ [26,"… ou collez un tableau depuis Excel, même avec une autre mise en page : les VIN, les dimensions et les poids sont reconnus."],
+ [35,"Les valeurs devinées sont en orange : vérifiez-les, corrigez la case ou cliquez sur Tout valider. La génération reste bloquée tant qu'il reste de l'orange."],
+ [42,"Une valeur au mauvais endroit ? Glissez-la avec la poignée vers la bonne case."],
+ [48,"Une fois tout validé, le bouton de génération s'active."],
+ [52,"À la validation, le site propose une commande associée : manutention, porte voitures ou transfert parc."],
+ [60,"Pour la manutention, la description des travaux est obligatoire."],
+ [68,"La commande s'ouvre préremplie avec les données du bon. Il ne reste que quelques champs à compléter."],
+ [82,"Un clic génère les deux PDF, avec le même numéro et la mention de commande associée."],
+ [90,"Le transfert parc et le porte voitures proposent le même tableau, avec en plus les MBI."],
+ [98,"Vous pouvez aussi commencer par la commande, puis générer le bon associé. C'est tout !"],
+ [106,""]
 ];
 var v=document.getElementById('v'), voix=true, cur=-1, speaking=false, held=false, SS=window.speechSynthesis;
 function frVoice(){ if(!SS) return null; var l=SS.getVoices(); return l.find(function(x){return /^fr[-_]FR/i.test(x.lang)&&/natural|online|google|thomas|amelie|audrey/i.test(x.name)})||l.find(function(x){return /^fr/i.test(x.lang)})||null; }

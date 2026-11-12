@@ -239,7 +239,7 @@ table.g2 td{padding:2px}
 table.g2 td.ix{width:34px;color:var(--muted);font:11px 'IBM Plex Mono',monospace;text-align:right;padding-right:6px}
 table.g2 td.st{width:24px;text-align:center}
 table.g2 td.act{width:70px;white-space:nowrap;text-align:right}
-table.g2 td input{width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:2px;color:var(--white);padding:7px 8px;font:12px 'IBM Plex Mono',monospace}
+table.g2 td input{width:100%;padding-right:20px!important;background:var(--input-bg);border:1px solid var(--input-border);border-radius:2px;color:var(--white);padding:7px 8px;font:12px 'IBM Plex Mono',monospace}
 table.g2 td input::placeholder{font:11px 'IBM Plex Sans',sans-serif;color:#5d7088}
 table.g2 td input:hover{border-color:rgba(74,158,255,.55)}
 table.g2 td input:focus{outline:none;border-color:var(--accent);background:rgba(74,158,255,0.06)}
@@ -256,6 +256,11 @@ table.g2 td input.auto{animation:g2fl 1.4s ease-out}
 .g2-plus{display:block;width:24px;height:24px;margin:2px 0 0 auto;padding:0;border:1px dashed var(--accent);border-radius:3px;background:transparent;color:var(--accent);font:600 15px/1 'IBM Plex Mono',monospace;cursor:pointer}
 .g2-warn{display:none;margin:8px 0 0;padding:8px 10px;border:1px solid #ff8c1a;border-radius:3px;background:rgba(255,140,26,.12);color:#ffb366;font-size:12px}
 .g2-plus:hover{background:rgba(74,158,255,.1)}
+.g2-cell{position:relative}
+.g2-grip{position:absolute;right:5px;top:50%;transform:translateY(-50%);cursor:grab;color:var(--muted);font-size:12px;opacity:.3;padding:2px 3px;user-select:none;line-height:1}
+.g2-cell:hover .g2-grip{opacity:1;color:var(--accent)}
+table.g2 td.g2-drop{outline:2px dashed var(--accent);outline-offset:-2px;background:rgba(74,158,255,.12)}
+table.g2 td.g2-drag{opacity:.4}
 .g2-hint{color:var(--muted);font-size:12px;line-height:1.6;margin:10px 0 4px}
 .g2-hint .o{color:#ff8c1a;font-weight:600}
 input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,textarea:-webkit-autofill,select:-webkit-autofill{-webkit-text-fill-color:var(--white)!important;caret-color:#fff;box-shadow:0 0 0 1000px #13244a inset!important;border-color:var(--input-border);transition:background-color 99999s ease-in-out 0s}
@@ -376,10 +381,10 @@ input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;bo
       </div>
       <div id="g_report" class="g2-report"></div>
       <div class="g2-wrap"><table class="g2"><thead><tr>
-        <th></th><th style="width:20%">Nature de la marchandise</th><th style="width:32%">VIN</th><th>Long. (m)</th><th>Larg. (m)</th><th>Haut. (m)</th><th>Poids (kg)</th><th></th><th></th>
+        <th></th><th style="width:20%">Nature de la marchandise</th><th style="width:32%">VIN</th><th style="width:9%">Long. (m)</th><th style="width:9%">Larg. (m)</th><th style="width:9%">Haut. (m)</th><th style="width:11%">Poids (kg)</th><th></th><th></th>
       </tr></thead><tbody id="g_body"></tbody><tfoot><tr><td class="ix"><button class="g2-plus" type="button" onclick="addRow(true)" title="Ajouter une ligne">+</button></td><td colspan="8"></td></tr></tfoot></table></div>
       <div id="g_warn" class="g2-warn"></div>
-      <div class="g2-hint">Une ligne = une unité. On peut taper dans les cases ou coller depuis Excel (Ctrl+V) : VIN, dimensions et poids sont reconnus automatiquement. <span class="o">Orange</span> = valeur devinée à vérifier (modifiez la case ou « Tout valider »). La génération reste impossible tant qu'il reste de l'orange. Votre tableau n'est pas obligé d'avoir la même mise en page : les valeurs seront normalement reconnues.</div>
+      <div class="g2-hint">Une ligne = une unité. On peut écrire dans les cases ou coller depuis Excel (Ctrl+V) : VIN, dimensions et poids sont reconnus automatiquement. Votre tableau n'est pas obligé d'avoir la même mise en page : les valeurs seront normalement reconnues et organisées. <span class="o">Orange</span> = valeur devinée à vérifier (modifiez la case ou « Tout valider »). La génération reste impossible tant qu'il reste de l'orange.</div>
       <datalist id="g_dl_nat"></datalist>
       <div class="totals-bar">
         <div><div class="t-label">Total Colis</div><div class="t-value" id="total_colis">0</div></div>
@@ -623,9 +628,9 @@ function gRender(focus) {
     var h = '<td class="ix">' + (i + 1) + '</td>';
     GCOLS.forEach(function(c, j) {
       var ph = c.k === 'vin' ? 'Vous pouvez coller une liste de VIN pour une même marchandise' : '';
-      h += '<td><input data-r="' + i + '" data-c="' + j + '" value="' + esc(r[c.k]) + '" ' +
+      h += '<td class="g2-cell"><input data-r="' + i + '" data-c="' + j + '" value="' + esc(r[c.k]) + '" ' +
            (c.dec ? 'inputmode="decimal" ' : '') +
-           (ph ? 'placeholder="' + ph + '" title="' + ph + '" ' : '') + 'autocomplete="off" spellcheck="false"></td>';
+           (ph ? 'placeholder="' + ph + '" title="' + ph + '" ' : '') + 'autocomplete="off" spellcheck="false"><span class="g2-grip" draggable="true" data-r="' + i + '" data-c="' + j + '" title="Glisser cette valeur vers une autre case">⠿</span></td>';
     });
     h += '<td class="st"><span class="g2-dot" id="gdot' + i + '"></span></td>' +
          '<td class="act"><button class="g2-ico" type="button" title="Dupliquer cette ligne" onclick="dupRow(' + i + ')">⧉</button> <button class="g2-ico" type="button" title="Supprimer" onclick="delRow(' + i + ')">✕</button></td>';
@@ -768,6 +773,47 @@ function gListModels() {
   el.innerHTML = Object.keys(gModels()).sort().map(function(n) { return '<option value="' + esc(n) + '">'; }).join('');
 }
 
+/* ---- glisser-déposer d'une valeur vers une autre case (échange si la case est occupée) ---- */
+var gDragSrc = null, gDragBound = false;
+function gDragInit() {
+  var tb = document.getElementById('g_body'); if (!tb || gDragBound) return; gDragBound = true;
+  tb.addEventListener('dragstart', function(e) {
+    var g = e.target.closest ? e.target.closest('.g2-grip') : null; if (!g) return;
+    var r = +g.dataset.r, c = +g.dataset.c;
+    if (!String(gridRows[r][GCOLS[c].k]).trim()) { e.preventDefault(); return; }
+    gDragSrc = { r: r, c: c };
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', gridRows[r][GCOLS[c].k]); } catch (err) {}
+    g.parentNode.classList.add('g2-drag');
+  });
+  tb.addEventListener('dragover', function(e) {
+    if (!gDragSrc) return;
+    var td = e.target.closest('td'); if (!td || !td.querySelector('input')) return;
+    e.preventDefault();
+    tb.querySelectorAll('td.g2-drop').forEach(function(x) { x.classList.remove('g2-drop'); });
+    td.classList.add('g2-drop');
+  });
+  tb.addEventListener('dragleave', function(e) { var td = e.target.closest('td'); if (td) td.classList.remove('g2-drop'); });
+  tb.addEventListener('dragend', function() { gDragSrc = null; tb.querySelectorAll('td.g2-drop,td.g2-drag').forEach(function(x) { x.classList.remove('g2-drop', 'g2-drag'); }); });
+  tb.addEventListener('drop', function(e) {
+    if (!gDragSrc) return;
+    var td = e.target.closest('td'), inp = td && td.querySelector('input'); if (!inp) return;
+    e.preventDefault();
+    var tr = +inp.dataset.r, tc = +inp.dataset.c, s = gDragSrc; gDragSrc = null;
+    if (tr === s.r && tc === s.c) { gRender(); return; }
+    gMoveValue(s.r, s.c, tr, tc); gRender();
+  });
+}
+function gMoveValue(sr, sc, tr, tc) {
+  var ks = GCOLS[sc].k, kt = GCOLS[tc].k, A = gridRows[sr], B = gridRows[tr];
+  var a = A[ks], b = B[kt], up = function(k, v) { return (k === 'nature' || k === 'vin' || k === 'mbi') ? String(v).toUpperCase() : v; };
+  var dec = function(k, v) { var c = GCOLS.filter(function(x) { return x.k === k; })[0]; return (c && c.dec && v !== '' && !isNaN(gNum(v))) ? gFmt(v, c.dec) : v; };
+  var ga = G(A)[ks], gb = G(B)[kt];
+  B[kt] = dec(kt, up(kt, a)); A[ks] = dec(ks, up(ks, b));
+  if (ga) G(B)[kt] = true; else delete G(B)[kt];
+  if (gb) G(A)[ks] = true; else delete G(A)[ks];
+}
+
 /* ---- actions ---- */
 function addMarchandise() { addRow(true); }
 function addRow(focus, col) { gridRows.push(gBlank()); gRender(focus === true ? [gridRows.length - 1, 0] : (typeof col === 'number' ? [gridRows.length - 1, col] : null)); }
@@ -846,7 +892,7 @@ function renderMarc() {
   if (!gridRows.length) gridRows.push(gBlank());
   gRender();
 }
-function gridInit() { gridRows = [gBlank()]; gListModels(); gRender(); }
+function gridInit() { gridRows = [gBlank()]; gListModels(); gDragInit(); gRender(); }
 
 // ── HELPERS ──
 function v(id) { var el = document.getElementById(id); return el ? el.value || '' : ''; }
