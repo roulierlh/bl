@@ -208,48 +208,6 @@ body { background: var(--navy); color: var(--white); font-family: 'IBM Plex Sans
 .hdr-right { display:flex; gap:10px; align-items:center; }
 body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(filigrane.jpg) center bottom/cover no-repeat;opacity:.2;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 35%);mask-image:linear-gradient(to bottom,transparent 0,#000 35%)}
 html{background:var(--navy)}body{background:transparent!important}
-/* ===== tableau des unités ===== */
-.g2-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
-.g2-btn{font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.05em;padding:8px 12px;border-radius:3px;border:1px solid var(--border);background:var(--panel,#0f1d36);color:var(--white);cursor:pointer}
-.g2-btn:hover{background:#16305a}
-.g2-btn.pri{background:var(--accent);border-color:var(--accent);color:#04101f}
-.g2-btn.orange{border-color:#ff8c1a;color:#ff8c1a}
-.g2-report{display:none;margin:0 0 10px;padding:10px 12px;border:1px solid #3ecf8e;border-radius:4px;background:rgba(62,207,142,.08);font-size:12px;line-height:1.7}
-.g2-wrap{overflow-x:auto}
-table.g2{width:100%;border-collapse:collapse;min-width:760px}
-table.g2 th{font:600 10px 'IBM Plex Mono',monospace;letter-spacing:.08em;color:var(--muted);text-align:left;padding:4px 4px 6px;text-transform:uppercase;white-space:nowrap}
-table.g2 td{padding:2px}
-table.g2 td.ix{width:34px;color:var(--muted);font:11px 'IBM Plex Mono',monospace;text-align:right;padding-right:6px}
-table.g2 td.st{width:24px;text-align:center}
-table.g2 td.act{width:70px;white-space:nowrap;text-align:right}
-table.g2 td input{width:100%;padding-right:20px!important;background:var(--input-bg);border:1px solid var(--input-border);border-radius:2px;color:var(--white);padding:7px 8px;font:12px 'IBM Plex Mono',monospace}
-table.g2 td input::placeholder{font:11px 'IBM Plex Sans',sans-serif;color:#5d7088}
-table.g2 td input:hover{border-color:rgba(74,158,255,.55)}
-table.g2 td input:focus{outline:none;border-color:var(--accent);background:rgba(74,158,255,0.06)}
-table.g2 td input:-webkit-autofill,table.g2 td input:-webkit-autofill:focus{-webkit-text-fill-color:var(--white);box-shadow:0 0 0 100px #0d1c36 inset;caret-color:#fff}
-table.g2 td input.bad{border-color:#ff6b6b;background:rgba(255,107,107,.1)}
-table.g2 td input.miss{border-color:#ffb020;border-style:dashed}
-table.g2 td input.guess{border-color:#ff8c1a;background:rgba(255,140,26,.2)}
-table.g2 td input.auto{animation:g2fl 1.4s ease-out}
-@keyframes g2fl{0%{background-color:rgba(62,207,142,.45)}100%{background-color:rgba(255,140,26,.2)}}
-.g2-ico{padding:5px 8px;font-size:12px;font-family:'IBM Plex Mono',monospace;background:var(--panel,#0f1d36);border:1px solid var(--border);color:var(--white);border-radius:3px;cursor:pointer}
-.g2-ico:hover{background:#16305a}
-.g2-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted)}
-.g2-dot.ok{background:#3ecf8e}.g2-dot.ko{background:#ff6b6b}.g2-dot.w{background:#ffb020}
-.g2-plus{display:block;width:24px;height:24px;margin:2px 0 0 auto;padding:0;border:1px dashed var(--accent);border-radius:3px;background:transparent;color:var(--accent);font:600 15px/1 'IBM Plex Mono',monospace;cursor:pointer}
-.g2-warn{display:none;margin:8px 0 0;padding:8px 10px;border:1px solid #ff8c1a;border-radius:3px;background:rgba(255,140,26,.12);color:#ffb366;font-size:12px}
-.g2-plus:hover{background:rgba(74,158,255,.1)}
-.g2-cell{position:relative}
-.g2-grip{position:absolute;right:5px;top:50%;transform:translateY(-50%);cursor:grab;color:var(--muted);font-size:12px;opacity:.3;padding:2px 3px;user-select:none;line-height:1}
-.g2-cell:hover .g2-grip{opacity:1;color:var(--accent)}
-table.g2 td.g2-drop{outline:2px dashed var(--accent);outline-offset:-2px;background:rgba(74,158,255,.12)}
-table.g2 td.g2-drag{opacity:.4}
-.g2-hint{color:var(--muted);font-size:12px;line-height:1.6;margin:10px 0 4px}
-.g2-hint .o{color:#ff8c1a;font-weight:600}
-input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,textarea:-webkit-autofill,select:-webkit-autofill{-webkit-text-fill-color:var(--white)!important;caret-color:#fff;box-shadow:0 0 0 1000px #13244a inset!important;border-color:var(--input-border);transition:background-color 99999s ease-in-out 0s}
-input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;box-shadow:0 0 0 1000px #13244a inset!important}
-input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,textarea:-webkit-autofill,select:-webkit-autofill{-webkit-text-fill-color:var(--white)!important;caret-color:#fff;box-shadow:0 0 0 1000px #13244a inset!important;border-color:var(--input-border);transition:background-color 99999s ease-in-out 0s}
-input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;box-shadow:0 0 0 1000px #13244a inset!important}
 </style>
 </head>
 <body>
@@ -349,17 +307,9 @@ input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;bo
       <button class="btn-sm" onclick="importFromBdl()" title="Reprend les marchandises du dernier bon de livraison généré">REPRENDRE DU DERNIER BON</button>
     </div>
     <div class="section-body">
-      <div class="g2-tools">
-        <button class="g2-btn pri" type="button" onclick="addRow(true)">+ Ajouter une ligne</button>
-        <button class="g2-btn orange" type="button" id="g_valall" onclick="validateAll()">✓ Tout valider (orange)</button>
-        <button class="g2-btn" type="button" onclick="clearAll()">Tout vider</button>
-      </div>
-      <div id="g_report" class="g2-report"></div>
-      <div class="g2-wrap"><table class="g2"><thead><tr>
-        <th></th><th style="width:20%">Nature de la marchandise</th><th style="width:26%">VIN</th><th style="width:11%">MBI</th><th style="width:9%">Long. (m)</th><th style="width:9%">Larg. (m)</th><th style="width:9%">Haut. (m)</th><th style="width:11%">Poids (kg)</th><th></th><th></th>
-      </tr></thead><tbody id="g_body"></tbody><tfoot><tr><td class="ix"><button class="g2-plus" type="button" onclick="addRow(true)" title="Ajouter une ligne">+</button></td><td colspan="8"></td></tr></tfoot></table></div>
-      <div id="g_warn" class="g2-warn"></div>
-      <div class="g2-hint">Une ligne = une unité. On peut écrire dans les cases ou coller depuis Excel (Ctrl+V) : VIN, dimensions et poids sont reconnus automatiquement. Votre tableau n'est pas obligé d'avoir la même mise en page : les valeurs seront normalement reconnues et organisées. <span class="o">Orange</span> = valeur devinée à vérifier (modifiez la case ou « Tout valider »). La génération reste impossible tant qu'il reste de l'orange.</div>
+      <button class="btn-add-marc" style="margin:0 0 10px;" onclick="openPaste()">⇪ Importer un tableau (copier / coller depuis Excel)</button>
+      <div id="marc_list"></div>
+      <button class="btn-add-marc" onclick="addMarchandise()">+ Ajouter une marchandise</button>
       <div class="totals-bar">
         <div><div class="t-label">Total Colis</div><div class="t-value" id="total_colis">0</div></div>
         <div><div class="t-label">Poids Brut Total (kg)</div><div class="t-value" id="total_poids">0</div></div>
@@ -437,6 +387,63 @@ input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;bo
 
 <div id="toast"></div>
 
+<!-- IMPORT TABLEAU -->
+<div class="modal-overlay" id="paste_modal">
+  <div class="modal" style="width:940px;">
+    <div class="modal-header"><h3>Importer un tableau de marchandises</h3><button class="modal-close" onclick="closePaste()">×</button></div>
+    <div class="modal-body">
+      <div class="vin-info">Cliquez sur une cellule et collez (Ctrl+V). Description, VIN, MBI (MBIxxxxxx) et poids sont repérés automatiquement même s'ils sont décalés. Une valeur mal placée se glisse avec la poignée ⠿ vers la bonne cellule ; ⇄ réaligne une ligne.</div>
+      <div class="pg-wrap"><table class="pg"><colgroup><col style="width:26px"><col style="width:22%"><col style="width:23%"><col style="width:14%"><col><col><col><col><col style="width:54px"></colgroup><thead><tr>
+        <th></th><th style="width:22%">Description</th><th colspan="2">VIN / MBI</th><th>Longueur</th><th>Largeur</th><th>Hauteur</th><th>Poids</th><th style="width:54px"></th>
+      </tr></thead><tbody id="paste_grid"></tbody></table></div>
+      <div style="display:flex;gap:10px;margin:10px 0;flex-wrap:wrap;align-items:flex-end;">
+        <button class="btn-cancel" onclick="pasteAddRow()">+ Ligne</button>
+        <button class="btn-cancel" onclick="pasteClear()">Vider le tableau</button>
+        <button class="btn-cancel" onclick="pasteRealignAll()" title="Repère à nouveau description, VIN, MBI et poids sur chaque ligne">⇄ Réaligner tout</button>
+        <div class="field" style="min-width:190px;margin-left:auto;"><label>Poids exprimés en</label>
+          <select id="paste_unit" onchange="pastePreview()"><option value="auto">Automatique</option><option value="kg">Kilogrammes</option><option value="t">Tonnes</option></select></div>
+        <div class="field" style="min-width:190px;"><label>Marchandises déjà saisies</label>
+          <select id="paste_mode"><option value="replace">Remplacer</option><option value="add">Ajouter à la suite</option></select></div>
+      </div>
+      <div class="pp-msg" id="paste_msg"></div>
+      <div id="paste_preview"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="paste_status"></span>
+      <div style="display:flex;gap:8px;"><button class="btn-cancel" onclick="closePaste()">Annuler</button><button class="btn-ok" id="paste_ok" onclick="applyPaste()">Valider</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VIN -->
+<div class="modal-overlay" id="vin_modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal_title">Numéros VIN / MBI</h3>
+      <button class="modal-close" onclick="closeVinModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="vin-info">Colis attendus : <strong id="vin_expected">0</strong></div>
+      <div class="bulk-zone">
+        <div class="bulk-label">Coller plusieurs VIN / MBI d'un coup</div>
+        <div class="bulk-row">
+          <textarea id="vin_bulk" placeholder="Collez vos VIN / MBI ici — un par ligne (VIN puis MBIxxxxxx, séparés par tabulation, espace ou virgule)…" oninput="this.value=this.value.toUpperCase()"></textarea>
+          <button class="btn-import" onclick="importBulkVin()">Ajouter</button>
+        </div>
+      </div>
+      <div id="vin_inputs"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-status" id="modal_status"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-cancel" onclick="closeVinModal()">Annuler</button>
+        <button class="btn-ok" onclick="saveVin()">Valider</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
 var MAX = 30;
 var DEFAULTS = { p_client:'BOM DKK' };
@@ -481,307 +488,545 @@ function mbiOf(m, i) { return (m.mbis && m.mbis[i]) || ''; }
 function setMbi(m, i, v) { if (!m.mbis) m.mbis = []; while (m.mbis.length < m.vins.length) m.mbis.push(''); m.mbis[i] = v; }
 function spliceVin(m, i) { m.vins.splice(i, 1); if (m.mbis) m.mbis.splice(i, 1); }
 function addVin(m, v, mbi) { m.vins.push(v); setMbi(m, m.vins.length - 1, mbi || ''); }
-/* ===== TABLEAU DES UNITÉS (saisie manuelle + collage Excel combinés) ===== */
-var GRID_CFG = { mbi: true, key: 'bl_models' };
-var VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i, MBI_RE = /^MBI[A-Z0-9]{6}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
-var DIM_RE = /^(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?$/;
-var NUM_RE = /^\d+(?:[ .,]\d+)*$/;
-var GCOLS = [{k:'nature'}, {k:'vin'}].concat(GRID_CFG.mbi ? [{k:'mbi'}] : []).concat([{k:'longueur',dec:3},{k:'largeur',dec:3},{k:'hauteur',dec:3},{k:'poids',dec:2}]);
-var gridRows = [], gridActive = 0;
-
-function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function gBlank() { return {nature:'',vin:'',mbi:'',longueur:'',largeur:'',hauteur:'',poids:'',g:{}}; }
-function G(x) { return x.g || (x.g = {}); }
-function gFmt(v, d) { var f = parseFloat(String(v).replace(',', '.')); return isNaN(f) ? '' : f.toFixed(d); }
-function gNum(x) { return parseFloat(String(x).replace(/\s/g, '').replace(',', '.')); }
-function gIsEmpty(r) { return !(r.nature || r.vin || r.mbi || r.longueur || r.largeur || r.hauteur || r.poids); }
-
-/* ---- affichage ---- */
-function gRender(focus) {
-  var b = document.getElementById('g_body'); b.innerHTML = '';
-  gridRows.forEach(function(r, i) {
-    var tr = document.createElement('tr');
-    var h = '<td class="ix">' + (i + 1) + '</td>';
-    GCOLS.forEach(function(c, j) {
-      var ph = c.k === 'vin' ? 'Vous pouvez coller une liste de VIN pour une même marchandise' : '';
-      h += '<td class="g2-cell"><input data-r="' + i + '" data-c="' + j + '" value="' + esc(r[c.k]) + '" ' +
-           (c.dec ? 'inputmode="decimal" ' : '') +
-           (ph ? 'placeholder="' + ph + '" title="' + ph + '" ' : '') + 'autocomplete="off" spellcheck="false"><span class="g2-grip" draggable="true" data-r="' + i + '" data-c="' + j + '" title="Glisser cette valeur vers une autre case">⠿</span></td>';
-    });
-    h += '<td class="st"><span class="g2-dot" id="gdot' + i + '"></span></td>' +
-         '<td class="act"><button class="g2-ico" type="button" title="Dupliquer cette ligne" onclick="dupRow(' + i + ')">⧉</button> <button class="g2-ico" type="button" title="Supprimer" onclick="delRow(' + i + ')">✕</button></td>';
-    tr.innerHTML = h; b.appendChild(tr);
-  });
-  gBind(); gValidate();
-  if (focus) gFocus(focus[0], focus[1]);
-}
-function gFocus(r, c) { var e = document.querySelector('#g_body input[data-r="' + r + '"][data-c="' + c + '"]'); if (e) { e.focus(); e.select(); } }
-
-function gBind() {
-  document.querySelectorAll('#g_body input').forEach(function(el) {
-    var r = +el.dataset.r, c = +el.dataset.c, col = GCOLS[c];
-    el.addEventListener('focus', function() { gridActive = r; });
-    el.addEventListener('input', function() {
-      var v = el.value;
-      if (col.k === 'nature' || col.k === 'vin' || col.k === 'mbi') { var u = v.toUpperCase(); if (u !== v) { var p = el.selectionStart; el.value = v = u; el.setSelectionRange(p, p); } }
-      gridRows[r][col.k] = v; delete G(gridRows[r])[col.k]; gValidate();
-    });
-    el.addEventListener('change', function() {
-      if (col.dec) { el.value = gridRows[r][col.k] = gFmt(el.value, col.dec); }
-      if (col.k === 'nature') autofill(r);
-      learn(r); gValidate();
-    });
-    el.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); el.dispatchEvent(new Event('change')); if (r === gridRows.length - 1) addRow(false, c); else gFocus(r + 1, c); }
-      else if (e.key === 'ArrowDown') { e.preventDefault(); if (r < gridRows.length - 1) gFocus(r + 1, c); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); if (r > 0) gFocus(r - 1, c); }
-    });
-    el.addEventListener('paste', function(e) {
-      var t = (e.clipboardData || window.clipboardData).getData('text');
-      if (!/[\t\n\r]/.test(t.replace(/[\r\n]+$/, ''))) return;     // simple valeur : collage normal
-      e.preventDefault(); pasteBlock(t, r, c);
-    });
-  });
+// ── MARCHANDISES ──
+function addMarchandise() {
+  marcCounter++;
+  marchandises.push({ id: marcCounter, nature: '', longueur: '', largeur: '', hauteur: '', poids: '', colis: '', vins: [], mbis: [] });
+  renderMarc();
 }
 
-/* ---- collage intelligent : chaque cellule est interprétée selon son CONTENU, pas selon sa colonne ---- */
-function inherit(x, base) {
-  var n = 0;
-  if (!x.nature && base && base.nature) { x.nature = base.nature; G(x).nature = true; n = 1; }
-  if (base && x.nature && x.nature === base.nature) {
-    ['longueur','largeur','hauteur','poids'].forEach(function(k) { if (!x[k] && base[k]) { x[k] = base[k]; G(x)[k] = true; } });
-  }
-  return n;
+function removeMarchandise(id) {
+  marchandises = marchandises.filter(function(m) { return m.id !== id; });
+  renderMarc();
+  updateTotals();
 }
-function pasteBlock(text, r0, c0) {
-  var lines = text.replace(/\r/g, '').split('\n').filter(function(l) { return l.trim() !== ''; });
-  var colText = {};                                                                            // colonnes contenant du texte de nature (hors en-tête, VIN, MBI, dimensions, unités)
-  var anyText = false;
-  lines.forEach(function(line) {
-    var rw = line.split('\t').map(function(x) { return x.trim(); });
-    var vals = rw.filter(function(x) { return x !== ''; });
-    if (vals.length && !vals.some(function(x) { return VIN_RE.test(x.toUpperCase()); }) && vals.every(function(x) { return /^(nature|mod[eè]le|vin|mbi|poids|longueur|largeur|hauteur|dimensions?|colis|ann[ée]e|type|d[ée]signation|description)/i.test(x); })) return;
-    rw.forEach(function(x, j) { if (x && /[A-Za-zÀ-ÿ]{2,}/.test(x) && !VIN_RE.test(x.toUpperCase()) && !MBI_ANY.test(x.toUpperCase()) && !DIM_RE.test(x) && !/^(kg|m|t|tonnes?|n\/?a)$/i.test(x)) { colText[j] = true; anyText = true; } });
-  });
-  var stats = {rows:0, dims:0, attached:0, kg:0, memo:0, inh:0, check:[]};
-  var r = r0 - 1, last = null;
-  lines.forEach(function(line) {
-    var raw = line.split('\t').map(function(x) { return x.trim(); }), cells = [], cidx = [];
-    raw.forEach(function(x, j) { if (x !== '') { cells.push(x); cidx.push(j); } });
-    if (!cells.length) return;
-    if (!cells.some(function(x) { return VIN_RE.test(x.toUpperCase()); }) && cells.every(function(x) { return /^(nature|mod[eè]le|vin|mbi|poids|longueur|largeur|hauteur|dimensions?|colis|ann[ée]e|type|d[ée]signation|description)/i.test(x); })) return;   // en-tête
-    var vinIdx = -1; cells.forEach(function(x, i) { if (vinIdx < 0 && VIN_RE.test(x.toUpperCase())) vinIdx = i; });
-    var info = {nature:'', vin:'', mbi:'', L:'', l:'', H:'', kg:'', smalls:[]};
-    cells.forEach(function(x, i) {
-      var u = x.toUpperCase().replace(/\s+/g, ' ');
-      var dm = x.match(DIM_RE);
-      if (VIN_RE.test(u)) info.vin = u;
-      else if (MBI_ANY.test(u)) { if (GRID_CFG.mbi) info.mbi = u; }
-      else if (dm && Math.max(gNum(dm[1]), gNum(dm[2]), gNum(dm[3])) < 30) { info.L = gFmt(dm[1], 3); info.l = gFmt(dm[2], 3); info.H = gFmt(dm[3], 3); stats.dims++; }
-      else if (NUM_RE.test(x)) {
-        var n = gNum(x);
-        if (!/[.,]/.test(x) && (colText[cidx[i]] || (!anyText && vinIdx >= 0 && i < vinIdx))) { info.nature = info.nature || x; info.numNat = true; }   // entier AVANT le VIN = nom de modèle (ex : 2008)
-        else if (n >= 30) { info.kg = gFmt(n, 2); stats.kg++; }                               // grand nombre = poids en kg
-        else info.smalls.push(gFmt(n, 3));                                                    // petit nombre = une dimension
-      }
-      else if (!info.nature) info.nature = u;
-      else { stats.ignored = (stats.ignored || 0) + 1; }                                      // cellules différentes : on ne les fusionne jamais
-    });
-    if (info.smalls.length === 3 && !info.L) { info.L = info.smalls[0]; info.l = info.smalls[1]; info.H = info.smalls[2]; stats.dims++; info.gd = true; }
-    var onlyExtras = !info.vin && !info.mbi && !info.nature;
-    if (onlyExtras && last) {                                                                 // dimensions / poids isolés → rattachés à l'unité du dessus
-      if (info.L && !last.longueur) { last.longueur = info.L; last.largeur = info.l; last.hauteur = info.H; G(last).longueur = G(last).largeur = G(last).hauteur = true; stats.attached++; }
-      if (info.kg && !last.poids) { last.poids = info.kg; G(last).poids = true; }
-      return;
+
+function getMarc(id) {
+  return marchandises.find(function(m) { return m.id === id; });
+}
+
+function setField(id, key, val) {
+  var m = getMarc(id);
+  if (m) m[key] = val;
+}
+
+function renderMarc() {
+  var list = document.getElementById('marc_list');
+  list.innerHTML = '';
+  marchandises.forEach(function(m, idx) {
+    var vinCount = m.vins.filter(function(v) { return v.trim(); }).length;
+    var colisNum = parseInt(m.colis) || 0;
+    var vinOk = colisNum > 0 && vinCount === colisNum;
+    var vinWarn = colisNum > 0 && vinCount !== colisNum;
+    var vinBad = m.vins.some(function(x) { return x.trim() && x.trim().length !== 17; });
+    var badgeHtml = vinCount > 0
+      ? '<span class="vin-badge' + (vinBad ? ' bad' : (vinWarn ? ' warn' : '')) + '">' + 'VIN / MBI (' + vinCount + '/' + colisNum + ')' + (vinOk ? ' ✓' : '') + '</span>'
+      : '';
+    var removeBtn = marchandises.length > 1
+      ? '<button class="btn-remove" onclick="removeMarchandise(' + m.id + ')" title="Supprimer">×</button>'
+      : '';
+
+    var reqOk = m.nature.trim() !== '' && colisNum > 0 && parseFloat(m.poids) > 0;
+    var vinBtnDisabled = reqOk ? '' : 'disabled';
+    var vinBtnStyle = reqOk
+      ? ''
+      : 'opacity:0.35;cursor:not-allowed;pointer-events:none;';
+
+    // VIN display block
+    var vinDisplay = '';
+    if (m.vins.length > 0) {
+      var chips = m.vins.map(function(v, vi) {
+        var ok = v.trim().length === 17, mb = mbiOf(m, vi), mok = !mb || MBI_RE.test(mb);
+        return '<div class="vchip" data-id="' + m.id + '" data-i="' + vi + '" style="display:flex;align-items:center;gap:6px;"><span ondblclick="editCardField(this,\'v\')" title="Double-clic pour modifier" style="flex:1;font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span>' +
+          '<span class="mbi-tag' + (mb ? (mok ? '' : ' bad') : ' empty') + '" ondblclick="editCardField(this,\'m\')" title="Double-clic pour ' + (mb ? 'modifier' : 'ajouter') + ' le MBI">' + (mb ? esc(mb) : 'MBI') + '</span>' +
+          '<button class="vin-del" onclick="removeVinFromLot(' + m.id + ',' + vi + ')" title="Supprimer ce VIN / MBI">×</button></div>';
+      }).join('');
+      vinDisplay = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">' +
+        '' +
+        '<div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div>' +
+      '</div>';
     }
-    r++; while (gridRows.length <= r) gridRows.push(gBlank());
-    if (r > r0) gridRows[r] = gBlank();                                                       // lignes suivantes : on repart de zéro (la 1re garde ce qui était saisi)
-    var x = gridRows[r]; last = x; stats.rows++;
-    var base = r > 0 ? gridRows[r - 1] : null;
-    if (info.nature) { x.nature = info.nature; delete G(x).nature; }
-    if (info.vin) x.vin = info.vin;
-    if (info.mbi) x.mbi = info.mbi;
-    if (info.L) { x.longueur = info.L; x.largeur = info.l; x.hauteur = info.H; if (info.gd) { G(x).longueur = G(x).largeur = G(x).hauteur = true; } else { delete G(x).longueur; delete G(x).largeur; delete G(x).hauteur; } }
-    if (info.kg) { x.poids = info.kg; delete G(x).poids; }
-    if (/^\d+$/.test(info.nature)) { G(x).nature = true; var m = 'nature « ' + info.nature + ' » lue comme un nom de modèle (c\'est un nombre, mais cette colonne contient des natures) – à vérifier'; if (stats.check.indexOf(m) < 0) stats.check.push(m); }
-    stats.inh += inherit(x, base);                                                            // pas de nature → reprend celle de la ligne du dessus
+
+    var div = document.createElement('div');
+    div.className = 'marc-item';
+    div.innerHTML =
+      (removeBtn ? '<div style="display:flex;justify-content:flex-end;margin-bottom:4px;">' + removeBtn + '</div>' : '') +
+      '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;margin-bottom:10px;">' +
+        '<div class="field">' +
+          '<label>Nature de la marchandise <span class="req">*</span></label>' +
+          '<input type="text" value="' + esc(m.nature) + '" placeholder="Description…" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase();setField(' + m.id + ',\'nature\',this.value);updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Longueur (m)</label>' +
+          '<input type="number" value="' + esc(m.longueur) + '" placeholder="0,000" step="0.001" min="0" oninput="setField(' + m.id + ',\'longueur\',this.value)" onblur="formatDim(this,' + m.id + ',\'longueur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Largeur (m)</label>' +
+          '<input type="number" value="' + esc(m.largeur) + '" placeholder="0,000" step="0.001" min="0" oninput="setField(' + m.id + ',\'largeur\',this.value)" onblur="formatDim(this,' + m.id + ',\'largeur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Hauteur (m)</label>' +
+          '<input type="number" value="' + esc(m.hauteur) + '" placeholder="0,000" step="0.001" min="0" oninput="setField(' + m.id + ',\'hauteur\',this.value)" onblur="formatDim(this,' + m.id + ',\'hauteur\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Poids (kg) <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.poids) + '" placeholder="0,00" step="0.01" min="0" oninput="setField(' + m.id + ',\'poids\',this.value);updateTotals();updateVinBtn(' + m.id + ')" onblur="formatDim(this,' + m.id + ',\'poids\')" />' +
+        '</div>' +
+        '<div class="field">' +
+          '<label>Colis <span class="req">*</span></label>' +
+          '<input type="number" value="' + esc(m.colis) + '" placeholder="0" min="0" tabindex="0" onkeydown="if(event.key===\'Tab\'){event.preventDefault();var b=document.getElementById(\'vinbtn-'+m.id+'\');if(b)b.focus();}" oninput="setField(' + m.id + ',\'colis\',this.value);updateTotals();updateVinBtn(' + m.id + ')" />' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">' +
+        '<div>' + badgeHtml + '</div>' +
+        '<button id="vinbtn-' + m.id + '" class="btn-vin" onclick="openVinModal(' + m.id + ')" ' + vinBtnDisabled + ' style="' + vinBtnStyle + '">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> AJOUTER VIN / MBI' +
+        '</button>' +
+      '</div>' +
+      vinDisplay;
+    list.appendChild(div);
   });
-  gridRows.forEach(function(x, i) {
-    if (i >= r0 && x.nature) { var before = [x.longueur, x.largeur, x.hauteur, x.poids].join(); autofill(i); if ([x.longueur, x.largeur, x.hauteur, x.poids].join() !== before) stats.memo++; }
-    learn(i);
-  });
-  gRender([Math.max(r0, 0), 0]); gReport(stats);
-}
-function gReport(s) {
-  var el = document.getElementById('g_report'), out = [];
-  out.push('<b>' + s.rows + '</b> unité(s) créée(s)');
-  if (s.dims) out.push('<b>' + s.dims + '</b> dimension(s) séparée(s) en longueur / largeur / hauteur');
-  if (s.kg) out.push('<b>' + s.kg + '</b> poids reconnu(s) (grand nombre = kg)');
-  if (s.attached) out.push('<b>' + s.attached + '</b> ligne(s) de dimensions rattachée(s) à l\'unité du dessus');
-  if (s.ignored) out.push('<span style="color:#ffb020">' + s.ignored + ' texte(s) supplémentaire(s) dans une même ligne ignoré(s) (non fusionnés avec la nature)</span>');
-  if (s.inh) out.push('<b>' + s.inh + '</b> ligne(s) sans nature : nature (et dimensions / poids) reprises de la ligne du dessus <span style="color:#ff8c1a">(orange)</span>');
-  if (s.memo) out.push('<b>' + s.memo + '</b> ligne(s) complétée(s) par la mémoire des modèles <span style="color:#ff8c1a">(orange)</span>');
-  el.innerHTML = out.map(function(t) { return '<div>✓ ' + t + '</div>'; }).join('') + s.check.map(function(t) { return '<div style="color:#ffb020">⚠ ' + t + '</div>'; }).join('');
-  el.style.display = 'block';
 }
 
-/* ---- mémoire des modèles (partagée entre les pages) ---- */
-function gModels() { try { var m = JSON.parse(localStorage.getItem(GRID_CFG.key) || 'null'); if (m) return m; } catch (e) {} return {}; }
-function autofill(r) {
-  var m = gModels()[gridRows[r].nature.toUpperCase()]; if (!m) return;
-  ['longueur','largeur','hauteur','poids'].forEach(function(k) { if (!gridRows[r][k] && m[k]) { gridRows[r][k] = m[k]; G(gridRows[r])[k] = true; gFlash(r, k); } });
-}
-function gFlash(r, k) {
-  setTimeout(function() {
-    var j = GCOLS.findIndex(function(c) { return c.k === k; });
-    var e = document.querySelector('#g_body input[data-r="' + r + '"][data-c="' + j + '"]');
-    if (e) { e.value = gridRows[r][k]; e.classList.remove('auto'); void e.offsetWidth; e.classList.add('auto'); setTimeout(function(){ e.classList.remove('auto'); }, 1500); }
-  }, 0);
-}
-function learn(r) {
-  var x = gridRows[r]; if (!x.nature || !x.poids) return;
-  var m = gModels(); m[x.nature.toUpperCase()] = {longueur:x.longueur, largeur:x.largeur, hauteur:x.hauteur, poids:x.poids};
-  try { localStorage.setItem(GRID_CFG.key, JSON.stringify(m)); } catch (e) {}
-  gListModels();
-}
-function gListModels() {
-  var el = document.getElementById('g_dl_nat'); if (!el) return;
-  el.innerHTML = Object.keys(gModels()).sort().map(function(n) { return '<option value="' + esc(n) + '">'; }).join('');
+function updateVinBtn(id) {
+  var m = getMarc(id);
+  if (!m) return;
+  var reqOk = m.nature.trim() !== '' && (parseInt(m.colis) || 0) > 0 && parseFloat(m.poids) > 0;
+  var btn = document.getElementById('vinbtn-' + id);
+  if (!btn) return;
+  btn.disabled = !reqOk;
+  btn.style.opacity = reqOk ? '1' : '0.35';
+  btn.style.cursor = reqOk ? 'pointer' : 'not-allowed';
+  btn.style.pointerEvents = reqOk ? 'auto' : 'none';
 }
 
-/* ---- glisser-déposer d'une valeur vers une autre case (échange si la case est occupée) ---- */
-var gDragSrc = null, gDragBound = false;
-function gDragInit() {
-  var tb = document.getElementById('g_body'); if (!tb || gDragBound) return; gDragBound = true;
-  tb.addEventListener('dragstart', function(e) {
-    var g = e.target.closest ? e.target.closest('.g2-grip') : null; if (!g) return;
-    var r = +g.dataset.r, c = +g.dataset.c;
-    if (!String(gridRows[r][GCOLS[c].k]).trim()) { e.preventDefault(); return; }
-    gDragSrc = { r: r, c: c };
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', gridRows[r][GCOLS[c].k]); } catch (err) {}
-    g.parentNode.classList.add('g2-drag');
-  });
-  tb.addEventListener('dragover', function(e) {
-    if (!gDragSrc) return;
-    var td = e.target.closest('td'); if (!td || !td.querySelector('input')) return;
-    e.preventDefault();
-    tb.querySelectorAll('td.g2-drop').forEach(function(x) { x.classList.remove('g2-drop'); });
-    td.classList.add('g2-drop');
-  });
-  tb.addEventListener('dragleave', function(e) { var td = e.target.closest('td'); if (td) td.classList.remove('g2-drop'); });
-  tb.addEventListener('dragend', function() { gDragSrc = null; tb.querySelectorAll('td.g2-drop,td.g2-drag').forEach(function(x) { x.classList.remove('g2-drop', 'g2-drag'); }); });
-  tb.addEventListener('drop', function(e) {
-    if (!gDragSrc) return;
-    var td = e.target.closest('td'), inp = td && td.querySelector('input'); if (!inp) return;
-    e.preventDefault();
-    var tr = +inp.dataset.r, tc = +inp.dataset.c, s = gDragSrc; gDragSrc = null;
-    if (tr === s.r && tc === s.c) { gRender(); return; }
-    gMoveValue(s.r, s.c, tr, tc); gRender();
-  });
-}
-function gMoveValue(sr, sc, tr, tc) {
-  var ks = GCOLS[sc].k, kt = GCOLS[tc].k, A = gridRows[sr], B = gridRows[tr];
-  var a = A[ks], b = B[kt], up = function(k, v) { return (k === 'nature' || k === 'vin' || k === 'mbi') ? String(v).toUpperCase() : v; };
-  var dec = function(k, v) { var c = GCOLS.filter(function(x) { return x.k === k; })[0]; return (c && c.dec && v !== '' && !isNaN(gNum(v))) ? gFmt(v, c.dec) : v; };
-  var ga = G(A)[ks], gb = G(B)[kt];
-  B[kt] = dec(kt, up(kt, a)); A[ks] = dec(ks, up(ks, b));
-  if (ga) G(B)[kt] = true; else delete G(B)[kt];
-  if (gb) G(A)[ks] = true; else delete G(A)[ks];
-}
 
-/* ---- actions ---- */
-function addMarchandise() { addRow(true); }
-function addRow(focus, col) { gridRows.push(gBlank()); gRender(focus === true ? [gridRows.length - 1, 0] : (typeof col === 'number' ? [gridRows.length - 1, col] : null)); }
-function dupRow(i) { var c = JSON.parse(JSON.stringify(gridRows[i])); c.vin = ''; c.mbi = ''; c.g = {}; gridRows.splice(i + 1, 0, c); gRender([i + 1, 1]); }
-function delRow(i) { gridRows.splice(i, 1); if (!gridRows.length) gridRows.push(gBlank()); gRender(); }
-function clearAll() { gridRows = [gBlank()]; document.getElementById('g_report').style.display = 'none'; gRender([0, 0]); }
-function validateAll() { gridRows.forEach(function(x) { x.g = {}; }); document.getElementById('g_report').style.display = 'none'; gValidate(); }
-
-/* ---- contrôles, totaux, passage au modèle « lots » utilisé par le PDF ---- */
-function gGuessCount() {
-  var n = 0;
-  gridRows.forEach(function(r) { GCOLS.forEach(function(c) { if (r.g && r.g[c.k] && r[c.k]) n++; }); });
-  return n;
-}
-function gValidate() {
-  var seen = {}, dup = {};
-  gridRows.forEach(function(r) { if (r.vin) { if (seen[r.vin]) dup[r.vin] = 1; seen[r.vin] = 1; } });
-  var nGuess = 0;
-  gridRows.forEach(function(r, i) {
-    var empty = gIsEmpty(r);
-    var vinBad = r.vin && (!VIN_RE.test(r.vin) || dup[r.vin]);
-    var mbiBad = r.mbi && !MBI_RE.test(r.mbi);
-    var miss = !empty && (!r.nature || !(parseFloat(r.poids) > 0));
-    document.querySelectorAll('#g_body input[data-r="' + i + '"]').forEach(function(el) {
-      var c = GCOLS[+el.dataset.c].k;
-      el.classList.toggle('bad', (c === 'vin' && !!vinBad) || (c === 'mbi' && !!mbiBad));
-      el.classList.toggle('miss', !empty && !r[c] && (c === 'nature' || c === 'poids'));
-      var gs = !!(r.g && r.g[c] && r[c]); el.classList.toggle('guess', gs); if (gs) nGuess++;
-    });
-    var dot = document.getElementById('gdot' + i);
-    if (dot) dot.className = 'g2-dot ' + (empty ? '' : (vinBad || mbiBad ? 'ko' : (miss ? 'w' : 'ok')));
-  });
-  var gw = document.getElementById('g_warn');
-  if (gw) { gw.style.display = nGuess ? 'block' : 'none'; gw.textContent = nGuess ? '⚠ ' + nGuess + ' cellule(s) orange à vérifier : modifiez la case concernée ou cliquez sur « Tout valider (orange) » pour pouvoir générer.' : ''; }
-  var vb = document.getElementById('g_valall'); if (vb) vb.textContent = '✓ Tout valider (orange)' + (nGuess ? ' · ' + nGuess : '');
-  gridChanged();
-}
-function syncMarc() {
-  var map = {}, order = [];
-  gridRows.forEach(function(r) {
-    if (gIsEmpty(r)) return;
-    var k = [r.nature, r.longueur, r.largeur, r.hauteur, r.poids].join('|');
-    if (!map[k]) { map[k] = { nature: r.nature, longueur: r.longueur, largeur: r.largeur, hauteur: r.hauteur, unit: parseFloat(r.poids) || 0, poidsTxt: r.poids, n: 0, vins: [], mbis: [] }; order.push(k); }
-    map[k].n++; if (r.vin) { map[k].vins.push(r.vin); map[k].mbis.push(r.mbi || ''); }
-  });
-  marchandises = order.map(function(k, i) {
-    var g = map[k];
-    return { id: i + 1, nature: g.nature, longueur: g.longueur, largeur: g.largeur, hauteur: g.hauteur,
-             poids: g.poidsTxt === '' ? '' : (Math.round(g.unit * g.n * 100) / 100).toFixed(2),   // poids du lot = somme des unités
-             colis: String(g.n), vins: g.vins, mbis: g.mbis };
-  });
-}
 function updateTotals() {
-  var c = 0, p = 0, v = 0;
-  gridRows.forEach(function(r) { if (!gIsEmpty(r)) { c++; p += parseFloat(r.poids) || 0; } if (r.vin) v++; });
+  var c = marchandises.reduce(function(s,m) { return s + (parseInt(m.colis)||0); }, 0);
+  var p = marchandises.reduce(function(s,m) { return s + (parseFloat(m.poids)||0); }, 0);
+  var v = marchandises.reduce(function(s,m) { return s + m.vins.filter(function(x){return x.trim();}).length; }, 0);
   document.getElementById('total_colis').textContent = c;
   document.getElementById('total_poids').textContent = p.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   document.getElementById('total_vin').textContent = v;
+  checkPdfBtn();
 }
-function gridChanged() { syncMarc(); updateTotals(); if (typeof checkPdfBtn === 'function') checkPdfBtn(); if (typeof refresh === 'function') refresh(); }
 
-/* ---- reprise d'un bon / d'une commande (lots → une ligne par unité) ---- */
-function renderMarc() {
-  gridRows = [];
-  (marchandises || []).forEach(function(m) {
-    var vins = (m.vins || []).filter(function(x) { return String(x).trim(); });
-    var n = Math.max(parseInt(m.colis) || 0, vins.length, 1);
-    var tot = parseFloat(m.poids) || 0, unit = n > 0 && tot ? (Math.round(tot / n * 100) / 100).toFixed(2) : '';
-    for (var i = 0; i < n; i++) {
-      var x = gBlank();
-      x.nature = m.nature || ''; x.vin = vins[i] || ''; x.mbi = (m.mbis && vins[i]) ? (m.mbis[i] || '') : '';
-      x.longueur = m.longueur || ''; x.largeur = m.largeur || ''; x.hauteur = m.hauteur || ''; x.poids = unit;
-      gridRows.push(x);
+// ── IMPORT TABLEAU (coller dans un tableau éditable) ──
+var pRows = [], pLots = [], pUnitInfo = { tonnes: false };
+var PCOLS = ['d', 'v', 'm', 'l', 'w', 'h', 'p'];
+function pBlank() { return { d: '', v: '', m: '', l: '', w: '', h: '', p: '' }; }
+function pnum(s) {
+  s = String(s == null ? '' : s).trim().replace(/\s/g, '').replace(',', '.');
+  if (s === '') return null;
+  var n = Number(s);
+  return isNaN(n) ? NaN : n;
+}
+function marcIsEmpty(m) { return !marcNonEmpty(m); }
+function openPaste() {
+  pRows = [pBlank()];
+  document.getElementById('paste_unit').value = 'auto';
+  document.getElementById('paste_mode').value = marchandises.every(marcIsEmpty) ? 'replace' : 'add';
+  pasteRender(); pasteMsg('');
+  document.getElementById('paste_modal').classList.add('open');
+  setTimeout(function() { var f = document.querySelector('#paste_grid input'); if (f) f.focus(); }, 50);
+}
+function closePaste() { document.getElementById('paste_modal').classList.remove('open'); }
+function pasteAddRow() { pRows.push(pBlank()); pasteRender(); }
+function pasteClear() { pRows = [pBlank()]; pasteRender(); pasteMsg(''); }
+// supprime les lignes vides en fin de tableau (en gardant une ligne pour pouvoir coller)
+function pasteTrim() { while (pRows.length > 1 && !PCOLS.some(function(k) { return String(pRows[pRows.length - 1][k]).trim(); })) pRows.pop(); }
+function pasteDel(i) { pRows.splice(i, 1); if (!pRows.length) pRows.push(pBlank()); pasteRender(); }
+
+function pasteRender() {
+  document.getElementById('paste_grid').innerHTML = pRows.map(function(r, i) {
+    var cells = PCOLS.map(function(k, c) {
+      return '<td><input class="' + ((k === 'v' || k === 'm') ? 'vin' : '') + '" data-r="' + i + '" data-c="' + c + '" value="' + esc(r[k]) + '" ' + (c >= 3 ? 'inputmode="decimal"' : '') + ' /><span class="grip" draggable="true" data-r="' + i + '" data-c="' + c + '" title="Glisser cette valeur vers une autre cellule">⠿</span></td>';
+    }).join('');
+    return '<tr><td class="n">' + (i + 1) + '</td>' + cells + '<td style="white-space:nowrap;"><button class="rm" title="Réaligner la ligne automatiquement" onclick="pasteRealignRow(' + i + ')">⇄</button><button class="rm" title="Supprimer la ligne" onclick="pasteDel(' + i + ')">×</button></td></tr>';
+  }).join('');
+  pastePreview();
+}
+
+// saisie dans une cellule
+document.getElementById('paste_grid').addEventListener('input', function(e) {
+  var t = e.target; if (t.dataset.r === undefined) return;
+  var k = PCOLS[+t.dataset.c];
+  if (k === 'd' || k === 'v' || k === 'm') { var pos = t.selectionStart; t.value = t.value.toUpperCase(); try { t.setSelectionRange(pos, pos); } catch(err) {} }
+  pRows[+t.dataset.r][k] = t.value;
+  pastePreview();
+});
+// collage multi-cellules (comme dans un tableur)
+document.getElementById('paste_grid').addEventListener('paste', function(e) {
+  var t = e.target; if (t.dataset.r === undefined) return;
+  var txt = (e.clipboardData || window.clipboardData).getData('text') || '';
+  if (txt.indexOf('\t') < 0 && txt.indexOf('\n') < 0) return;          // collage simple : comportement normal
+  e.preventDefault();
+  var lines = txt.replace(/\r/g, '').split('\n');
+  while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+  var c0 = +t.dataset.c, r0 = +t.dataset.r;
+  lines = lines.filter(function(l) { return !l.split('\t').some(function(x) { var u = x.trim().toUpperCase(); return u === 'VIN' || u === 'MBI'; }); });   // en-tête
+  while (pRows.length < r0 + lines.length) pRows.push(pBlank());
+  var realigned = 0, P6 = ['d', 'v', 'l', 'w', 'h', 'p'];
+  lines.forEach(function(line, i) {
+    var cells = line.split('\t');
+    if (c0 === 0) {                                      // collage depuis la 1re colonne : repérage automatique
+      var cs = cells.map(function(x) { return x.trim(); }), mi = -1, pos = pBlank();
+      for (var q = 0; q < cs.length; q++) { if (MBI_ANY.test(cs[q])) { mi = q; break; } }
+      if (mi >= 0) pos.m = cs.splice(mi, 1)[0].toUpperCase();
+      cs.forEach(function(val, j) { if (j > 5) return; var k = P6[j]; pos[k] = (k === 'd' || k === 'v') ? val.toUpperCase() : val; });
+      var sm = smartRow(cells);
+      if (sm) { if (JSON.stringify(sm) !== JSON.stringify(pos)) realigned++; pRows[r0 + i] = sm; return; }
+      var row0 = pRows[r0 + i];
+      P6.forEach(function(k, j) { if (j < cs.length) row0[k] = pos[k]; });
+      if (pos.m) row0.m = pos.m;
+      return;
     }
+    var row = pRows[r0 + i];
+    cells.forEach(function(val, j) {
+      var c = c0 + j; if (c > 6) return;
+      var k = PCOLS[c], v = val.trim();
+      row[k] = (k === 'd' || k === 'v' || k === 'm') ? v.toUpperCase() : v;
+    });
   });
-  if (!gridRows.length) gridRows.push(gBlank());
-  gRender();
-}
-function gridInit() { gridRows = [gBlank()]; gListModels(); gDragInit(); gRender(); }
+  pasteTrim();
+  pasteRender();
+  pasteMsg(realigned ? realigned + ' ligne(s) réalignée(s) automatiquement (description, VIN, MBI et poids repérés)' : '');
+});
 
-function gridMissing(p) {
-  var out = [];
-  gridRows.forEach(function(r, idx) {
-    if (gIsEmpty(r)) return;
-    if (!String(r.nature).trim()) out.push(p + ' — Nature (ligne ' + (idx + 1) + ')');
-    if (!(parseFloat(r.poids) > 0)) out.push(p + ' — Poids (ligne ' + (idx + 1) + ')');
+
+// ── Repérage automatique des colonnes (selon le contenu des cellules) ──
+var VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i;
+function pasteMsg(t) { var m = document.getElementById('paste_msg'); if (m) m.textContent = t || ''; }
+// cellules (dans l'ordre collé) -> { d, v, l, w, h, p } ; null si aucun VIN n'est reconnu
+function smartRow(cells) {
+  cells = cells.map(function(x) { return String(x == null ? '' : x).trim(); });
+  var mbi = '';                                            // MBIxxxxxx : repéré où qu'il soit, puis retiré pour ne pas décaler les autres colonnes
+  for (var q = 0; q < cells.length; q++) { if (MBI_ANY.test(cells[q])) { mbi = cells[q].toUpperCase(); cells.splice(q, 1); break; } }
+  var vi = -1;
+  for (var i = 0; i < cells.length; i++) { if (VIN_RE.test(cells[i])) { vi = i; break; } }
+  if (vi < 0) return null;
+  var r = pBlank();
+  r.v = cells[vi].toUpperCase();
+  r.m = mbi;
+  var before = cells.slice(0, vi).filter(Boolean);
+  var bNums = [];                                          // nombres placés AVANT le VIN (ex. poids entre description et VIN)
+  var bText = before.filter(function(x) { return isNaN(pnum(x)); });
+  if (bText.length) before.forEach(function(x) { if (!isNaN(pnum(x))) bNums.push(x); });
+  else if (before.length) {                                // que des nombres : « 2008 » (entier) = description, les autres = valeurs
+    if (/^\d+$/.test(before[0])) { bText = [before[0]]; bNums = before.slice(1); } else bNums = before.slice();
+  }
+  var after = [];
+  cells.slice(vi + 1).forEach(function(x, off) { if (x) after.push({ off: off, val: x }); });
+  if (bText.length) r.d = bText.join(' ').toUpperCase();
+  else {                                                   // description placée après le VIN
+    var k = -1;
+    after.forEach(function(o, idx) { if (k < 0 && isNaN(pnum(o.val))) k = idx; });
+    if (k >= 0) { r.d = after[k].val.toUpperCase(); after.splice(k, 1); }
+  }
+  var nums = bNums.map(function(x, i) { return { off: i, val: x }; })
+    .concat(after.filter(function(o) { return !isNaN(pnum(o.val)); }).map(function(o) { return { off: o.off + bNums.length, val: o.val }; }));
+  if (nums.length) {
+    r.p = nums[nums.length - 1].val;                       // le dernier nombre est le poids
+    var dims = nums.slice(0, -1), keys = ['l', 'w', 'h'];
+    if (dims.length === 3) { r.l = dims[0].val; r.w = dims[1].val; r.h = dims[2].val; }
+    else {
+      var used = [false, false, false];
+      dims.forEach(function(o) {
+        var ix = (o.off <= 2 && !used[o.off]) ? o.off : used.indexOf(false);
+        if (ix >= 0) { used[ix] = true; r[keys[ix]] = o.val; }
+      });
+    }
+  }
+  return r;
+}
+function rowCells(row) { return ['d', 'v', 'l', 'w', 'h', 'p', 'm'].map(function(k) { return row[k]; }); }
+function pasteRealignRow(i) {
+  var r = smartRow(rowCells(pRows[i]));
+  if (r) { pRows[i] = r; pasteRender(); pasteMsg('Ligne ' + (i + 1) + ' réalignée'); }
+  else pasteMsg('Ligne ' + (i + 1) + ' : aucun VIN reconnu, réalignement impossible');
+}
+function pasteRealignAll() {
+  var n = 0;
+  pRows.forEach(function(row, i) {
+    var r = smartRow(rowCells(row));
+    if (r && JSON.stringify(r) !== JSON.stringify(row)) { pRows[i] = r; n++; }
   });
-  var ng = gGuessCount();
-  if (ng) out.push(p + ' — ' + ng + ' cellule(s) orange à valider (modifier la case ou « Tout valider »)');
-  return out;
+  pasteRender();
+  pasteMsg(n ? n + ' ligne(s) réalignée(s)' : 'Aucune ligne à réaligner');
 }
 
+// ── Glisser-déposer d'une valeur vers une autre cellule (échange si la cellule est occupée) ──
+(function() {
+  var grid = document.getElementById('paste_grid'), src = null;
+  grid.addEventListener('dragstart', function(e) {
+    var g = e.target.closest ? e.target.closest('.grip') : null;
+    if (!g) return;
+    var r = +g.dataset.r, c = +g.dataset.c;
+    if (!String(pRows[r][PCOLS[c]]).trim()) { e.preventDefault(); return; }
+    src = { r: r, c: c };
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', pRows[r][PCOLS[c]]); } catch(err) {}
+    g.parentNode.classList.add('dragging');
+  });
+  grid.addEventListener('dragover', function(e) {
+    if (!src) return;
+    var td = e.target.closest('td'); if (!td || !td.querySelector('input')) return;
+    e.preventDefault();
+    grid.querySelectorAll('td.drop').forEach(function(x) { x.classList.remove('drop'); });
+    td.classList.add('drop');
+  });
+  grid.addEventListener('dragleave', function(e) { var td = e.target.closest('td'); if (td) td.classList.remove('drop'); });
+  grid.addEventListener('dragend', function() { src = null; grid.querySelectorAll('td.drop,td.dragging').forEach(function(x) { x.classList.remove('drop', 'dragging'); }); });
+  grid.addEventListener('drop', function(e) {
+    if (!src) return;
+    var td = e.target.closest('td'), inp = td && td.querySelector('input'); if (!inp) return;
+    e.preventDefault();
+    var tr = +inp.dataset.r, tc = +inp.dataset.c, ks = PCOLS[src.c], kt = PCOLS[tc];
+    if (tr === src.r && tc === src.c) { src = null; pasteRender(); return; }
+    var a = pRows[src.r][ks], bb = pRows[tr][kt];
+    var up = function(k, v) { return (k === 'd' || k === 'v' || k === 'm') ? String(v).toUpperCase() : v; };
+    pRows[tr][kt] = up(kt, a);
+    pRows[src.r][ks] = up(ks, bb);
+    src = null; pasteRender();
+  });
+})();
+
+// classement : un lot par description + dimensions + poids différents
+function pastePreview() {
+  var box = document.getElementById('paste_preview'), st = document.getElementById('paste_status'), ok = document.getElementById('paste_ok');
+  var rows = pRows.filter(function(r) { return r.d.trim() || r.v.trim(); });
+  // doublons de VIN
+  var seen = {}, dup = 0;
+  rows = rows.filter(function(r) { var v = r.v.trim(); if (!v) return true; if (seen[v]) { dup++; return false; } seen[v] = 1; return true; });
+  // unité
+  var unit = document.getElementById('paste_unit').value;
+  var ps = rows.map(function(r) { return pnum(r.p); }).filter(function(p) { return p !== null && !isNaN(p); });
+  var tonnes = unit === 't' || (unit === 'auto' && ps.length > 0 && Math.max.apply(null, ps) < 100);
+  pUnitInfo.tonnes = tonnes;
+  // surlignage des cellules douteuses
+  var inputs = document.querySelectorAll('#paste_grid input'), badCells = 0;
+  inputs.forEach(function(inp) {
+    var r = +inp.dataset.r, c = +inp.dataset.c, val = pRows[r][PCOLS[c]], bad = false;
+    if (c === 1 && val.trim() && val.trim().length !== 17) bad = true;
+    if (c === 2 && val.trim() && !MBI_RE.test(val.trim())) bad = true;
+    if (c >= 3 && val.trim()) { var n = pnum(val); if (isNaN(n)) bad = true; else if (c <= 5 && n > 20) bad = true; }
+    if (c === 6 && !val.trim() && ps.length > 0 && (pRows[r].d.trim() || pRows[r].v.trim())) bad = true;   // poids manquant
+    inp.classList.toggle('bad', bad); if (bad) badCells++;
+  });
+  // lots
+  var map = {}, order = [];
+  rows.forEach(function(r) {
+    var l = pnum(r.l), w = pnum(r.w), h = pnum(r.h), p = pnum(r.p);
+    [l, w, h, p] = [l, w, h, p].map(function(x) { return (x === null || isNaN(x)) ? null : x; });
+    var kg = p === null ? null : Math.round(p * (tonnes ? 1000 : 1) * 100) / 100;
+    var key = [r.d.trim(), l, w, h, kg].join('|');
+    if (!map[key]) { map[key] = { nature: r.d.trim(), l: l, w: w, h: h, poids: kg, n: 0, vins: [], mbis: [] }; order.push(key); }
+    map[key].n++; if (r.v.trim()) { map[key].vins.push(r.v.trim()); map[key].mbis.push((r.m || '').trim()); }
+  });
+  pLots = order.map(function(k) { return map[k]; });
+  if (!pLots.length) {
+    box.innerHTML = '<div class="pp-note">Le classement des marchandises s’affichera ici.</div>';
+    st.textContent = ''; st.className = 'modal-status'; ok.disabled = true; ok.style.opacity = '.4'; return;
+  }
+  var f2 = function(x) { return x === null ? '' : x.toFixed(3); }, noW = 0;
+  var ro = function(label, val) { return '<div class="field"><label>' + label + '</label><input type="text" disabled value="' + esc(val) + '" /></div>'; };
+  var html = pLots.map(function(g) {
+    if (g.poids === null) noW++;
+    var vinOk = g.vins.length === g.n;
+    var badge = g.vins.length ? '<span class="vin-badge' + (vinOk ? '' : ' warn') + '">' + 'VIN / MBI (' + g.vins.length + '/' + g.n + ')' + (vinOk ? ' ✓' : '') + '</span>' : '';
+    var chips = g.vins.map(function(v, vi) {
+      var ok = v.length === 17, mb = g.mbis[vi] || '', mok = !mb || MBI_RE.test(mb);
+      return '<div style="display:flex;align-items:center;gap:6px;"><span style="flex:1;="font-family:\'IBM Plex Mono\',monospace;font-size:14px;padding:2px 7px;border-radius:2px;background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.05em;">' + esc(v) + '</span><span class="mbi-tag' + (mb ? (mok ? '' : ' bad') : ' empty') + '">' + (mb ? esc(mb) : 'MBI') + '</span></div>';
+    }).join('');
+    return '<div class="marc-item" style="animation:none;">' +
+      '<div style="display:grid;grid-template-columns:3fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr;gap:10px;margin-bottom:10px;">' +
+        ro('Nature de la marchandise', g.nature) + ro('Longueur (m)', f2(g.l)) + ro('Largeur (m)', f2(g.w)) + ro('Hauteur (m)', f2(g.h)) +
+        ro('Poids (kg)', g.poids === null ? '' : g.poids.toFixed(2)) + ro('Colis', String(g.n)) +
+      '</div><div>' + badge + '</div>' +
+      (chips ? '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);"><div style="display:flex;flex-direction:column;gap:4px;">' + chips + '</div></div>' : '') +
+    '</div>';
+  }).join('');
+  box.innerHTML = '<div class="pp-note" style="margin-top:14px;">Aperçu du bon de livraison — comme si chaque lot était saisi à la main</div>' + html +
+    '<div class="pp-note">Poids lus en ' + (tonnes ? 'tonnes (× 1000)' : 'kilogrammes') + (dup ? ' · ' + dup + ' doublon(s) de VIN ignoré(s)' : '') + '</div>' +
+    (badCells ? '<div class="pp-warn">' + badCells + ' cellule(s) à vérifier (en rouge) : VIN ≠ 17 caractères, MBI ≠ MBI + 6 caractères, valeur non numérique, poids manquant ou dimension > 20 (valeur décalée ?).</div>' : '') +
+    (noW ? '<div class="pp-warn">' + noW + ' lot(s) sans poids : à compléter avant de générer le bon.</div>' : '');
+  st.textContent = rows.length + ' ligne(s) → ' + pLots.length + ' lot(s)'; st.className = 'modal-status ok';
+  ok.disabled = false; ok.style.opacity = '1';
+}
+
+function applyPaste() {
+  if (!pLots.length) return;
+  var keep = document.getElementById('paste_mode').value === 'add' ? marchandises.filter(function(m) { return !marcIsEmpty(m); }) : [];
+  var f2 = function(x) { return x === null ? '' : x.toFixed(3); };
+  pLots.forEach(function(g) {
+    marcCounter++;
+    keep.push({ id: marcCounter, nature: g.nature, longueur: f2(g.l), largeur: f2(g.w), hauteur: f2(g.h),
+                poids: g.poids === null ? '' : g.poids.toFixed(2), colis: String(g.n), vins: g.vins.slice(), mbis: g.mbis.slice() });
+  });
+  marchandises = keep;
+  closePaste(); renderMarc(); updateTotals(); if (typeof checkPdfBtn === 'function') checkPdfBtn();
+  showToast('✓ ' + pLots.length + ' lot(s) importé(s)');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDim(input, id, key) {
+  var val = parseFloat(input.value);
+  if (!isNaN(val)) {
+    var formatted = val.toFixed(key === 'poids' ? 2 : 3);
+    input.value = formatted;
+    setField(id, key, formatted);
+  }
+}
+
+// ── VIN MODAL ──
+function openVinModal(id) {
+  currentVinId = id;
+  var m = getMarc(id);
+  var idx = marchandises.indexOf(m) + 1;
+  document.getElementById('modal_title').textContent = 'Numéros VIN / MBI — Lot ' + idx;
+  document.getElementById('vin_expected').textContent = parseInt(m.colis) || 0;
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+  document.getElementById('vin_modal').classList.add('open');
+}
+
+function closeVinModal() {
+  document.getElementById('vin_modal').classList.remove('open');
+  currentVinId = null;
+}
+
+function renderVinChips(vins) {
+  var container = document.getElementById('vin_inputs'), m = getMarc(currentVinId);
+  if (!vins || vins.length === 0) { container.innerHTML = ''; return; }
+  var chips = vins.map(function(v, i) {
+    var ok = v.trim().length === 17, mb = m ? mbiOf(m, i) : '', mok = !mb || MBI_RE.test(mb);
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+      '<span ondblclick="editVinChip(' + i + ',this,\'v\')" title="Double-clic pour modifier" style="cursor:text;font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:4px 10px;border-radius:2px;flex:1;' +
+        'background:' + (ok ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.12)') + ';' +
+        'border:1px solid ' + (ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)') + ';' +
+        'color:' + (ok ? 'var(--green)' : 'var(--red)') + ';letter-spacing:0.06em;">' +
+        '<span style="color:var(--muted);margin-right:8px;">' + (i+1) + '.</span>' + esc(v) +
+      '</span>' +
+      '<span class="mbi-tag' + (mb ? (mok ? '' : ' bad') : ' empty') + '" ondblclick="editVinChip(' + i + ',this,\'m\')" title="Double-clic pour ' + (mb ? 'modifier' : 'ajouter') + ' le MBI" style="font-size:11px;padding:4px 10px;">' + (mb ? esc(mb) : 'MBI') + '</span>' +
+      '<button class="vin-del" onclick="removeVinChip(' + i + ')">×</button>' +
+    '</div>';
+  }).join('');
+  container.innerHTML = chips;
+}
+
+
+// ── Modifier / supprimer un VIN directement ──
+function removeVinFromLot(id, i) {
+  var m = getMarc(id); if (!m) return;
+  spliceVin(m, i); renderMarc(); updateTotals();
+}
+// double-clic sur un VIN (f='v') ou un MBI (f='m') d'une carte
+function editCardField(span, f) {
+  var row = span.closest('.vchip'); if (!row || span.querySelector('input')) return;
+  var m = getMarc(+row.dataset.id), i = +row.dataset.i; if (!m) return;
+  var old = f === 'v' ? m.vins[i] : mbiOf(m, i), inp = document.createElement('input'), done = false;
+  inp.className = 'vin-edit'; inp.value = old; inp.maxLength = f === 'v' ? 30 : 15;
+  if (f === 'm') { inp.style.fontSize = '12px'; inp.placeholder = 'MBIxxxxxx'; }
+  span.innerHTML = ''; span.appendChild(inp); inp.focus(); inp.select();
+  function commit(save) {
+    if (done) return; done = true;
+    var nv = inp.value.trim().toUpperCase();
+    if (save && nv !== old) {
+      if (f === 'm') setMbi(m, i, nv);
+      else if (nv) {
+        if (m.vins.some(function(x, k) { return k !== i && x === nv; })) showToast('Ce VIN existe déjà dans ce lot');
+        else m.vins[i] = nv;
+      }
+    }
+    renderMarc(); updateTotals();
+  }
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') commit(true); else if (e.key === 'Escape') commit(false); });
+  inp.addEventListener('blur', function() { commit(true); });
+}
+// même chose dans la fenêtre « VIN / MBI »
+function editVinChip(i, span, f) {
+  f = f || 'v';
+  var m = getMarc(currentVinId); if (!m || span.querySelector('input')) return;
+  var old = f === 'v' ? m.vins[i] : mbiOf(m, i), inp = document.createElement('input'), done = false;
+  inp.className = 'vin-edit'; inp.value = old; inp.maxLength = f === 'v' ? 30 : 15; inp.style.fontSize = '11px';
+  if (f === 'm') inp.placeholder = 'MBIxxxxxx';
+  span.innerHTML = ''; span.appendChild(inp); inp.focus(); inp.select();
+  function commit(save) {
+    if (done) return; done = true;
+    var nv = inp.value.trim().toUpperCase();
+    if (save && nv !== old) {
+      if (f === 'm') setMbi(m, i, nv);
+      else if (nv) {
+        if (m.vins.some(function(x, k) { return k !== i && x === nv; })) showToast('Ce VIN existe déjà dans ce lot');
+        else m.vins[i] = nv;
+      }
+    }
+    renderVinChips(m.vins); updateModalStatus();
+  }
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') commit(true); else if (e.key === 'Escape') commit(false); });
+  inp.addEventListener('blur', function() { commit(true); });
+}
+
+function removeVinChip(idx) {
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  spliceVin(m, idx);
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function getModalVins() {
+  var m = getMarc(currentVinId);
+  return m ? m.vins.slice() : [];
+}
+
+function updateModalStatus() {
+  if (!currentVinId) return;
+  var m = getMarc(currentVinId);
+  var expected = parseInt(m.colis) || 0;
+  var filled = m.vins.length;
+  var st = document.getElementById('modal_status');
+  if (expected === 0) { st.textContent = ''; st.className = 'modal-status'; return; }
+  if (filled === expected) {
+    st.textContent = '✓ ' + filled + ' / ' + expected + ' VIN / MBI — OK';
+    st.className = 'modal-status ok';
+  } else {
+    st.textContent = filled + ' / ' + expected + ' VIN / MBI renseignés';
+    st.className = 'modal-status err';
+  }
+}
+
+function importBulkVin() {
+  var raw = document.getElementById('vin_bulk').value;
+  if (!raw.trim()) return;
+  var items = [];
+  raw.toUpperCase().split(/[\r\n]+/).forEach(function(line) {          // une ligne = un VIN (+ son MBI) ; plusieurs VIN sans MBI sur une ligne restent acceptés
+    var vs = [], ms = [];
+    line.split(/[\s,;|]+/).filter(Boolean).forEach(function(t) { if (MBI_ANY.test(t)) ms.push(t); else vs.push(t); });
+    vs.forEach(function(v, i) { items.push({ v: v, m: ms[i] || '' }); });
+  });
+  if (!items.length) return;
+  var m = getMarc(currentVinId);
+  if (!m) return;
+  items.forEach(function(it) {
+    var ix = m.vins.indexOf(it.v);
+    if (ix === -1) addVin(m, it.v, it.m);
+    else if (it.m && !mbiOf(m, ix)) setMbi(m, ix, it.m);
+  });
+  document.getElementById('vin_bulk').value = '';
+  renderVinChips(m.vins);
+  updateModalStatus();
+}
+
+function saveVin() {
+  closeVinModal();
+  renderMarc();
+  updateTotals();
+}
 
 
 function importFromBdl() {
@@ -807,7 +1052,12 @@ function missingList() {
   var n = vinCount();
   if (n === 0) m.push('Au moins un VIN');
   if (n > MAX) m.push('Maximum ' + MAX + ' véhicules (' + n + ' VIN saisis)');
-  m = m.concat(gridMissing('Marchandise'));
+  marchandises.forEach(function(x, idx) {
+    if (!marcNonEmpty(x)) return;
+    if (!x.nature.trim()) m.push('Marchandise — Nature (lot ' + (idx+1) + ')');
+    if (!(parseFloat(x.poids) > 0)) m.push('Marchandise — Poids (lot ' + (idx+1) + ')');
+    if (!(parseInt(x.colis) > 0)) m.push('Marchandise — Nombre de colis (lot ' + (idx+1) + ')');
+  });
   return m;
 }
 function dateWarning() {
@@ -1045,7 +1295,7 @@ function generatePVPDF() {
   baFinish(doc, fname);
 }
 
-gridInit();
+addMarchandise();
 refresh();
 
 // ── Bon de livraison associé (généré en même temps que la commande) ──
