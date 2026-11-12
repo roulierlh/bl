@@ -332,11 +332,11 @@ input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;bo
         </div>
       </div>
       <div class="section-body" style="flex:1;">
-        <div class="grid" style="grid-template-columns:repeat(6,1fr);gap:14px;align-items:end;">
-          <div class="field" style="grid-column:span 3;"><label>Transitaire au connaissement <span class="req">*</span></label><input type="text" id="transitaire" placeholder="Transitaire" class="uc" onblur="var d=document.getElementById('declarant');if(!d.value)d.value=this.value;" /></div>
-          <div class="field" style="grid-column:span 3;"><label>Déclarant <span class="req">*</span></label><input type="text" id="declarant" placeholder="Nom du déclarant" class="uc" /></div>
-          <div class="field" style="grid-column:span 2;"><label>Armement <span class="req">*</span></label><input type="text" id="armement" placeholder="ex : HOEGH" class="uc" /></div>
-          <div class="field" style="grid-column:span 2;"><label>Bon de livraison établi par <span class="req">*</span></label><input type="text" id="bdl_par" placeholder="Prénom Nom" class="uc" /></div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="field"><label>Transitaire au connaissement <span class="req">*</span></label><input type="text" id="transitaire" placeholder="Transitaire" class="uc" onblur="var d=document.getElementById('declarant');if(!d.value)d.value=this.value;" /></div>
+          <div class="field"><label>Déclarant <span class="req">*</span></label><input type="text" id="declarant" placeholder="Nom du déclarant" class="uc" /></div>
+          <div class="field"><label>Armement <span class="req">*</span></label><input type="text" id="armement" placeholder="ex : HOEGH" class="uc" /></div>
+          <div class="field"><label>Bon de livraison établi par <span class="req">*</span></label><input type="text" id="bdl_par" placeholder="Prénom Nom" class="uc" /></div>
           <div class="field" style="grid-column:span 2;"><label>Téléphone <span class="req">*</span></label><input type="tel" id="telephone" placeholder="+33 X XX XX XX XX" /></div>
         </div>
       </div>
@@ -1018,13 +1018,12 @@ function generatePDF() {
   y1 = cellH('Lieu de livraison', v('lieu_livraison').toUpperCase(), xL+3, halfW-4, y1);
   y1 = cellH('N° Réception', '', xL+3, halfW/3-2, y1);
   y1 = cellH('Date de réception', '', xL+halfW/3+2, halfW/3-2, y1-10);
-  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10) + 10;
+  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10);
 
   // Carte 2 : contenu
   y2 = row2H('Transitaire', v('transitaire').toUpperCase(), 'Déclarant', v('declarant').toUpperCase(), xR, y2, halfW);
   y2 = cellH('Armement', v('armement').toUpperCase(), xR+3, halfW-4, y2);
-  y2 = cellH('BDL établi par', v('bdl_par').toUpperCase(), xR+3, halfW-4, y2);
-  y2 = cellH('Téléphone', v('telephone'), xR+3, halfW-4, y2);
+  y2 = row2H('BDL établi par', v('bdl_par').toUpperCase(), 'Téléphone', v('telephone'), xR, y2, halfW);
 
   // Hauteur finale = max des deux colonnes
   y = Math.max(y1, y2) + 1;
