@@ -321,9 +321,9 @@ input:autofill,select:autofill{-webkit-text-fill-color:var(--white)!important;bo
       <div class="grid g2">
         <div class="field"><label>Client <span class="req">*</span></label><input type="text" id="p_client" class="uc" /></div>
         <div class="field"><label>Référence de facturation <span class="req">*</span></label><input type="text" id="p_ref" class="uc" /></div>
-        <div class="field"><label>Magasin de prise en charge <span class="req">*</span></label><input type="text" id="p_pickup" class="uc" /></div>
+        <div class="field"><label>Lieu de prise en charge <span class="req">*</span></label><input type="text" id="p_pickup" class="uc" /></div>
         <div class="field"><label>Adresse</label><input type="text" id="p_pickup_adr" class="uc" /></div>
-        <div class="field"><label>Magasin de livraison <span class="req">*</span></label><input type="text" id="p_deliv" class="uc" /></div>
+        <div class="field"><label>Lieu de livraison <span class="req">*</span></label><input type="text" id="p_deliv" class="uc" /></div>
         <div class="field"><label>Adresse</label><input type="text" id="p_deliv_adr" class="uc" /></div>
       </div>
     </div>
@@ -468,14 +468,14 @@ function vinCount() {
   return marchandises.reduce(function(s, m) { return s + (m.vins || []).filter(function(x) { return x.trim(); }).length; }, 0);
 }
 // ── MBI : tableau parallèle à m.vins (mbis[i] = MBI du VIN i) ──
-var MBI_RE = /^MBI[A-Z0-9]{6}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
+var MBI_RE = /^MBI[A-Z0-9]{6,}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
 function mbiOf(m, i) { return (m.mbis && m.mbis[i]) || ''; }
 function setMbi(m, i, v) { if (!m.mbis) m.mbis = []; while (m.mbis.length < m.vins.length) m.mbis.push(''); m.mbis[i] = v; }
 function spliceVin(m, i) { m.vins.splice(i, 1); if (m.mbis) m.mbis.splice(i, 1); }
 function addVin(m, v, mbi) { m.vins.push(v); setMbi(m, m.vins.length - 1, mbi || ''); }
 /* ===== TABLEAU DES UNITÉS (saisie manuelle + collage Excel combinés) ===== */
 var GRID_CFG = { mbi: true, key: 'bl_models' };
-var VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i, MBI_RE = /^MBI[A-Z0-9]{6}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
+var VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i, MBI_RE = /^MBI[A-Z0-9]{6,}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
 var DIM_RE = /^(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?$/;
 var NUM_RE = /^\d+(?:[ .,]\d+)*$/;
 var GCOLS = [{k:'nature'}, {k:'vin'}].concat(GRID_CFG.mbi ? [{k:'mbi'}] : []).concat([{k:'longueur',dec:3},{k:'largeur',dec:3},{k:'hauteur',dec:3},{k:'poids',dec:2}]);
@@ -725,7 +725,7 @@ function syncMarc() {
     if (gIsEmpty(r)) return;
     var k = [r.nature, r.longueur, r.largeur, r.hauteur, r.poids].join('|');
     if (!map[k]) { map[k] = { nature: r.nature, longueur: r.longueur, largeur: r.largeur, hauteur: r.hauteur, unit: parseFloat(r.poids) || 0, poidsTxt: r.poids, n: 0, vins: [], mbis: [] }; order.push(k); }
-    map[k].n++; if (r.vin) { map[k].vins.push(r.vin); map[k].mbis.push(r.mbi || ''); }
+    map[k].n++; if (r.vin || r.mbi) { map[k].vins.push(r.vin || ''); map[k].mbis.push(r.mbi || ''); }
   });
   marchandises = order.map(function(k, i) {
     var g = map[k];
@@ -747,12 +747,12 @@ function gridChanged() { syncMarc(); updateTotals(); if (typeof checkPdfBtn === 
 function renderMarc() {
   gridRows = [];
   (marchandises || []).forEach(function(m) {
-    var vins = (m.vins || []).filter(function(x) { return String(x).trim(); });
+    var vins = (m.vins || []).filter(function(x, i) { return String(x).trim() || ((m.mbis || [])[i] || '').trim(); });
     var n = Math.max(parseInt(m.colis) || 0, vins.length, 1);
     var tot = parseFloat(m.poids) || 0, unit = n > 0 && tot ? (Math.round(tot / n * 100) / 100).toFixed(2) : '';
     for (var i = 0; i < n; i++) {
       var x = gBlank();
-      x.nature = m.nature || ''; x.vin = vins[i] || ''; x.mbi = (m.mbis && vins[i]) ? (m.mbis[i] || '') : '';
+      x.nature = m.nature || ''; x.vin = vins[i] || ''; x.mbi = (m.mbis && m.mbis[i]) ? m.mbis[i] : '';
       x.longueur = m.longueur || ''; x.largeur = m.largeur || ''; x.hauteur = m.hauteur || ''; x.poids = unit;
       gridRows.push(x);
     }
@@ -768,6 +768,7 @@ function gridMissing(p) {
     if (gIsEmpty(r)) return;
     if (!String(r.nature).trim()) out.push(p + ' — Nature (ligne ' + (idx + 1) + ')');
     if (!(parseFloat(r.poids) > 0)) out.push(p + ' — Poids (ligne ' + (idx + 1) + ')');
+    if (GRID_CFG.mbi && !MBI_RE.test(String(r.mbi).trim())) out.push(p + ' — MBI ' + (String(r.mbi).trim() ? 'invalide' : 'manquant') + ' (ligne ' + (idx + 1) + ')');
   });
   var ng = gGuessCount();
   if (ng) out.push(p + ' — ' + ng + ' cellule(s) orange à valider (modifier la case ou « Tout valider »)');
@@ -790,8 +791,8 @@ function missingList() {
   var m = [];
   if (!val('p_client')) m.push('Client');
   if (!val('p_ref')) m.push('Référence de facturation');
-  if (!val('p_pickup')) m.push('Magasin de prise en charge');
-  if (!val('p_deliv')) m.push('Magasin de livraison');
+  if (!val('p_pickup')) m.push('Lieu de prise en charge');
+  if (!val('p_deliv')) m.push('Lieu de livraison');
   if (!val('p_date')) m.push('Date de transfert souhaitée');
   if (!g('p_bas').checked) m.push('BAS / Annonce à joindre');
   var n = vinCount();
@@ -900,7 +901,7 @@ function marcPdf(doc, c, units) {
     if (c.y > 240) { c.end(); doc.addPage(); c.y = 14; c.start(); c.title(T + ' (suite)'); }
     var lotH = 16, lotY = c.y;
     var vl = [];                                           // paires { v: VIN, m: MBI }
-    (m.vins || []).forEach(function(x, i) { if (String(x).trim()) vl.push({ v: String(x).trim(), m: mbiOf(m, i).trim() }); });
+    (m.vins || []).forEach(function(x, i) { if (String(x).trim() || mbiOf(m, i).trim()) vl.push({ v: String(x).trim(), m: mbiOf(m, i).trim() }); });
     var hasMbi = vl.some(function(p) { return p.m; });
     var perRow = vl.length > 10 ? (hasMbi ? 2 : 4) : 1, rowH = 4.2, rowsN = Math.ceil(vl.length / perRow);
     var labH = vl.length ? 3.6 : 0;                        // ligne d'intitulé « VIN / MBI »
@@ -936,7 +937,7 @@ function marcPdf(doc, c, units) {
           for (var cc = 0; cc < perRow; cc++) {
             var ix = (startRow + rr) * perRow + cc;
             if (ix >= vl.length) break;
-            var vin = vl[ix].v, vok = vin.length === 17, tx = vx0 + cc * vcw, txt = (ix + 1) + '. ' + vin;
+            var vin = vl[ix].v, vok = vin.length === 17, tx = vx0 + cc * vcw, txt = (ix + 1) + '. ' + (vin || '—');
             doc.setFont('courier','bold'); doc.setFontSize(9);
             if (vok) doc.setTextColor(40,160,70); else doc.setTextColor(200,60,60);
             doc.text(txt, tx, c.y + 3);
@@ -985,8 +986,8 @@ function generatePVPDF() {
 
   c.start(); c.title('Client & Lieux');
   c.row2('Client', val('p_client'), 'Référence de facturation', val('p_ref'));
-  c.row2('Magasin de prise en charge', val('p_pickup'), 'Adresse', val('p_pickup_adr'));
-  c.row2('Magasin de livraison', val('p_deliv'), 'Adresse', val('p_deliv_adr'));
+  c.row2('Lieu de prise en charge', val('p_pickup'), 'Adresse', val('p_pickup_adr'));
+  c.row2('Lieu de livraison', val('p_deliv'), 'Adresse', val('p_deliv_adr'));
   c.end();
 
   c.start(); c.title('Documents & Date');
@@ -1132,13 +1133,12 @@ function generateBdlPDF() {
   y1 = cellH('Lieu de livraison', bv('lieu_livraison').toUpperCase(), xL+3, halfW-4, y1);
   y1 = cellH('N° Réception', '', xL+3, halfW/3-2, y1);
   y1 = cellH('Date de réception', '', xL+halfW/3+2, halfW/3-2, y1-10);
-  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10) + 10;
+  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10);
 
   // Carte 2 : contenu
   y2 = row2H('Transitaire', bv('transitaire').toUpperCase(), 'Déclarant', bv('declarant').toUpperCase(), xR, y2, halfW);
   y2 = cellH('Armement', bv('armement').toUpperCase(), xR+3, halfW-4, y2);
-  y2 = cellH('BDL établi par', bv('bdl_par').toUpperCase(), xR+3, halfW-4, y2);
-  y2 = cellH('Téléphone', bv('telephone'), xR+3, halfW-4, y2);
+  y2 = row2H('BDL établi par', bv('bdl_par').toUpperCase(), 'Téléphone', bv('telephone'), xR, y2, halfW);
 
   // Hauteur finale = max des deux colonnes
   y = Math.max(y1, y2) + 1;
@@ -1421,15 +1421,16 @@ function assocInit() {
   setTimeout(openAc, 350);
 }
 var AC_FIELDS = [
-  { id: 'p_pickup', label: 'Magasin de prise en charge', type: 'text', uc: true },
-  { id: 'p_deliv',  label: 'Magasin de livraison',       type: 'text', uc: true },
+  { id: 'p_pickup', label: 'Lieu de prise en charge', type: 'text', uc: true },
+  { id: 'p_deliv',  label: 'Lieu de livraison',       type: 'text', uc: true },
   { id: 'p_ref',    label: 'Référence de facturation',   type: 'text', uc: true },
   { id: 'p_date',   label: 'Date de transfert souhaitée', type: 'date' },
   { id: 'p_bas',    label: 'BAS / Annonce à joindre',    type: 'checkbox' }
 ];
 function acList() { return AC_FIELDS.filter(function(f) { var el = g(f.id); return f.type === 'checkbox' ? !el.checked : !el.value.trim(); }); }
+function acMbiRows() { var o = []; gridRows.forEach(function(r, i) { if (!gIsEmpty(r) && !MBI_RE.test(String(r.mbi).trim())) o.push(i); }); return o; }
 function openAc() {
-  var list = acList(); if (!list.length) return;
+  var list = acList(), mr = acMbiRows(); if (!list.length && !mr.length) return;
   var box = g('ac_fields'); box.innerHTML = '';
   list.forEach(function(f) {
     var d = document.createElement('div'); d.className = 'field';
@@ -1444,6 +1445,13 @@ function openAc() {
     d.innerHTML = '<label>' + f.label + ' <span class="req">*</span></label>' + ctl;
     box.appendChild(d);
   });
+  if (mr.length) {
+    var mb = document.createElement('div'); mb.style.gridColumn = 'span 2';
+    mb.innerHTML = '<div class="vin-info" style="margin:6px 0 8px;">MBI obligatoire pour chaque unité (MBI + au moins 6 caractères, ex : MBIAB1234)</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:38vh;overflow-y:auto;padding-right:4px;">' +
+      mr.map(function(i) { var r = gridRows[i]; return '<div class="field"><label>Ligne ' + (i + 1) + ' — ' + esc(r.nature || 'unité') + (r.vin ? ' · ' + esc(r.vin) : '') + ' <span class="req">*</span></label><input type="text" class="uc" id="acm_' + i + '" value="' + esc(r.mbi) + '" placeholder="MBI……" autocomplete="off" /></div>'; }).join('') + '</div>';
+    box.appendChild(mb);
+  }
   g('ac_status').textContent = '';
   g('ac_modal').classList.add('open');
 }
@@ -1458,7 +1466,16 @@ function applyAc() {
     t.value = f.uc ? x.toUpperCase() : x;
     t.dispatchEvent(new Event('input', { bubbles: true })); t.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  if (val('p_pickup') && val('p_pickup') === val('p_deliv') && g('addr_warn')) bad = "L'adresse de prise en charge et l'adresse de livraison doivent être différentes";
+  var mbBad = false;
+  acMbiRows().forEach(function(i) {
+    var el = g('acm_' + i); if (!el) return;
+    var x = el.value.trim().toUpperCase(); if (!x) return;
+    if (!MBI_RE.test(x)) { mbBad = true; return; }
+    gridRows[i].mbi = x; delete G(gridRows[i]).mbi;
+  });
+  if (mbBad) bad = 'MBI invalide : « MBI » suivi d\'au moins 6 caractères (ex : MBIAB1234)';
+  gRender();
+  if (!bad && val('p_pickup') && val('p_pickup') === val('p_deliv') && g('addr_warn')) bad = "Le lieu de prise en charge et le lieu de livraison doivent être différents";
   if (bad) { g('ac_status').textContent = bad; return; }
   closeAc(); refresh();
   var left = missingList().length;

@@ -607,7 +607,7 @@ document.addEventListener('input', function(e) {
 
 /* ===== TABLEAU DES UNITÉS (saisie manuelle + collage Excel combinés) ===== */
 var GRID_CFG = { mbi: /*MBI*/false, key: 'bl_models' };
-var VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i, MBI_RE = /^MBI[A-Z0-9]{6}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
+var VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i, MBI_RE = /^MBI[A-Z0-9]{6,}$/i, MBI_ANY = /^MBI[A-Z0-9]+$/i;
 var DIM_RE = /^(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?\s*[\/xX×*]\s*(\d+(?:[.,]\d+)?)\s*(?:m)?$/;
 var NUM_RE = /^\d+(?:[ .,]\d+)*$/;
 var GCOLS = [{k:'nature'}, {k:'vin'}].concat(GRID_CFG.mbi ? [{k:'mbi'}] : []).concat([{k:'longueur',dec:3},{k:'largeur',dec:3},{k:'hauteur',dec:3},{k:'poids',dec:2}]);

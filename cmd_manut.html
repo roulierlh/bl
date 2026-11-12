@@ -1088,13 +1088,12 @@ function generateBdlPDF() {
   y1 = cellH('Lieu de livraison', bv('lieu_livraison').toUpperCase(), xL+3, halfW-4, y1);
   y1 = cellH('N° Réception', '', xL+3, halfW/3-2, y1);
   y1 = cellH('Date de réception', '', xL+halfW/3+2, halfW/3-2, y1-10);
-  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10) + 10;
+  y1 = cellH('Poste à quai', '', xL+halfW/3*2+2, halfW/3-4, y1-10);
 
   // Carte 2 : contenu
   y2 = row2H('Transitaire', bv('transitaire').toUpperCase(), 'Déclarant', bv('declarant').toUpperCase(), xR, y2, halfW);
   y2 = cellH('Armement', bv('armement').toUpperCase(), xR+3, halfW-4, y2);
-  y2 = cellH('BDL établi par', bv('bdl_par').toUpperCase(), xR+3, halfW-4, y2);
-  y2 = cellH('Téléphone', bv('telephone'), xR+3, halfW-4, y2);
+  y2 = row2H('BDL établi par', bv('bdl_par').toUpperCase(), 'Téléphone', bv('telephone'), xR, y2, halfW);
 
   // Hauteur finale = max des deux colonnes
   y = Math.max(y1, y2) + 1;
@@ -1449,7 +1448,7 @@ function generateCommandePDF() {
       ['Fait par', v('c_fait_par').toUpperCase()], ['Client', v('c_client').toUpperCase()]]);
 
   marcPdf(doc, c);
-  textCard(doc, c, 'Désignation des travaux', v('c_designation').toUpperCase(), 8);
+  textCard(doc, c, 'Désignation des travaux', v('c_designation').toUpperCase(), 1);
   textCard(doc, c, 'Commentaire de la manutention', v('c_commentaire').toUpperCase(), 3);
 
   PK.footer(doc, assoc ? 'Commande Manutention Associée' : 'Commande de Manutention', numRef, dFr('c_date'));
