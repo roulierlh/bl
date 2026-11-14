@@ -776,7 +776,6 @@ function gridMissing(p) {
     if (gIsEmpty(r)) return;
     if (!String(r.nature).trim()) out.push(p + ' — Nature (ligne ' + (idx + 1) + ')');
     if (!(parseFloat(r.poids) > 0)) out.push(p + ' — Poids (ligne ' + (idx + 1) + ')');
-    if (GRID_CFG.mbi && !MBI_RE.test(String(r.mbi).trim())) out.push(p + ' — MBI ' + (String(r.mbi).trim() ? 'invalide' : 'manquant') + ' (ligne ' + (idx + 1) + ')');
   });
   var ng = gGuessCount();
   if (ng) out.push(p + ' — ' + ng + ' cellule(s) orange à valider (modifier la case ou « Tout valider »)');
@@ -1461,7 +1460,7 @@ var AC_FIELDS = [
   { id: 'p_bas',    label: 'BAS / Annonce à joindre',    type: 'checkbox' }
 ];
 function acList() { return AC_FIELDS.filter(function(f) { var el = g(f.id); return f.type === 'checkbox' ? !el.checked : !el.value.trim(); }); }
-function acMbiRows() { var o = []; gridRows.forEach(function(r, i) { if (!gIsEmpty(r) && !MBI_RE.test(String(r.mbi).trim())) o.push(i); }); return o; }
+function acMbiRows() { return []; }   // MBI facultatif sur le transfert parc
 function openAc() {
   var list = acList(), mr = acMbiRows(); if (!list.length && !mr.length) return;
   var box = g('ac_fields'); box.innerHTML = '';
